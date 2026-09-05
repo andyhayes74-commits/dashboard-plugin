@@ -1,13 +1,13 @@
-# Dashboard Plugin v2.9.0
+# Dashboard Plugin v2.9.1
 
-Dashboard Plugin v2.9.0 is a standalone WordPress shortcode plugin for creating multiple live dashboard metrics from published Google Sheets.
+Dashboard Plugin v2.9.1 is a standalone WordPress shortcode plugin for creating multiple live dashboard metrics from published Google Sheets.
 
 It does not load Elementor classes or widgets. Elementor can still be used as the page builder by placing each generated shortcode in a normal Elementor **Shortcode** widget.
 
 ## Branch and version
 
-- Branch: `v2.9.0`
-- Plugin version: `2.9.0`
+- Branch: `v2.9.1`
+- Plugin version: `2.9.1`
 - Settings page: **Settings → Dashboard Plugin**
 
 ## What changed
@@ -33,12 +33,14 @@ It does not load Elementor classes or widgets. Elementor can still be used as th
 - Added animated progress bars, arcs, batteries, pulses, and rising bars. Percentage graphics use the dashboard value divided by a configurable graphic maximum, capped between 0% and 100%.
 - Added a Marcham Community Fridge theme preset based on the supplied logo: orange, dark green, olive brand accents, and a bold condensed display font.
 - Added an animated vertical fundraising bar with configurable milestone percentages and labels, suitable for showing targets such as £0, a new toaster, and a new kettle.
+- Fundraising milestone controls are enabled only when the animated fundraising bar is selected.
+- Fundraising milestone labels receive an animated green tick when the current progress reaches or passes their percentage.
 
 ## Updating the existing plugin
 
 1. Back up the WordPress files and database first.
 2. In WordPress, go to **Plugins → Add New Plugin → Upload Plugin**.
-3. Upload the stable update package for the v2.9.0 release.
+3. Upload the stable update package for the v2.9.1 release.
 4. WordPress should identify it as the installed Dashboard Plugin and show the current and uploaded versions.
 5. Click **Replace current with uploaded**. This updates the existing plugin; it does not create a second copy, and the saved dashboard settings remain in WordPress.
 6. Return to **Plugins** and confirm Dashboard Plugin is active, then open **Settings → Dashboard Plugin**.
@@ -47,7 +49,7 @@ The release package contains the stable top-level folder `dashboard-plugin-main`
 
 If WordPress offers only a normal new installation or says that the destination folder already exists, cancel the upload. Do not activate a second Dashboard Plugin copy.
 
-Download: `https://github.com/andyhayes74-commits/dashboard-plugin/raw/refs/heads/v2.9.0/dashboard-plugin-main-v2.9.0.zip`
+Download: `https://github.com/andyhayes74-commits/dashboard-plugin/raw/refs/heads/v2.9.1/dashboard-plugin-main-v2.9.1.zip`
 
 ## Creating dashboards
 

@@ -443,6 +443,39 @@
 	white-space: nowrap;
 }
 
+.hayfam-dashboard-animated__fundraising-tick {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 1.35em;
+	height: 1.35em;
+	margin-left: 6px;
+	border-radius: 50%;
+	color: #ffffff;
+	background: #2f9e44;
+	font-size: 0.8em;
+	font-weight: 800;
+	line-height: 1;
+	opacity: 0;
+	transform: scale(0.3);
+}
+
+.hayfam-dashboard-animated__fundraising-marker--achieved .hayfam-dashboard-animated__fundraising-tick {
+	opacity: 1;
+	transform: scale(1);
+	animation: hayfam-dashboard-tick-in 0.55s ease-out both;
+}
+
+.hayfam-dashboard-milestones-fieldset {
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+
+.hayfam-dashboard-milestones-fieldset:disabled {
+	opacity: 0.55;
+}
+
 @keyframes hayfam-dashboard-grow-width {
 	from { transform: scaleX(0); }
 	to { transform: scaleX(1); }
@@ -466,6 +499,12 @@
 @keyframes hayfam-dashboard-marker-in {
 	from { opacity: 0; transform: translate(10px, 50%); }
 	to { opacity: 1; transform: translate(0, 50%); }
+}
+
+@keyframes hayfam-dashboard-tick-in {
+	0% { opacity: 0; transform: scale(0.3) rotate(-20deg); }
+	70% { opacity: 1; transform: scale(1.15) rotate(4deg); }
+	100% { opacity: 1; transform: scale(1) rotate(0); }
 }
 
 @keyframes hayfam-dashboard-pulse {

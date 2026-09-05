@@ -4,6 +4,7 @@
 	var form = document.getElementById('hayfam-dashboard-settings-form');
 	var output = document.getElementById('hayfam-dashboard-preview-output');
 	var widget = output ? output.querySelector('.hayfam-dashboard-metric') : null;
+	var milestoneFieldset = form ? form.querySelector('.hayfam-dashboard-milestones-fieldset') : null;
 
 	if (!form || !output || !widget) {
 		return;
@@ -258,11 +259,11 @@
 			});
 		}
 		if (type === 'fundraising_bar') {
-			updateFundraisingMilestones(existing);
+			updateFundraisingMilestones(existing, percent);
 		}
 	}
 
-	function updateFundraisingMilestones(graphic) {
+	function updateFundraisingMilestones(graphic, progressPercent) {
 		var container = graphic.querySelector('.hayfam-dashboard-animated__fundraising-milestones');
 		var rows = form.querySelectorAll('.hayfam-dashboard-milestone-row');
 		if (!container || !rows.length) {
@@ -288,11 +289,18 @@
 				var markerLabel = document.createElement('span');
 				markerLabel.className = 'hayfam-dashboard-animated__fundraising-label';
 				marker.appendChild(markerLabel);
+				var markerTick = document.createElement('span');
+				markerTick.className = 'hayfam-dashboard-animated__fundraising-tick';
+				markerTick.setAttribute('aria-hidden', 'true');
+				markerTick.textContent = '✓';
+				marker.appendChild(markerTick);
 				container.appendChild(marker);
 			}
 
 			marker.style.bottom = percent + '%';
 			marker.style.display = label ? 'flex' : 'none';
+			marker.setAttribute('data-milestone-percent', String(percent));
+			marker.classList.toggle('hayfam-dashboard-animated__fundraising-marker--achieved', progressPercent >= percent);
 			var markerText = marker.querySelector('.hayfam-dashboard-animated__fundraising-label');
 			if (markerText) {
 				markerText.textContent = label;
@@ -300,7 +308,18 @@
 		});
 	}
 
+	function updateMilestoneControls() {
+		if (!milestoneFieldset) {
+			return;
+		}
+
+		var enabled = getValue(fieldNames.animatedGraphic) === 'fundraising_bar';
+		milestoneFieldset.disabled = !enabled;
+		milestoneFieldset.setAttribute('aria-disabled', enabled ? 'false' : 'true');
+	}
+
 	function update() {
+		updateMilestoneControls();
 		var selectedTheme = themeValues[getValue(fieldNames.theme)] || {};
 		var prefix = getValue(fieldNames.prefix);
 		var suffix = getValue(fieldNames.suffix);
