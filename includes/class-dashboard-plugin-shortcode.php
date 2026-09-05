@@ -134,6 +134,16 @@ class Hayfam_Dashboard_Shortcode {
 				}
 				$output .= '</span>';
 				break;
+			case 'fundraising_bar':
+				$output .= '<span class="hayfam-dashboard-animated__fundraising-layout"><span class="hayfam-dashboard-animated__fundraising-track"><span class="hayfam-dashboard-animated__fundraising-fill"></span></span><span class="hayfam-dashboard-animated__fundraising-milestones">';
+				$milestones = isset( $dashboard['milestones'] ) && is_array( $dashboard['milestones'] ) ? $dashboard['milestones'] : array();
+				foreach ( $milestones as $index => $milestone ) {
+					$milestone_percent = max( 0, min( 100, (float) $milestone['percent'] ) );
+					$display = empty( $milestone['label'] ) ? 'none' : 'flex';
+					$output .= '<span class="hayfam-dashboard-animated__fundraising-marker" data-milestone-index="' . esc_attr( $index ) . '" style="bottom:' . esc_attr( $milestone_percent ) . '%;display:' . esc_attr( $display ) . '"><span class="hayfam-dashboard-animated__fundraising-label">' . esc_html( $milestone['label'] ) . '</span></span>';
+				}
+				$output .= '</span></span>';
+				break;
 		}
 
 		return $output . '</div>';

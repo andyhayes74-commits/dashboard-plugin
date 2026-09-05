@@ -368,6 +368,81 @@
 .hayfam-dashboard-animated__bars > span:nth-child(4) { animation-delay: 0.24s; }
 .hayfam-dashboard-animated__bars > span:nth-child(5) { animation-delay: 0.32s; }
 
+.hayfam-dashboard-animated--fundraising-bar {
+	width: min(100%, 360px);
+	min-height: 280px;
+	margin-bottom: 18px;
+}
+
+.hayfam-dashboard-animated__fundraising-layout {
+	position: relative;
+	display: block;
+	width: min(100%, 330px);
+	height: 260px;
+}
+
+.hayfam-dashboard-animated__fundraising-track {
+	position: absolute;
+	left: 50%;
+	bottom: 0;
+	width: 34px;
+	height: 100%;
+	overflow: hidden;
+	border-radius: 999px;
+	background: color-mix(in srgb, currentColor 16%, transparent);
+	transform: translateX(-50%);
+}
+
+.hayfam-dashboard-animated__fundraising-fill {
+	position: absolute;
+	left: 0;
+	bottom: 0;
+	display: block;
+	width: 100%;
+	height: var(--hayfam-dashboard-graphic-percent, 0%);
+	border-radius: inherit;
+	background: linear-gradient(to top, var(--hayfam-dashboard-value-color, #f36c0a), color-mix(in srgb, var(--hayfam-dashboard-value-color, #f36c0a) 60%, #ffffff));
+	transform-origin: bottom center;
+	animation: hayfam-dashboard-grow-height 1.2s ease-out both;
+}
+
+.hayfam-dashboard-animated__fundraising-milestones {
+	position: absolute;
+	inset: 0;
+}
+
+.hayfam-dashboard-animated__fundraising-marker {
+	position: absolute;
+	left: calc(50% + 28px);
+	display: flex;
+	align-items: center;
+	min-width: 130px;
+	min-height: 22px;
+	transform: translateY(50%);
+	animation: hayfam-dashboard-marker-in 0.7s ease-out both;
+}
+
+.hayfam-dashboard-animated__fundraising-marker::before {
+	content: "";
+	display: block;
+	width: 26px;
+	height: 2px;
+	margin-right: 8px;
+	background: currentColor;
+	opacity: 0.55;
+}
+
+.hayfam-dashboard-animated__fundraising-label {
+	padding: 4px 8px;
+	border-radius: 6px;
+	background: color-mix(in srgb, currentColor 10%, transparent);
+	color: inherit;
+	font-size: 0.78rem;
+	font-weight: 700;
+	line-height: 1.1;
+	white-space: nowrap;
+}
+
 @keyframes hayfam-dashboard-grow-width {
 	from { transform: scaleX(0); }
 	to { transform: scaleX(1); }
@@ -381,6 +456,16 @@
 @keyframes hayfam-dashboard-grow-bar {
 	from { transform: scaleY(0); }
 	to { transform: scaleY(1); }
+}
+
+@keyframes hayfam-dashboard-grow-height {
+	from { transform: scaleY(0); }
+	to { transform: scaleY(1); }
+}
+
+@keyframes hayfam-dashboard-marker-in {
+	from { opacity: 0; transform: translate(10px, 50%); }
+	to { opacity: 1; transform: translate(0, 50%); }
 }
 
 @keyframes hayfam-dashboard-pulse {

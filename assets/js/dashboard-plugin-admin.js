@@ -206,6 +206,19 @@
 				bars.appendChild(bar);
 			});
 			graphic.appendChild(bars);
+		} else if (type === 'fundraising_bar') {
+			var layout = document.createElement('span');
+			layout.className = 'hayfam-dashboard-animated__fundraising-layout';
+			var fundraisingTrack = document.createElement('span');
+			fundraisingTrack.className = 'hayfam-dashboard-animated__fundraising-track';
+			var fundraisingFill = document.createElement('span');
+			fundraisingFill.className = 'hayfam-dashboard-animated__fundraising-fill';
+			fundraisingTrack.appendChild(fundraisingFill);
+			var milestones = document.createElement('span');
+			milestones.className = 'hayfam-dashboard-animated__fundraising-milestones';
+			layout.appendChild(fundraisingTrack);
+			layout.appendChild(milestones);
+			graphic.appendChild(layout);
 		}
 
 		return graphic;
@@ -244,6 +257,47 @@
 				}
 			});
 		}
+		if (type === 'fundraising_bar') {
+			updateFundraisingMilestones(existing);
+		}
+	}
+
+	function updateFundraisingMilestones(graphic) {
+		var container = graphic.querySelector('.hayfam-dashboard-animated__fundraising-milestones');
+		var rows = form.querySelectorAll('.hayfam-dashboard-milestone-row');
+		if (!container || !rows.length) {
+			return;
+		}
+
+		var markers = container.querySelectorAll('.hayfam-dashboard-animated__fundraising-marker');
+		Array.prototype.forEach.call(rows, function (row, index) {
+			var percentField = row.querySelector('.hayfam-dashboard-milestone-percent');
+			var labelField = row.querySelector('.hayfam-dashboard-milestone-label');
+			var label = labelField ? labelField.value.trim() : '';
+			var percent = parseFloat(percentField ? percentField.value : '0');
+			if (isNaN(percent)) {
+				percent = 0;
+			}
+			percent = Math.max(0, Math.min(100, percent));
+
+			var marker = markers[index];
+			if (!marker) {
+				marker = document.createElement('span');
+				marker.className = 'hayfam-dashboard-animated__fundraising-marker';
+				marker.setAttribute('data-milestone-index', String(index));
+				var markerLabel = document.createElement('span');
+				markerLabel.className = 'hayfam-dashboard-animated__fundraising-label';
+				marker.appendChild(markerLabel);
+				container.appendChild(marker);
+			}
+
+			marker.style.bottom = percent + '%';
+			marker.style.display = label ? 'flex' : 'none';
+			var markerText = marker.querySelector('.hayfam-dashboard-animated__fundraising-label');
+			if (markerText) {
+				markerText.textContent = label;
+			}
+		});
 	}
 
 	function update() {

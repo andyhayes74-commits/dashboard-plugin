@@ -67,6 +67,13 @@ class Hayfam_Dashboard_Settings {
 			'theme_preset'    => 'none',
 			'animated_graphic' => 'none',
 			'graphic_max'     => '100',
+			'milestones'      => array(
+				array( 'percent' => '0',   'label' => '£0' ),
+				array( 'percent' => '25',  'label' => '' ),
+				array( 'percent' => '50',  'label' => '' ),
+				array( 'percent' => '75',  'label' => '' ),
+				array( 'percent' => '100', 'label' => '' ),
+			),
 		);
 	}
 
@@ -98,6 +105,7 @@ class Hayfam_Dashboard_Settings {
 			$dashboard['label']   = sanitize_text_field( $dashboard['label'] );
 			$dashboard['shortcode'] = sanitize_key( $dashboard['shortcode'] );
 			$dashboard['line_height'] = self::sanitize_css_line_height( $dashboard['line_height'] );
+			$dashboard['milestones'] = self::sanitize_milestones( $dashboard['milestones'] );
 
 			if ( ! $dashboard['shortcode'] || 'dashboard_metric' === $dashboard['shortcode'] ) {
 				$dashboard['shortcode'] = 'dashboard_' . $id;
@@ -269,7 +277,7 @@ class Hayfam_Dashboard_Settings {
 		$message    = isset( $_GET['message'] ) ? sanitize_key( wp_unslash( $_GET['message'] ) ) : '';
 		?>
 		<div class="wrap">
-			<h1><?php echo esc_html__( 'Dashboard Plugin v2.8.0', 'dashboard-plugin' ); ?></h1>
+			<h1><?php echo esc_html__( 'Dashboard Plugin v2.9.0', 'dashboard-plugin' ); ?></h1>
 			<p><?php echo esc_html__( 'Create a separate tab and shortcode for each live dashboard metric.', 'dashboard-plugin' ); ?></p>
 
 			<h2 class="nav-tab-wrapper">
@@ -351,6 +359,7 @@ class Hayfam_Dashboard_Settings {
 					<tr><th scope="row"><label for="hayfam-dashboard-widget-graphic"><?php echo esc_html__( 'Decorative graphic', 'dashboard-plugin' ); ?></label></th><td><select id="hayfam-dashboard-widget-graphic" name="dashboard[widget_graphic]"><?php foreach ( self::widget_graphic_options() as $widget_key => $widget_label ) : ?><option value="<?php echo esc_attr( $widget_key ); ?>" <?php selected( $current['widget_graphic'], $widget_key ); ?>><?php echo esc_html( $widget_label ); ?></option><?php endforeach; ?></select></td></tr>
 					<tr><th scope="row"><label for="hayfam-dashboard-animated-graphic"><?php echo esc_html__( 'Animated graphic', 'dashboard-plugin' ); ?></label></th><td><select id="hayfam-dashboard-animated-graphic" name="dashboard[animated_graphic]"><?php foreach ( self::animated_graphic_options() as $graphic_key => $graphic_label ) : ?><option value="<?php echo esc_attr( $graphic_key ); ?>" <?php selected( $current['animated_graphic'], $graphic_key ); ?>><?php echo esc_html( $graphic_label ); ?></option><?php endforeach; ?></select><p class="description"><?php echo esc_html__( 'Adds a data-driven graphic based on the dashboard value.', 'dashboard-plugin' ); ?></p></td></tr>
 					<tr><th scope="row"><label for="hayfam-dashboard-graphic-max"><?php echo esc_html__( 'Graphic maximum', 'dashboard-plugin' ); ?></label></th><td><input id="hayfam-dashboard-graphic-max" class="small-text" type="text" name="dashboard[graphic_max]" value="<?php echo esc_attr( $current['graphic_max'] ); ?>" placeholder="100"><p class="description"><?php echo esc_html__( 'Percentage graphics use dashboard value ÷ this maximum. For example, 75 with a maximum of 100 gives 75%.', 'dashboard-plugin' ); ?></p></td></tr>
+					<tr><th scope="row"><?php echo esc_html__( 'Fundraising milestones', 'dashboard-plugin' ); ?></th><td><?php foreach ( $current['milestones'] as $milestone_index => $milestone ) : ?><p class="hayfam-dashboard-milestone-row"><label for="hayfam-dashboard-milestone-<?php echo esc_attr( $milestone_index ); ?>-percent"><?php echo esc_html__( 'Level', 'dashboard-plugin' ); ?> <input id="hayfam-dashboard-milestone-<?php echo esc_attr( $milestone_index ); ?>-percent" class="small-text hayfam-dashboard-milestone-percent" type="text" name="dashboard[milestones][<?php echo esc_attr( $milestone_index ); ?>][percent]" value="<?php echo esc_attr( $milestone['percent'] ); ?>" inputmode="decimal">%</label> <label for="hayfam-dashboard-milestone-<?php echo esc_attr( $milestone_index ); ?>-label"><?php echo esc_html__( 'Label', 'dashboard-plugin' ); ?> <input id="hayfam-dashboard-milestone-<?php echo esc_attr( $milestone_index ); ?>-label" class="regular-text hayfam-dashboard-milestone-label" type="text" name="dashboard[milestones][<?php echo esc_attr( $milestone_index ); ?>][label]" value="<?php echo esc_attr( $milestone['label'] ); ?>" placeholder="e.g. New toaster"></label></p><?php endforeach; ?><p class="description"><?php echo esc_html__( 'These labels are used by the animated fundraising bar. Set a percentage from 0 to 100 and leave a label blank to hide that marker.', 'dashboard-plugin' ); ?></p></td></tr>
 				</table>
 
 				<h2><?php echo esc_html__( 'Formatting and caching', 'dashboard-plugin' ); ?></h2>
@@ -529,7 +538,32 @@ class Hayfam_Dashboard_Settings {
 			'battery'      => __( 'Animated battery', 'dashboard-plugin' ),
 			'pulse'        => __( 'Animated pulse', 'dashboard-plugin' ),
 			'bars'         => __( 'Animated rising bars', 'dashboard-plugin' ),
+			'fundraising_bar' => __( 'Animated fundraising bar', 'dashboard-plugin' ),
 		);
+	}
+
+	private static function sanitize_milestones( $milestones ) {
+		$defaults = self::dashboard_defaults()['milestones'];
+		$input    = is_array( $milestones ) ? $milestones : array();
+		$result   = array();
+
+		foreach ( $defaults as $index => $default ) {
+			$item    = isset( $input[ $index ] ) && is_array( $input[ $index ] ) ? $input[ $index ] : array();
+			$percent = isset( $item['percent'] ) ? trim( sanitize_text_field( (string) $item['percent'] ) ) : $default['percent'];
+			$label   = isset( $item['label'] ) ? sanitize_text_field( $item['label'] ) : $default['label'];
+
+			if ( ! preg_match( '/^[0-9]+(?:\.[0-9]+)?$/', $percent ) ) {
+				$percent = $default['percent'];
+			}
+
+			$percent = (string) max( 0, min( 100, (float) $percent ) );
+			$result[] = array(
+				'percent' => $percent,
+				'label'   => $label,
+			);
+		}
+
+		return $result;
 	}
 
 	private static function sanitize_css_length( $value ) {
