@@ -2,16 +2,16 @@
 	'use strict';
 
 	function customProperty(element, name) {
-		return window.getComputedStyle(element).getPropertyValue(name).trim();
+		return element.style.getPropertyValue(name).trim() || window.getComputedStyle(element).getPropertyValue(name).trim();
 	}
 
-	function setResponsiveStyle(element, property, value) {
+	function setResponsiveStyle(element, property, value, removeWhenEmpty) {
 		if (!element) {
 			return;
 		}
 		if (value) {
 			element.style.setProperty(property, value, 'important');
-		} else {
+		} else if (removeWhenEmpty) {
 			element.style.removeProperty(property);
 		}
 	}
@@ -42,11 +42,11 @@
 		setResponsiveStyle(container, 'padding', padding);
 
 		var mobileWidth = isMobile ? customProperty(container, '--hayfam-dashboard-mobile-width') : '';
-		setResponsiveStyle(container, 'max-width', mobileWidth);
+		setResponsiveStyle(container, 'max-width', mobileWidth, true);
 
 		var graphicHeight = isMobile ? customProperty(container, '--hayfam-dashboard-mobile-graphic-height') : '';
-		setResponsiveStyle(container.querySelector('.hayfam-dashboard-animated__bars'), 'height', graphicHeight);
-		setResponsiveStyle(container.querySelector('.hayfam-dashboard-animated__fundraising-layout'), 'height', graphicHeight);
+		setResponsiveStyle(container.querySelector('.hayfam-dashboard-animated__bars'), 'height', graphicHeight, true);
+		setResponsiveStyle(container.querySelector('.hayfam-dashboard-animated__fundraising-layout'), 'height', graphicHeight, true);
 	}
 
 	function refreshDashboard(container) {
