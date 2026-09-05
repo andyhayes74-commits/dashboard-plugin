@@ -1,0 +1,23 @@
+.dashboard-metric {
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+	gap: 0;
+	box-sizing: border-box;
+}
+
+.dashboard-metric,
+.dashboard-metric * {
+	box-sizing: border-box;
+}
+
+.dashboard-metric__before,
+.dashboard-metric__value,
+.dashboard-metric__after {
+	min-width: 0;
+}
+
+.dashboard-metric__value {
+	display: block;
+}
+

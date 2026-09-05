@@ -12,9 +12,22 @@ The top text, live value and bottom text are independently configurable and inde
 
 ## Project status
 
-Planning and specification stage.
+The initial MVP is implemented on the `feature/elementor-dashboard-metric` branch.
 
-The README is the working specification for the first build.
+Implemented:
+
+- WordPress plugin foundation
+- Elementor `Dashboard Metric` widget
+- Three independently styled output areas
+- Published Google Sheet fetching
+- A1 cell selection
+- Prefix, suffix and number formatting
+- Server-side transient caching
+- Settings page and cache clearing
+- Fallback output and debug logging
+- Dependency notice when Elementor is unavailable
+
+The live Google Sheet connection still needs to be tested against the final published output sheet.
 
 ## Goal
 
