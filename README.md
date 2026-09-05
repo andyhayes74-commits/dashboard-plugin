@@ -1,13 +1,13 @@
-# Dashboard Plugin v2.1
+# Dashboard Plugin v2.2
 
-Dashboard Plugin v2.1 is a standalone WordPress shortcode plugin for creating multiple live dashboard metrics from published Google Sheets.
+Dashboard Plugin v2.2 is a standalone WordPress shortcode plugin for creating multiple live dashboard metrics from published Google Sheets.
 
 It does not load Elementor classes or widgets. Elementor can still be used as the page builder by placing each generated shortcode in a normal Elementor **Shortcode** widget.
 
 ## Branch and version
 
-- Branch: `v2.1-multiple-dashboards`
-- Plugin version: `2.1.0`
+- Branch: `v2.2`
+- Plugin version: `2.2.0`
 - Settings page: **Settings → Dashboard Plugin**
 
 ## What changed
@@ -18,18 +18,20 @@ It does not load Elementor classes or widgets. Elementor can still be used as th
 - New dashboards can be added or deleted from the settings page.
 - Existing v2 single-dashboard settings are migrated into the first dashboard tab.
 - The compatibility shortcode `[dashboard_metric]` remains available.
+- Each dashboard tab includes a preview using the last saved settings and live cached Sheet value.
 
-## Installation
+## Updating the existing plugin
 
-1. Leave your current v2 plugin active while installing the new ZIP. Do not delete it first, because its uninstall file removes the old settings option.
-2. Download the ZIP from the `v2.1-multiple-dashboards` branch.
-3. In WordPress, open **Plugins → Add New → Upload Plugin**.
-4. Upload the ZIP. If WordPress reports that the plugin already exists, install the ZIP into a temporary plugin folder or rename the old plugin folder first without deleting it.
-5. Deactivate the old v2 plugin, then activate v2.1. The existing settings are copied automatically into v2.1's settings option.
-6. Open **Settings → Dashboard Plugin** and confirm the first tab works before deleting the old plugin copy.
-7. Keep only v2.1 active. Never leave two Dashboard Plugin versions active together.
+1. Back up the WordPress files and database first.
+2. In WordPress, go to **Plugins → Add New Plugin → Upload Plugin**.
+3. Upload the ZIP from the `v2.2` branch.
+4. WordPress should identify it as the installed Dashboard Plugin and show the current and uploaded versions.
+5. Click **Replace current with uploaded**. This updates the existing plugin; it does not create a second copy, and the saved dashboard settings remain in WordPress.
+6. Return to **Plugins** and confirm Dashboard Plugin is active, then open **Settings → Dashboard Plugin**.
 
-Download: `https://github.com/andyhayes74-commits/dashboard-plugin/archive/refs/heads/v2.1-multiple-dashboards.zip`
+If WordPress offers only a normal new installation or says that the destination folder already exists, cancel the upload. Do not activate a second Dashboard Plugin copy.
+
+Download: `https://github.com/andyhayes74-commits/dashboard-plugin/archive/refs/heads/v2.2.zip`
 
 ## Creating dashboards
 
