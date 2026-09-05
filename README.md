@@ -1,24 +1,24 @@
-# Dashboard Plugin v2.10.0
+# Dashboard Plugin v2.11.0
 
-Dashboard Plugin v2.10.0 is a standalone WordPress shortcode plugin for creating multiple live dashboard metrics from published Google Sheets.
+Dashboard Plugin v2.11.0 is a standalone WordPress shortcode plugin for creating multiple live dashboard metrics from published Google Sheets.
 
 It does not load Elementor classes or widgets. Elementor can still be used as the page builder by placing each generated shortcode in a normal Elementor **Shortcode** widget.
 
 ## Branch and version
 
-- Branch: `v2.10.0`
-- Plugin version: `2.10.0`
+- Branch: `v2.11.0`
+- Plugin version: `2.11.0`
 - Settings page: **Settings → Dashboard Plugin**
 
 ## What changed
 
 - Settings now has one tab per dashboard.
-- Each tab has its own Google Sheet URL, worksheet, cell, text, formatting, cache duration, and CSS class.
+- Each tab has its own Google Sheet URL, worksheet, cell, text, formatting, and CSS class.
 - Each dashboard receives a stable unique shortcode, for example `[dashboard_food_saved]`.
 - New dashboards can be added or deleted from the settings page.
 - Existing v2 single-dashboard settings are migrated into the first dashboard tab.
 - The compatibility shortcode `[dashboard_metric]` remains available.
-- Each dashboard tab includes a preview using the last saved settings and live cached Sheet value.
+- Each dashboard tab includes a preview using the last saved settings and the current Sheet value.
 - Existing dashboards can be duplicated from the settings page. A duplicate copies its source, text, override, formatting, and style settings and receives a new shortcode.
 - Saved dashboard styles are also written directly onto the rendered output, so they remain effective when a theme or page builder delays the plugin stylesheet.
 - Text and value sizes accept either a unit such as `24px` or a bare number such as `24`, which is saved as pixels.
@@ -41,7 +41,7 @@ It does not load Elementor classes or widgets. Elementor can still be used as th
 
 1. Back up the WordPress files and database first.
 2. In WordPress, go to **Plugins → Add New Plugin → Upload Plugin**.
-3. Upload the stable update package for the v2.10.0 release.
+3. Upload the stable update package for the v2.11.0 release.
 4. WordPress should identify it as the installed Dashboard Plugin and show the current and uploaded versions.
 5. Click **Replace current with uploaded**. This updates the existing plugin; it does not create a second copy, and the saved dashboard settings remain in WordPress.
 6. Return to **Plugins** and confirm Dashboard Plugin is active, then open **Settings → Dashboard Plugin**.
@@ -50,7 +50,7 @@ The release package contains the stable top-level folder `dashboard-plugin-main`
 
 If WordPress offers only a normal new installation or says that the destination folder already exists, cancel the upload. Do not activate a second Dashboard Plugin copy.
 
-Download: `https://github.com/andyhayes74-commits/dashboard-plugin/raw/refs/heads/v2.10.0/dashboard-plugin-main-v2.10.0.zip`
+Download: `https://github.com/andyhayes74-commits/dashboard-plugin/raw/refs/heads/v2.11.0/dashboard-plugin-main-v2.11.0.zip`
 
 ## Creating dashboards
 
@@ -154,7 +154,7 @@ The **Animated fundraising bar** grows upwards from zero. Its five milestone row
 
 The **Marcham Community Fridge** theme preset uses the logo-inspired palette: orange `#f36c0a`, dark green `#276b38`, and olive `#748b2b`. It uses a bold condensed display font with system fallbacks. Individual typography and colour fields can override the preset.
 
-The frontend performs a no-cache refresh request after the page loads. This allows dashboard settings to update without republishing the Elementor page, even when the page itself is cached. Google Sheet values still follow each dashboard's configured cache duration; use **Clear cached values** when an immediate source refresh is required.
+The frontend performs a no-cache refresh request after the page loads. This allows dashboard settings and Google Sheet values to update without republishing the Elementor page, even when the page itself is cached. The plugin now bypasses its old WordPress transient cache and requests the published Google Sheet again on every dashboard render and frontend refresh.
 
 Every dashboard still uses these classes:
 
@@ -181,7 +181,7 @@ The optional CSS class remains available for advanced styling or theme-specific 
 ## Technical notes
 
 - Requires WordPress 6.4+ and PHP 7.4+.
-- Values are cached per source, sheet, and cell.
-- Each dashboard has its own cache duration, defaulting to five minutes.
+- Google Sheet values are fetched again on every dashboard render and frontend refresh. The old five-minute WordPress transient cache is no longer used.
+- The published Google Sheet or an upstream CDN may still take time to expose a newly edited value; the plugin sends no-cache headers and a unique refresh parameter to reduce that possibility.
 - The plugin does not request Google credentials.
 - The plugin has no Elementor runtime dependency.
