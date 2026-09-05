@@ -85,10 +85,11 @@ class Hayfam_Dashboard_Shortcode {
 		$prefix    = $has_value ? sanitize_text_field( $attributes['prefix'] ) : '';
 		$suffix    = $has_value ? sanitize_text_field( $attributes['suffix'] ) : '';
 		$classes   = self::classes( $attributes['class'] );
+		$styles    = self::styles( $dashboard );
 
 		wp_enqueue_style( 'hayfam-dashboard-plugin' );
 
-		$output  = '<div class="' . esc_attr( implode( ' ', $classes ) ) . '">';
+		$output  = '<div class="' . esc_attr( implode( ' ', $classes ) ) . '"' . ( $styles ? ' style="' . esc_attr( $styles ) . '"' : '' ) . '>';
 		$output .= '<div class="hayfam-dashboard-metric__before">' . self::text( $attributes['before'] ) . '</div>';
 		$output .= '<div class="hayfam-dashboard-metric__value">' . esc_html( $prefix . $value . $suffix ) . '</div>';
 		$output .= '<div class="hayfam-dashboard-metric__after">' . self::text( $attributes['after'] ) . '</div>';
@@ -127,5 +128,51 @@ class Hayfam_Dashboard_Shortcode {
 		}
 
 		return array_unique( $classes );
+	}
+
+	private static function styles( $dashboard ) {
+		$font_families = array(
+			'inherit'   => 'inherit',
+			'system'    => 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+			'arial'     => 'Arial, Helvetica, sans-serif',
+			'georgia'   => 'Georgia, "Times New Roman", serif',
+			'courier'   => '"Courier New", Courier, monospace',
+			'trebuchet' => '"Trebuchet MS", Arial, sans-serif',
+			'verdana'   => 'Verdana, Arial, sans-serif',
+		);
+		$styles = array();
+
+		if ( isset( $font_families[ $dashboard['font_family'] ] ) && 'inherit' !== $dashboard['font_family'] ) {
+			$styles['--hayfam-dashboard-font-family'] = $font_families[ $dashboard['font_family'] ];
+		}
+
+		$properties = array(
+			'font_size'         => '--hayfam-dashboard-font-size',
+			'value_font_size'   => '--hayfam-dashboard-value-font-size',
+			'font_weight'       => '--hayfam-dashboard-font-weight',
+			'value_font_weight' => '--hayfam-dashboard-value-font-weight',
+			'line_height'       => '--hayfam-dashboard-line-height',
+			'text_align'        => '--hayfam-dashboard-text-align',
+			'before_color'      => '--hayfam-dashboard-before-color',
+			'value_color'       => '--hayfam-dashboard-value-color',
+			'after_color'       => '--hayfam-dashboard-after-color',
+			'background_color'  => '--hayfam-dashboard-background-color',
+			'gap'               => '--hayfam-dashboard-gap',
+			'padding'           => '--hayfam-dashboard-padding',
+			'border_radius'     => '--hayfam-dashboard-border-radius',
+		);
+
+		foreach ( $properties as $setting => $property ) {
+			if ( isset( $dashboard[ $setting ] ) && '' !== (string) $dashboard[ $setting ] ) {
+				$styles[ $property ] = sanitize_text_field( $dashboard[ $setting ] );
+			}
+		}
+
+		$output = array();
+		foreach ( $styles as $property => $value ) {
+			$output[] = $property . ':' . $value;
+		}
+
+		return implode( ';', $output );
 	}
 }
