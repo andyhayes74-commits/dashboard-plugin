@@ -50,7 +50,7 @@ The release package contains the stable top-level folder `dashboard-plugin-main`
 
 If WordPress offers only a normal new installation or says that the destination folder already exists, cancel the upload. Do not activate a second Dashboard Plugin copy.
 
-Download: `https://github.com/andyhayes74-commits/dashboard-plugin/raw/refs/heads/v2.11.0/dashboard-plugin-main-v2.11.0.zip`
+Download: `https://github.com/andyhayes74-commits/dashboard-plugin/raw/refs/heads/v2.11.1/dashboard-plugin-main-v2.11.1.zip`
 
 ## Creating dashboards
 
