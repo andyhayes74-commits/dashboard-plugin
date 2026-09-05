@@ -6,8 +6,8 @@ It does not load Elementor classes or widgets. Elementor can still be used as th
 
 ## Branch and version
 
-- Branch: `v2.9.1`
-- Plugin version: `2.9.1`
+- Branch: `main`
+- Latest plugin version: `2.9.1`
 - Settings page: **Settings → Dashboard Plugin**
 
 ## What changed
@@ -149,7 +149,7 @@ Widget styles include plain, soft card, outlined card, dark card, and gradient c
 
 Animated graphics include a progress bar, progress arc, battery, pulse, rising bars, and a fundraising bar. Set **Graphic maximum** to the target total for the metric. For example, a dashboard value of 75 with a maximum of 100 renders at 75%; a value of 105 with a maximum of 500 renders at 21%.
 
-The **Animated fundraising bar** grows upwards from zero. Its five milestone rows accept a percentage and label, so you can configure entries such as `0% — £0`, `25% — New toaster`, and `50% — New kettle`. Blank labels are hidden, and the labels update live in the settings preview.
+The **Animated fundraising bar** grows upwards from zero. Its five milestone rows accept a percentage and label, so you can configure entries such as `0% — £0`, `25% — New toaster`, and `50% — New kettle`. Blank labels are hidden. Each visible milestone receives an animated green tick when the current progress reaches or passes its percentage, and the labels and ticks update live in the settings preview. Milestone controls are enabled only when this animated graphic is selected.
 
 The **Marcham Community Fridge** theme preset uses the logo-inspired palette: orange `#f36c0a`, dark green `#276b38`, and olive `#748b2b`. It uses a bold condensed display font with system fallbacks. Individual typography and colour fields can override the preset.
 
@@ -180,5 +180,7 @@ The optional CSS class remains available for advanced styling or theme-specific 
 - Requires WordPress 6.4+ and PHP 7.4+.
 - Values are cached per source, sheet, and cell.
 - Each dashboard has its own cache duration, defaulting to five minutes.
+- Fundraising progress is calculated as the dashboard value divided by **Graphic maximum**, capped between 0% and 100%.
+- Milestone settings are retained if you temporarily switch to another animated graphic.
 - The plugin does not request Google credentials.
 - The plugin has no Elementor runtime dependency.
