@@ -1,48 +1,55 @@
-# Dashboard Plugin
+# Dashboard Plugin v2.1
 
-A lightweight WordPress plugin that adds an Elementor widget for displaying live figures from a published Google Sheet.
+Dashboard Plugin v2.1 is a standalone WordPress shortcode plugin for creating multiple live dashboard metrics from published Google Sheets.
 
-The first use case is a public-facing impact statement such as:
+It does not load Elementor classes or widgets. Elementor can still be used as the page builder by placing each generated shortcode in a normal Elementor **Shortcode** widget.
 
-> So far we have saved  
-> **194 KG**  
-> Of food from landfill
+## Branch and version
 
-The top text, live value and bottom text are independently configurable and independently styled inside Elementor.
+- Branch: `v2.1-multiple-dashboards`
+- Plugin version: `2.1.0`
+- Settings page: **Settings → Dashboard Plugin**
 
-## Project status
+## What changed
 
-The initial MVP is implemented on the `feature/elementor-dashboard-metric` branch.
+- Settings now has one tab per dashboard.
+- Each tab has its own Google Sheet URL, worksheet, cell, text, formatting, cache duration, and CSS class.
+- Each dashboard receives a stable unique shortcode, for example `[dashboard_food_saved]`.
+- New dashboards can be added or deleted from the settings page.
+- Existing v2 single-dashboard settings are migrated into the first dashboard tab.
+- The compatibility shortcode `[dashboard_metric]` remains available.
 
-Implemented:
+## Installation
 
-- WordPress plugin foundation
-- Elementor `Dashboard Metric` widget
-- Three independently styled output areas
-- Published Google Sheet fetching
-- A1 cell selection
-- Prefix, suffix and number formatting
-- Server-side transient caching
-- Settings page and cache clearing
-- Fallback output and debug logging
-- Dependency notice when Elementor is unavailable
+1. Leave your current v2 plugin active while installing the new ZIP. Do not delete it first, because its uninstall file removes the old settings option.
+2. Download the ZIP from the `v2.1-multiple-dashboards` branch.
+3. In WordPress, open **Plugins → Add New → Upload Plugin**.
+4. Upload the ZIP. If WordPress reports that the plugin already exists, install the ZIP into a temporary plugin folder or rename the old plugin folder first without deleting it.
+5. Deactivate the old v2 plugin, then activate v2.1. The existing settings are copied automatically into v2.1's settings option.
+6. Open **Settings → Dashboard Plugin** and confirm the first tab works before deleting the old plugin copy.
+7. Keep only v2.1 active. Never leave two Dashboard Plugin versions active together.
 
-The live Google Sheet connection still needs to be tested against the final published output sheet.
+Download: `https://github.com/andyhayes74-commits/dashboard-plugin/archive/refs/heads/v2.1-multiple-dashboards.zip`
 
-## Goal
+## Creating dashboards
 
-Create a reusable Elementor widget that:
+1. Open **Settings → Dashboard Plugin**.
+2. Configure the first dashboard tab.
+3. Click **+ Add dashboard** to create another tab.
+4. Give it a name, configure its Google Sheet and cell, and save it.
+5. Copy the shortcode shown in that tab.
 
-1. Retrieves a value from a public Google Sheet.
-2. Displays the value between two predetermined text blocks.
-3. Allows each text block and the value to be styled independently.
-4. Uses server-side fetching and short-term caching.
-5. Fails gracefully if the Google Sheet is temporarily unavailable.
-6. Does not require Google credentials or expose credentials to site visitors.
+Set the shortcode name in a tab to `dashboard_food_saved`. The plugin stores the shortcode separately from the dashboard display name, so renaming the dashboard does not change the shortcode. Duplicate names are automatically adjusted.
 
-## Expected output
+## Example
 
-Example:
+If the shortcode name is set to `dashboard_food_saved`, the plugin displays:
+
+```text
+[dashboard_food_saved]
+```
+
+With the default settings this produces:
 
 ```text
 So far we have saved
@@ -50,339 +57,90 @@ So far we have saved
 Of food from landfill
 ```
 
-Recommended Google Sheet setup:
+You can place the shortcode in Elementor's **Shortcode** widget, a WordPress Shortcode block, or another page builder's shortcode element.
 
-- Keep the detailed/master sheet private.
-- Create a separate `WebsiteData` tab or separate output spreadsheet.
-- Use formulas such as `IMPORTRANGE`, `QUERY` or `FILTER` to expose only the required non-sensitive result.
-- Publish only the output data to the web.
-- Store the numeric value as a number, for example `194`, rather than `194KG`.
-- Add the unit in the Elementor widget as a suffix, for example ` KG`.
+## Compatibility shortcode
 
-## Initial scope
-
-### WordPress plugin
-
-- Standard installable WordPress plugin.
-- Main plugin directory: `dashboard-plugin`.
-- No dependency on Bricks.
-- Designed for Elementor.
-- Compatible with Elementor Free where possible; do not require Elementor Pro-only APIs for the first version.
-- No Google OAuth or service-account integration in the initial version.
-
-### Google Sheets source
-
-The initial version will use a published Google Sheet or published CSV/Google visualisation endpoint.
-
-The plugin must:
-
-- Fetch data server-side with WordPress HTTP functions such as `wp_safe_remote_get()`.
-- Support a spreadsheet identifier or published sheet URL.
-- Support worksheet/tab selection.
-- Support A1-style cell references such as `B2`.
-- Read a single value for each widget instance.
-- Validate the response before displaying it.
-- Avoid exposing the source URL unnecessarily in frontend JavaScript.
-- Never require a Google API key for the public-sheet version.
-
-The implementation should allow the source configuration to be stored globally in WordPress, with optional per-widget overrides if practical.
-
-### Elementor widget
-
-Widget name: **Dashboard Metric**
-
-Elementor editor sections:
-
-#### Content
-
-- Before text
-  - Default: `So far we have saved`
-- Google Sheet source
-  - Use global source
-  - Optional source override
-- Worksheet/tab
-- Cell reference
-  - Example: `B2`
-- Value prefix
-  - Example: `£`
-- Value suffix
-  - Example: ` KG`
-- Number formatting
-  - Decimal places
-  - Thousands separator
-  - Decimal separator
-- After text
-  - Default: `Of food from landfill`
-- Fallback message
-  - Example: `Data currently unavailable`
-- Optional last-updated display
-
-#### Style
-
-Each of the three output areas must have separate Elementor controls:
-
-1. Before text
-2. Live value
-3. After text
-
-Each area should support, where Elementor provides the relevant control:
-
-- Typography
-- Font family
-- Font size
-- Font weight
-- Text transform
-- Font style
-- Text decoration
-- Text colour
-- Alignment
-- Line height
-- Letter spacing
-- Margin
-- Padding
-
-The overall widget should additionally support:
-
-- Container width and alignment
-- Background colour
-- Border
-- Border radius
-- Box shadow
-- Responsive controls
-- Optional gap between the three lines
-
-The widget must inherit Elementor's responsive behaviour rather than introducing a separate styling system.
-
-## Recommended markup
-
-The rendered output should use semantic, stable class names similar to:
-
-```html
-<div class="dashboard-metric">
-  <div class="dashboard-metric__before">So far we have saved</div>
-  <div class="dashboard-metric__value">
-    <span class="dashboard-metric__number">194</span>
-    <span class="dashboard-metric__suffix">KG</span>
-  </div>
-  <div class="dashboard-metric__after">Of food from landfill</div>
-</div>
-```
-
-Text entered through Elementor must be escaped or sanitised appropriately. Do not output unsanitised user-controlled HTML.
-
-## Data fetching and caching
-
-The plugin must not request Google Sheets directly from the visitor's browser unless there is a clear reason to do so.
-
-Recommended flow:
+The original generic shortcode still works and uses the first dashboard tab:
 
 ```text
-Visitor loads page
-        ↓
-WordPress checks transient cache
-        ↓
-If cache is valid, use cached value
-        ↓
-If expired, WordPress requests the published Google Sheet
-        ↓
-Plugin validates and stores the result
-        ↓
-Elementor widget renders the value
+[dashboard_metric]
 ```
 
-Requirements:
-
-- Default cache duration: 5 minutes.
-- Cache duration configurable in plugin settings.
-- Do not make a Google request on every page view.
-- Use a short timeout.
-- Keep the previous valid value available when a refresh fails, where practical.
-- Never expose raw request errors to public visitors.
-- Log useful errors only when WordPress debugging is enabled.
-
-This is near-live data, not guaranteed instant real-time data. Google publishing and caching may introduce a delay.
-
-## Plugin settings
-
-Add a WordPress settings page under a suitable admin menu, for example:
-
-**Settings → Dashboard Plugin**
-
-Initial settings:
-
-- Published Google Sheet URL or spreadsheet ID
-- Default worksheet/tab
-- Default cache duration
-- Enable/disable debug logging
-- Test connection button
-- Display connection status
-- Clear cached values button
-
-The settings page must:
-
-- Require an appropriate administrator capability.
-- Use WordPress settings APIs and nonces.
-- Sanitize and validate all saved values.
-- Avoid storing unnecessary credentials.
-- Clearly warn that published Google Sheet data is publicly accessible.
-
-## Error handling
-
-If the source cannot be read:
-
-- Do not display PHP warnings or raw API responses.
-- Show the configured fallback message.
-- Keep the last valid value where possible.
-- Add an admin/debug notice identifying the problem.
-- Handle:
-  - Invalid source URL
-  - Missing worksheet
-  - Invalid cell reference
-  - Empty cell
-  - Malformed CSV/JSON
-  - HTTP error
-  - Timeout
-  - Non-numeric data when numeric formatting is selected
-
-## Accessibility
-
-The widget should:
-
-- Use readable semantic markup.
-- Preserve sufficient colour contrast.
-- Not rely on colour alone.
-- Work with keyboard navigation where interactive controls are later added.
-- Avoid unnecessary ARIA attributes.
-- Allow the site owner to provide meaningful text.
-- Avoid animation by default.
-
-## Security
-
-The first version uses a deliberately public data source.
-
-The plugin must:
-
-- Never request or store a private Google service-account key in the initial version.
-- Never expose WordPress admin settings through the frontend.
-- Escape output.
-- Sanitize Elementor text fields and settings.
-- Validate remote URLs.
-- Use WordPress HTTP APIs.
-- Use nonces and capability checks for admin actions.
-- Avoid arbitrary remote URL fetching if it creates an SSRF risk; restrict or validate the supported Google URL formats.
-
-Only publish non-sensitive summary values. The public output sheet must not contain names, addresses, personal data, private financial information or formulas that reveal confidential information.
-
-## Suggested file structure
+To select a particular dashboard with the generic shortcode, use its dashboard ID:
 
 ```text
-dashboard-plugin/
-├── dashboard-plugin.php
-├── readme.md
-├── includes/
-│   ├── class-dashboard-plugin-settings.php
-│   ├── class-dashboard-plugin-sheets-client.php
-│   ├── class-dashboard-plugin-cache.php
-│   └── class-dashboard-plugin-elementor.php
-├── widgets/
-│   └── class-dashboard-metric-widget.php
-├── assets/
-│   ├── css/
-│   │   └── dashboard-plugin.css
-│   └── js/
-│       └── dashboard-plugin.js
-├── languages/
-└── tests/
+[dashboard_metric dashboard="food_saved"]
 ```
 
-The structure may be simplified during implementation if a smaller, clean plugin is more appropriate.
+The generated dashboard shortcode is preferred because it is clearer and does not depend on remembering the dashboard ID.
 
-## Build stages
+## Per-instance overrides
 
-### Stage 1 — Plugin foundation
+Generated shortcodes use the settings saved in their tab. You can override individual values when needed:
 
-- Add plugin header and constants.
-- Add activation/deactivation safety checks.
-- Check that Elementor is installed and active.
-- Show a clear admin notice if Elementor is unavailable.
-- Register the plugin settings page.
+```text
+[dashboard_food_saved cell="C5" suffix=" kg" class="large-impact-metric"]
+```
 
-### Stage 2 — Google Sheets client
+Supported attributes are:
 
-- Implement public-sheet request handling.
-- Implement worksheet and cell selection.
-- Add response parsing.
-- Add validation and error handling.
-- Add transient caching.
-- Add a connection test in settings.
+| Attribute | Purpose |
+| --- | --- |
+| `source_url` | Override the published Google Sheet URL. |
+| `sheet` | Override the worksheet/tab name. |
+| `cell` | Override the cell, such as `B2` or `C5`. |
+| `before` | Override the text above the value. |
+| `after` | Override the text below the value. |
+| `prefix` | Text immediately before the value. |
+| `suffix` | Text immediately after the value. |
+| `decimals` | Decimal places; `-1` preserves the source value. |
+| `thousands` | Thousands separator. |
+| `decimal` | Decimal separator. |
+| `fallback` | Text shown when the sheet cannot be read. |
+| `class` | Additional CSS class for this output. |
 
-### Stage 3 — Elementor widget
+## Google Sheet setup
 
-- Register the `Dashboard Metric` widget.
-- Add before text, value and after text controls.
-- Add prefix/suffix and number formatting.
-- Add independent Elementor typography/style controls.
-- Add responsive support.
-- Add fallback output.
+Each dashboard may use a different published sheet or a different tab/cell in the same spreadsheet. The source must be publicly published as CSV. Do not publish confidential information.
 
-### Stage 4 — Testing and packaging
+In Google Sheets:
 
-Test with:
+1. Open the output spreadsheet.
+2. Choose **File → Share → Publish to web**.
+3. Select the required tab and choose **Comma-separated values (.csv)**.
+4. Publish it and paste the spreadsheet URL into the relevant dashboard tab.
 
-- A numeric value.
-- A value with decimals.
-- A value with thousands separators.
-- A prefix and suffix.
-- An empty cell.
-- A missing worksheet.
-- An invalid cell reference.
-- A temporarily unavailable source.
-- A changed Google Sheet value.
-- Elementor responsive controls.
-- Elementor editor preview and published frontend.
-- Elementor Free, if supported.
-- WordPress debug mode enabled.
+A small public output sheet populated from a private working sheet is suitable when the public sheet contains only the final figures needed by the website.
 
-Package the final result as an installable ZIP with no development files that are not required for production.
+## Styling
 
-## Acceptance criteria
+Every dashboard uses these classes:
 
-The first release is complete when:
+- `.hayfam-dashboard-metric`
+- `.hayfam-dashboard-metric__before`
+- `.hayfam-dashboard-metric__value`
+- `.hayfam-dashboard-metric__after`
 
-- The plugin installs and activates without PHP errors.
-- Elementor recognises the **Dashboard Metric** widget.
-- The widget can display a value from the selected Google Sheet cell.
-- The output can contain editable text above and below the value.
-- The three sections can be styled independently in Elementor.
-- The value can have a prefix or suffix.
-- Numeric formatting works as configured.
-- Data is cached and does not trigger a Google request on every page view.
-- A failed request produces a controlled fallback message.
-- No Google credentials are exposed.
-- The plugin does not depend on Bricks.
-- The widget works in an Elementor page preview and on the published page.
-- The README and code document the required Google Sheet setup.
+Use the tab's optional CSS class to target one dashboard separately:
 
-## Future enhancements
+```css
+.large-impact-metric {
+  text-align: center;
+}
 
-Not part of the initial build, but the design should not prevent:
+.large-impact-metric .hayfam-dashboard-metric__value {
+  color: #2f855a;
+  font-size: 4rem;
+  font-weight: 700;
+  line-height: 1;
+}
+```
 
-- Multiple data points in one widget.
-- A reusable named metric library.
-- Private Google Sheets through a service account or OAuth.
-- Charts and historical values.
-- Percentage change indicators.
-- Automatic refresh through AJAX.
-- A last-updated timestamp.
-- REST API output.
-- Shortcode support.
-- Gutenberg block support.
-- Importing values from other public data sources.
+## Technical notes
 
-## Naming
-
-Working plugin name: **Dashboard Plugin**
-
-Working widget name: **Dashboard Metric**
-
-Repository: `dashboard-plugin`
+- Requires WordPress 6.4+ and PHP 7.4+.
+- Values are cached per source, sheet, and cell.
+- Each dashboard has its own cache duration, defaulting to five minutes.
+- The plugin does not request Google credentials.
+- The plugin has no Elementor runtime dependency.

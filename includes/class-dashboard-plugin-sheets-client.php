@@ -4,16 +4,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/**
- * Reads one value from a published Google Sheet.
- */
-class DP_Sheets_Client {
+class Hayfam_Dashboard_Sheets_Client {
 	public function get_value( $source_url, $sheet, $cell, $ttl = 300 ) {
 		$source_url = esc_url_raw( trim( (string) $source_url ) );
 		$sheet      = sanitize_text_field( (string) $sheet );
 		$cell       = strtoupper( preg_replace( '/\s+/', '', (string) $cell ) );
 
-		if ( ! $source_url || ! $this->is_supported_url( $source_url ) ) {
+		if ( ! $source_url || ! self::is_supported_url( $source_url ) ) {
 			return $this->failure( 'invalid_source' );
 		}
 
@@ -21,15 +18,14 @@ class DP_Sheets_Client {
 			return $this->failure( 'invalid_cell' );
 		}
 
-		$cached = DP_Cache::get( $source_url, $sheet, $cell );
+		$cached = Hayfam_Dashboard_Cache::get( $source_url, $sheet, $cell );
 		if ( is_array( $cached ) && array_key_exists( 'value', $cached ) ) {
 			$cached['cached'] = true;
 			return $cached;
 		}
 
-		$url      = $this->build_request_url( $source_url, $sheet, $cell );
 		$response = wp_safe_remote_get(
-			$url,
+			$this->build_request_url( $source_url, $sheet, $cell ),
 			array(
 				'timeout'     => 10,
 				'redirection' => 3,
@@ -52,97 +48,94 @@ class DP_Sheets_Client {
 
 		$value = $this->parse_csv_value( $body, $cell );
 		if ( null === $value || '' === trim( (string) $value ) ) {
-			$this->log( 'Could not find cell ' . $cell . ' in the Google Sheets response.' );
+			$this->log( 'Could not find a value in cell ' . $cell . '.' );
 			return $this->failure( null === $value ? 'value_not_found' : 'empty_value' );
 		}
 
 		$result = array(
-			'success'     => true,
-			'value'       => $value,
-			'fetched_at'  => current_time( 'timestamp', true ),
-			'cached'      => false,
-			'stale'       => false,
+			'success'    => true,
+			'value'      => $value,
+			'fetched_at' => current_time( 'timestamp', true ),
+			'cached'     => false,
 		);
 
-		DP_Cache::set( $source_url, $sheet, $cell, $result, $ttl );
+		Hayfam_Dashboard_Cache::set( $source_url, $sheet, $cell, $result, $ttl );
 
 		return $result;
 	}
 
-	private function is_supported_url( $url ) {
-	$parts = wp_parse_url( $url );
-	$host  = isset( $parts['host'] ) ? strtolower( $parts['host'] ) : '';
+	public static function is_supported_url( $url ) {
+		$parts = wp_parse_url( $url );
+		$host  = isset( $parts['host'] ) ? strtolower( $parts['host'] ) : '';
+		$path  = isset( $parts['path'] ) ? $parts['path'] : '';
+		$hosts = array( 'docs.google.com', 'docs.googleusercontent.com', 'spreadsheets.google.com' );
 
-	if ( ! $host ) {
+		foreach ( $hosts as $allowed ) {
+			if ( ( $host === $allowed || substr( $host, -strlen( '.' . $allowed ) ) === '.' . $allowed ) && false !== strpos( $path, '/spreadsheets/' ) ) {
+				return true;
+			}
+		}
+
 		return false;
 	}
 
-	$allowed = array( 'docs.google.com', 'docs.googleusercontent.com', 'spreadsheets.google.com' );
-	foreach ( $allowed as $domain ) {
-		if ( $host === $domain || substr( $host, -strlen( '.' . $domain ) ) === '.' . $domain ) {
-			return false === strpos( $parts['path'] ?? '', '/spreadsheets/' ) ? false : true;
-		}
-	}
-
-	return false;
-	}
-
 	private function build_request_url( $source_url, $sheet, $cell ) {
-	$args = array(
-		'output' => 'csv',
-		'range'  => $cell,
-	);
+		$args = array(
+			'output' => 'csv',
+			'range'  => $cell,
+		);
 
-	if ( $sheet ) {
-		$args['sheet'] = $sheet;
-	}
+		if ( $sheet ) {
+			$args['sheet'] = $sheet;
+		}
 
-	return add_query_arg( $args, $source_url );
+		return add_query_arg( $args, $source_url );
 	}
 
 	private function parse_csv_value( $body, $cell ) {
-	$body  = preg_replace( '/^\xEF\xBB\xBF/', '', $body );
-	$lines = preg_split( "/\r\n|\n|\r/", trim( $body ) );
+		$body  = preg_replace( '/^\xEF\xBB\xBF/', '', $body );
+		$lines = preg_split( "/\r\n|\n|\r/", trim( $body ) );
 
-	if ( count( $lines ) === 1 ) {
-		$row = str_getcsv( $lines[0] );
-		return isset( $row[0] ) ? trim( $row[0] ) : null;
-	}
+		if ( count( $lines ) === 1 ) {
+			$row = str_getcsv( $lines[0] );
+			return isset( $row[0] ) ? trim( $row[0] ) : null;
+		}
 
-	preg_match( '/^([A-Z]+)([1-9][0-9]*)$/', $cell, $matches );
-	$column = $this->column_to_index( $matches[1] );
-	$row_index = absint( $matches[2] ) - 1;
+		preg_match( '/^([A-Z]+)([1-9][0-9]*)$/', $cell, $matches );
+		$column    = $this->column_to_index( $matches[1] );
+		$row_index = absint( $matches[2] ) - 1;
 
-	if ( ! isset( $lines[ $row_index ] ) ) {
-		return null;
-	}
+		if ( ! isset( $lines[ $row_index ] ) ) {
+			return null;
+		}
 
-	$row = str_getcsv( $lines[ $row_index ] );
-	return isset( $row[ $column ] ) ? trim( $row[ $column ] ) : null;
+		$row = str_getcsv( $lines[ $row_index ] );
+		return isset( $row[ $column ] ) ? trim( $row[ $column ] ) : null;
 	}
 
 	private function column_to_index( $letters ) {
-	$index = 0;
-	$letters = str_split( $letters );
+		$index = 0;
 
-	foreach ( $letters as $letter ) {
-		$index = ( $index * 26 ) + ( ord( $letter ) - 64 );
-	}
+		foreach ( str_split( $letters ) as $letter ) {
+			$index = ( $index * 26 ) + ( ord( $letter ) - 64 );
+		}
 
-	return $index - 1;
+		return $index - 1;
 	}
 
 	private function failure( $code ) {
-	return array(
-		'success' => false,
-		'error'   => sanitize_key( $code ),
-	);
+		return array(
+			'success' => false,
+			'error'   => sanitize_key( $code ),
+		);
 	}
 
 	private function log( $message ) {
-	$settings = get_option( 'dp_settings', array() );
-	if ( ! empty( $settings['debug'] ) && defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-		error_log( '[Dashboard Plugin] ' . $message );
-	}
+		$settings = get_option( HAYFAM_DASHBOARD_SETTINGS_OPTION, array() );
+
+		if ( ! empty( $settings['debug'] ) && defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			error_log( '[Hayfam Dashboard Plugin] ' . $message );
+		}
 	}
 }
+
