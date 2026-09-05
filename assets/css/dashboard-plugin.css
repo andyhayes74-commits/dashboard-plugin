@@ -1,4 +1,4 @@
-.dashboard-metric {
+.hayfam-dashboard-metric {
 	display: flex;
 	flex-direction: column;
 	align-items: stretch;
@@ -6,18 +6,18 @@
 	box-sizing: border-box;
 }
 
-.dashboard-metric,
-.dashboard-metric * {
+.hayfam-dashboard-metric,
+.hayfam-dashboard-metric * {
 	box-sizing: border-box;
 }
 
-.dashboard-metric__before,
-.dashboard-metric__value,
-.dashboard-metric__after {
+.hayfam-dashboard-metric__before,
+.hayfam-dashboard-metric__value,
+.hayfam-dashboard-metric__after {
 	min-width: 0;
 }
 
-.dashboard-metric__value {
+.hayfam-dashboard-metric__value {
 	display: block;
 }
 

@@ -4,11 +4,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/**
- * Small transient-based cache used by the Google Sheets client.
- */
-class DP_Cache {
-	const VERSION_OPTION = 'dp_cache_version';
+class Hayfam_Dashboard_Cache {
+	const VERSION_OPTION = 'hayfam_dashboard_cache_version';
 
 	public static function get_version() {
 		$version = get_option( self::VERSION_OPTION );
@@ -23,7 +20,7 @@ class DP_Cache {
 
 	public static function key( $source_url, $sheet, $cell ) {
 		$raw = self::get_version() . '|' . $source_url . '|' . $sheet . '|' . $cell;
-		return 'dp_value_' . md5( $raw );
+		return 'hayfam_dashboard_value_' . md5( $raw );
 	}
 
 	public static function get( $source_url, $sheet, $cell ) {
@@ -31,16 +28,12 @@ class DP_Cache {
 	}
 
 	public static function set( $source_url, $sheet, $cell, $value, $ttl ) {
-		return set_transient(
-			self::key( $source_url, $sheet, $cell ),
-			$value,
-			max( 60, absint( $ttl ) )
-		);
+		return set_transient( self::key( $source_url, $sheet, $cell ), $value, max( 60, absint( $ttl ) ) );
 	}
 
 	public static function clear() {
-	$version = (int) self::get_version();
-	update_option( self::VERSION_OPTION, (string) ( $version + 1 ), false );
+		$version = (int) self::get_version();
+		update_option( self::VERSION_OPTION, (string) ( $version + 1 ), false );
 	}
 }
 
