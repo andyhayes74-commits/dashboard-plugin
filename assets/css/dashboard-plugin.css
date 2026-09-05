@@ -403,5 +403,5 @@
 	--hayfam-dashboard-theme-orange: #f36c0a;
 	--hayfam-dashboard-theme-green: #276b38;
 	--hayfam-dashboard-theme-olive: #748b2b;
-	box-shadow: 0 10px 26px rgba(39, 107, 56, 0.14);
+	box-shadow: 0 10px 26px rgba(39, 107, 56, 0.14), inset 0 -4px 0 var(--hayfam-dashboard-theme-olive);
 }
