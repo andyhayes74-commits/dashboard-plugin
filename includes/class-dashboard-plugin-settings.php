@@ -452,6 +452,7 @@ class Hayfam_Dashboard_Settings {
 		$dashboard['theme_preset']      = array_key_exists( $dashboard['theme_preset'], self::theme_preset_options() ) ? $dashboard['theme_preset'] : 'none';
 		$dashboard['animated_graphic']  = array_key_exists( $dashboard['animated_graphic'], self::animated_graphic_options() ) ? $dashboard['animated_graphic'] : 'none';
 		$dashboard['graphic_max']       = self::sanitize_graphic_max( $dashboard['graphic_max'] );
+		$dashboard['milestones']        = self::sanitize_milestones( $dashboard['milestones'] );
 
 		if ( ! preg_match( '/^[A-Z]+[1-9][0-9]*$/', $dashboard['cell'] ) ) {
 			$dashboard['cell'] = 'B2';
