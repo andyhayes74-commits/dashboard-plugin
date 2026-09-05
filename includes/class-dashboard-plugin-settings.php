@@ -37,6 +37,7 @@ class Hayfam_Dashboard_Settings {
 			'after'     => 'Of food from landfill',
 			'prefix'    => '',
 			'suffix'    => ' KG',
+			'override'  => '',
 			'decimals'  => '-1',
 			'thousands' => ',',
 			'decimal'   => '.',
@@ -206,7 +207,7 @@ class Hayfam_Dashboard_Settings {
 		$message    = isset( $_GET['message'] ) ? sanitize_key( wp_unslash( $_GET['message'] ) ) : '';
 		?>
 		<div class="wrap">
-			<h1><?php echo esc_html__( 'Dashboard Plugin v2.2', 'dashboard-plugin' ); ?></h1>
+			<h1><?php echo esc_html__( 'Dashboard Plugin v2.3', 'dashboard-plugin' ); ?></h1>
 			<p><?php echo esc_html__( 'Create a separate tab and shortcode for each live dashboard metric.', 'dashboard-plugin' ); ?></p>
 
 			<h2 class="nav-tab-wrapper">
@@ -236,7 +237,7 @@ class Hayfam_Dashboard_Settings {
 
 				<h2><?php echo esc_html__( 'Google Sheet source', 'dashboard-plugin' ); ?></h2>
 				<table class="form-table" role="presentation">
-					<tr><th scope="row"><label for="hayfam-dashboard-source"><?php echo esc_html__( 'Published sheet URL', 'dashboard-plugin' ); ?></label></th><td><input id="hayfam-dashboard-source" class="large-text" type="url" name="dashboard[source_url]" value="<?php echo esc_attr( $current['source_url'] ); ?>" placeholder="https://docs.google.com/spreadsheets/d/.../pub" required><p class="description"><?php echo esc_html__( 'Use a published, non-sensitive Google Sheet or output tab.', 'dashboard-plugin' ); ?></p></td></tr>
+					<tr><th scope="row"><label for="hayfam-dashboard-source"><?php echo esc_html__( 'Published sheet URL', 'dashboard-plugin' ); ?></label></th><td><input id="hayfam-dashboard-source" class="large-text" type="url" name="dashboard[source_url]" value="<?php echo esc_attr( $current['source_url'] ); ?>" placeholder="https://docs.google.com/spreadsheets/d/.../pub"><p class="description"><?php echo esc_html__( 'Use a published, non-sensitive Google Sheet or output tab. This can be left blank while an override figure is being used.', 'dashboard-plugin' ); ?></p></td></tr>
 					<tr><th scope="row"><label for="hayfam-dashboard-sheet"><?php echo esc_html__( 'Worksheet/tab', 'dashboard-plugin' ); ?></label></th><td><input id="hayfam-dashboard-sheet" class="regular-text" type="text" name="dashboard[sheet]" value="<?php echo esc_attr( $current['sheet'] ); ?>"></td></tr>
 					<tr><th scope="row"><label for="hayfam-dashboard-cell"><?php echo esc_html__( 'Cell reference', 'dashboard-plugin' ); ?></label></th><td><input id="hayfam-dashboard-cell" class="small-text" type="text" name="dashboard[cell]" value="<?php echo esc_attr( $current['cell'] ); ?>" required><p class="description"><?php echo esc_html__( 'For example B2 or C5.', 'dashboard-plugin' ); ?></p></td></tr>
 				</table>
@@ -247,6 +248,7 @@ class Hayfam_Dashboard_Settings {
 					<tr><th scope="row"><label for="hayfam-dashboard-after"><?php echo esc_html__( 'Text below value', 'dashboard-plugin' ); ?></label></th><td><textarea id="hayfam-dashboard-after" class="large-text" rows="2" name="dashboard[after]"><?php echo esc_textarea( $current['after'] ); ?></textarea></td></tr>
 					<tr><th scope="row"><label for="hayfam-dashboard-prefix"><?php echo esc_html__( 'Value prefix', 'dashboard-plugin' ); ?></label></th><td><input id="hayfam-dashboard-prefix" class="regular-text" type="text" name="dashboard[prefix]" value="<?php echo esc_attr( $current['prefix'] ); ?>"></td></tr>
 					<tr><th scope="row"><label for="hayfam-dashboard-suffix"><?php echo esc_html__( 'Value suffix', 'dashboard-plugin' ); ?></label></th><td><input id="hayfam-dashboard-suffix" class="regular-text" type="text" name="dashboard[suffix]" value="<?php echo esc_attr( $current['suffix'] ); ?>"></td></tr>
+					<tr><th scope="row"><label for="hayfam-dashboard-override"><?php echo esc_html__( 'Override figure', 'dashboard-plugin' ); ?></label></th><td><input id="hayfam-dashboard-override" class="regular-text" type="text" name="dashboard[override]" value="<?php echo esc_attr( $current['override'] ); ?>" placeholder="Leave blank to use Google Sheet"><p class="description"><?php echo esc_html__( 'If this field contains a value, it is displayed instead of the Google Sheet value. Leave it blank to use the Google Sheet. This is useful for testing before the sheet is connected.', 'dashboard-plugin' ); ?></p></td></tr>
 					<tr><th scope="row"><label for="hayfam-dashboard-fallback"><?php echo esc_html__( 'Fallback message', 'dashboard-plugin' ); ?></label></th><td><input id="hayfam-dashboard-fallback" class="regular-text" type="text" name="dashboard[fallback]" value="<?php echo esc_attr( $current['fallback'] ); ?>"></td></tr>
 				</table>
 
@@ -307,6 +309,7 @@ class Hayfam_Dashboard_Settings {
 		$dashboard['after']      = sanitize_textarea_field( $dashboard['after'] );
 		$dashboard['prefix']     = sanitize_text_field( $dashboard['prefix'] );
 		$dashboard['suffix']     = sanitize_text_field( $dashboard['suffix'] );
+		$dashboard['override']   = sanitize_text_field( $dashboard['override'] );
 		$dashboard['decimals']   = (string) max( -1, min( 10, (int) $dashboard['decimals'] ) );
 		$dashboard['thousands']  = substr( sanitize_text_field( $dashboard['thousands'] ), 0, 1 );
 		$dashboard['decimal']    = substr( sanitize_text_field( $dashboard['decimal'] ), 0, 1 );

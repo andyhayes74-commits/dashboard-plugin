@@ -1,13 +1,13 @@
-# Dashboard Plugin v2.2
+# Dashboard Plugin v2.3
 
-Dashboard Plugin v2.2 is a standalone WordPress shortcode plugin for creating multiple live dashboard metrics from published Google Sheets.
+Dashboard Plugin v2.3 is a standalone WordPress shortcode plugin for creating multiple live dashboard metrics from published Google Sheets.
 
 It does not load Elementor classes or widgets. Elementor can still be used as the page builder by placing each generated shortcode in a normal Elementor **Shortcode** widget.
 
 ## Branch and version
 
-- Branch: `v2.2`
-- Plugin version: `2.2.0`
+- Branch: `v2.3`
+- Plugin version: `2.3.0`
 - Settings page: **Settings → Dashboard Plugin**
 
 ## What changed
@@ -19,6 +19,8 @@ It does not load Elementor classes or widgets. Elementor can still be used as th
 - Existing v2 single-dashboard settings are migrated into the first dashboard tab.
 - The compatibility shortcode `[dashboard_metric]` remains available.
 - Each dashboard tab includes a preview using the last saved settings and live cached Sheet value.
+- Each dashboard can use an optional override figure instead of the Google Sheet value.
+- A dashboard can be tested with an override figure before a Google Sheet URL is added.
 
 ## Updating the existing plugin
 
@@ -31,7 +33,7 @@ It does not load Elementor classes or widgets. Elementor can still be used as th
 
 If WordPress offers only a normal new installation or says that the destination folder already exists, cancel the upload. Do not activate a second Dashboard Plugin copy.
 
-Download: `https://github.com/andyhayes74-commits/dashboard-plugin/archive/refs/heads/v2.2.zip`
+Download: `https://github.com/andyhayes74-commits/dashboard-plugin/archive/refs/heads/v2.3.zip`
 
 ## Creating dashboards
 
@@ -96,6 +98,7 @@ Supported attributes are:
 | `after` | Override the text below the value. |
 | `prefix` | Text immediately before the value. |
 | `suffix` | Text immediately after the value. |
+| `override` | Override the Google Sheet value; leave blank to use the sheet. |
 | `decimals` | Decimal places; `-1` preserves the source value. |
 | `thousands` | Thousands separator. |
 | `decimal` | Decimal separator. |

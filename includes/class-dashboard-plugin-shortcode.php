@@ -53,6 +53,7 @@ class Hayfam_Dashboard_Shortcode {
 				'after'      => $dashboard['after'],
 				'prefix'     => $dashboard['prefix'],
 				'suffix'     => $dashboard['suffix'],
+				'override'   => $dashboard['override'],
 				'decimals'   => $dashboard['decimals'],
 				'thousands'  => $dashboard['thousands'],
 				'decimal'    => $dashboard['decimal'],
@@ -67,9 +68,15 @@ class Hayfam_Dashboard_Shortcode {
 		$sheet  = sanitize_text_field( $attributes['sheet'] );
 		$cell   = strtoupper( preg_replace( '/\s+/', '', sanitize_text_field( $attributes['cell'] ) ) );
 		$ttl    = absint( $dashboard['cache_ttl'] );
-		$result = array( 'success' => false );
+		$override = sanitize_text_field( $attributes['override'] );
+		$result   = array( 'success' => false );
 
-		if ( $source ) {
+		if ( '' !== trim( $override ) ) {
+			$result = array(
+				'success' => true,
+				'value'   => $override,
+			);
+		} elseif ( $source ) {
 			$result = ( new Hayfam_Dashboard_Sheets_Client() )->get_value( $source, $sheet, $cell, $ttl );
 		}
 
