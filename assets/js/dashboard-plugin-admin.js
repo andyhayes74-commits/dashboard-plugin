@@ -39,6 +39,8 @@
 		fontFamily: 'font_family',
 		fontSize: 'font_size',
 		valueFontSize: 'value_font_size',
+		mobileFontSize: 'mobile_font_size',
+		mobileValueFontSize: 'mobile_value_font_size',
 		fontWeight: 'font_weight',
 		valueFontWeight: 'value_font_weight',
 		lineHeight: 'line_height',
@@ -49,6 +51,10 @@
 		backgroundColor: 'background_color',
 		gap: 'gap',
 		padding: 'padding',
+		mobileGap: 'mobile_gap',
+		mobilePadding: 'mobile_padding',
+		mobileWidth: 'mobile_width',
+		mobileGraphicHeight: 'mobile_graphic_height',
 		borderRadius: 'border_radius',
 		preset: 'widget_preset',
 		border: 'widget_border',
@@ -349,13 +355,13 @@
 		setVariable('--hayfam-dashboard-font-family', family);
 
 		var textSize = normaliseLength(getValue(fieldNames.fontSize) || selectedTheme.fontSize);
-		setStyle(widget, 'font-size', textSize);
-		setStyle(before, 'font-size', textSize);
-		setStyle(after, 'font-size', textSize);
+		setStyle(widget, 'font-size', textSize ? 'var(--hayfam-dashboard-active-font-size)' : '');
+		setStyle(before, 'font-size', textSize ? 'var(--hayfam-dashboard-active-font-size)' : '');
+		setStyle(after, 'font-size', textSize ? 'var(--hayfam-dashboard-active-font-size)' : '');
 		setVariable('--hayfam-dashboard-font-size', textSize);
 
 		var valueSize = normaliseLength(getValue(fieldNames.valueFontSize) || selectedTheme.valueFontSize);
-		setStyle(value, 'font-size', valueSize);
+		setStyle(value, 'font-size', valueSize ? 'var(--hayfam-dashboard-active-value-font-size)' : '');
 		setStyle(widget, 'font-weight', getValue(fieldNames.fontWeight) || selectedTheme.fontWeight);
 		setStyle(value, 'font-weight', getValue(fieldNames.valueFontWeight) || selectedTheme.valueFontWeight);
 		setVariable('--hayfam-dashboard-value-font-size', valueSize);
@@ -384,14 +390,20 @@
 		var borderRadius = normaliseLength(getValue(fieldNames.borderRadius) || selectedTheme.borderRadius);
 		setStyle(widget, 'text-align', textAlign);
 		setStyle(widget, 'background-color', backgroundColor);
-		setStyle(widget, 'gap', gap);
-		setStyle(widget, 'padding', padding);
+		setStyle(widget, 'gap', gap ? 'var(--hayfam-dashboard-active-gap)' : '');
+		setStyle(widget, 'padding', padding ? 'var(--hayfam-dashboard-active-padding)' : '');
 		setStyle(widget, 'border-radius', borderRadius);
 		setVariable('--hayfam-dashboard-text-align', textAlign);
 		setVariable('--hayfam-dashboard-background-color', backgroundColor);
 		setVariable('--hayfam-dashboard-gap', gap);
 		setVariable('--hayfam-dashboard-padding', padding);
 		setVariable('--hayfam-dashboard-border-radius', borderRadius);
+		setVariable('--hayfam-dashboard-mobile-font-size', normaliseLength(getValue(fieldNames.mobileFontSize)));
+		setVariable('--hayfam-dashboard-mobile-value-font-size', normaliseLength(getValue(fieldNames.mobileValueFontSize)));
+		setVariable('--hayfam-dashboard-mobile-gap', normaliseLength(getValue(fieldNames.mobileGap)));
+		setVariable('--hayfam-dashboard-mobile-padding', normaliseLength(getValue(fieldNames.mobilePadding)));
+		setVariable('--hayfam-dashboard-mobile-width', normaliseLength(getValue(fieldNames.mobileWidth)));
+		setVariable('--hayfam-dashboard-mobile-graphic-height', normaliseLength(getValue(fieldNames.mobileGraphicHeight)));
 
 		var beforeColor = getValue(fieldNames.beforeColor) || selectedTheme.beforeColor;
 		var valueColor = getValue(fieldNames.valueColor) || selectedTheme.valueColor;
