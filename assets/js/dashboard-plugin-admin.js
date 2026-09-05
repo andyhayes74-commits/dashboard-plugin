@@ -355,13 +355,13 @@
 		setVariable('--hayfam-dashboard-font-family', family);
 
 		var textSize = normaliseLength(getValue(fieldNames.fontSize) || selectedTheme.fontSize);
-		setStyle(widget, 'font-size', textSize ? 'var(--hayfam-dashboard-active-font-size)' : '');
-		setStyle(before, 'font-size', textSize ? 'var(--hayfam-dashboard-active-font-size)' : '');
-		setStyle(after, 'font-size', textSize ? 'var(--hayfam-dashboard-active-font-size)' : '');
+		setStyle(widget, 'font-size', textSize ? 'var(--hayfam-dashboard-active-font-size, var(--hayfam-dashboard-font-size, inherit))' : '');
+		setStyle(before, 'font-size', textSize ? 'var(--hayfam-dashboard-active-font-size, var(--hayfam-dashboard-font-size, inherit))' : '');
+		setStyle(after, 'font-size', textSize ? 'var(--hayfam-dashboard-active-font-size, var(--hayfam-dashboard-font-size, inherit))' : '');
 		setVariable('--hayfam-dashboard-font-size', textSize);
 
 		var valueSize = normaliseLength(getValue(fieldNames.valueFontSize) || selectedTheme.valueFontSize);
-		setStyle(value, 'font-size', valueSize ? 'var(--hayfam-dashboard-active-value-font-size)' : '');
+		setStyle(value, 'font-size', valueSize ? 'var(--hayfam-dashboard-active-value-font-size, var(--hayfam-dashboard-value-font-size, inherit))' : '');
 		setStyle(widget, 'font-weight', getValue(fieldNames.fontWeight) || selectedTheme.fontWeight);
 		setStyle(value, 'font-weight', getValue(fieldNames.valueFontWeight) || selectedTheme.valueFontWeight);
 		setVariable('--hayfam-dashboard-value-font-size', valueSize);
@@ -390,8 +390,8 @@
 		var borderRadius = normaliseLength(getValue(fieldNames.borderRadius) || selectedTheme.borderRadius);
 		setStyle(widget, 'text-align', textAlign);
 		setStyle(widget, 'background-color', backgroundColor);
-		setStyle(widget, 'gap', gap ? 'var(--hayfam-dashboard-active-gap)' : '');
-		setStyle(widget, 'padding', padding ? 'var(--hayfam-dashboard-active-padding)' : '');
+		setStyle(widget, 'gap', gap ? 'var(--hayfam-dashboard-active-gap, var(--hayfam-dashboard-gap, 0))' : '');
+		setStyle(widget, 'padding', padding ? 'var(--hayfam-dashboard-active-padding, var(--hayfam-dashboard-padding, 0))' : '');
 		setStyle(widget, 'border-radius', borderRadius);
 		setVariable('--hayfam-dashboard-text-align', textAlign);
 		setVariable('--hayfam-dashboard-background-color', backgroundColor);
