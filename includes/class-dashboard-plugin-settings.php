@@ -93,6 +93,7 @@ class Hayfam_Dashboard_Settings {
 			$dashboard['id']      = $id;
 			$dashboard['label']   = sanitize_text_field( $dashboard['label'] );
 			$dashboard['shortcode'] = sanitize_key( $dashboard['shortcode'] );
+			$dashboard['line_height'] = self::sanitize_css_line_height( $dashboard['line_height'] );
 
 			if ( ! $dashboard['shortcode'] || 'dashboard_metric' === $dashboard['shortcode'] ) {
 				$dashboard['shortcode'] = 'dashboard_' . $id;
@@ -302,7 +303,7 @@ class Hayfam_Dashboard_Settings {
 					<tr><th scope="row"><label for="hayfam-dashboard-value-font-size"><?php echo esc_html__( 'Value size', 'dashboard-plugin' ); ?></label></th><td><input id="hayfam-dashboard-value-font-size" class="small-text" type="text" name="dashboard[value_font_size]" value="<?php echo esc_attr( $current['value_font_size'] ); ?>" placeholder="e.g. 48px or 48"><p class="description"><?php echo esc_html__( 'Controls the figure size independently. A bare number is treated as pixels.', 'dashboard-plugin' ); ?></p></td></tr>
 					<tr><th scope="row"><label for="hayfam-dashboard-font-weight"><?php echo esc_html__( 'Text weight', 'dashboard-plugin' ); ?></label></th><td><select id="hayfam-dashboard-font-weight" name="dashboard[font_weight]"><option value=""><?php echo esc_html__( 'Theme default', 'dashboard-plugin' ); ?></option><?php foreach ( array( '400' => 'Normal', '500' => 'Medium', '600' => 'Semi-bold', '700' => 'Bold', '800' => 'Extra-bold' ) as $weight_key => $weight_label ) : ?><option value="<?php echo esc_attr( $weight_key ); ?>" <?php selected( $current['font_weight'], $weight_key ); ?>><?php echo esc_html( $weight_label ); ?></option><?php endforeach; ?></select></td></tr>
 					<tr><th scope="row"><label for="hayfam-dashboard-value-font-weight"><?php echo esc_html__( 'Value weight', 'dashboard-plugin' ); ?></label></th><td><select id="hayfam-dashboard-value-font-weight" name="dashboard[value_font_weight]"><option value=""><?php echo esc_html__( 'Theme default', 'dashboard-plugin' ); ?></option><?php foreach ( array( '400' => 'Normal', '500' => 'Medium', '600' => 'Semi-bold', '700' => 'Bold', '800' => 'Extra-bold' ) as $weight_key => $weight_label ) : ?><option value="<?php echo esc_attr( $weight_key ); ?>" <?php selected( $current['value_font_weight'], $weight_key ); ?>><?php echo esc_html( $weight_label ); ?></option><?php endforeach; ?></select></td></tr>
-					<tr><th scope="row"><label for="hayfam-dashboard-line-height"><?php echo esc_html__( 'Line height', 'dashboard-plugin' ); ?></label></th><td><input id="hayfam-dashboard-line-height" class="small-text" type="text" name="dashboard[line_height]" value="<?php echo esc_attr( $current['line_height'] ); ?>" placeholder="e.g. 1.3"></td></tr>
+					<tr><th scope="row"><label for="hayfam-dashboard-line-height"><?php echo esc_html__( 'Line height', 'dashboard-plugin' ); ?></label></th><td><input id="hayfam-dashboard-line-height" class="small-text" type="text" name="dashboard[line_height]" value="<?php echo esc_attr( $current['line_height'] ); ?>" placeholder="e.g. 1.3"><p class="description"><?php echo esc_html__( 'Use 1.2 to 1.6 for normal readability. Values below 1 are ignored to prevent the text lines overlapping.', 'dashboard-plugin' ); ?></p></td></tr>
 					<tr><th scope="row"><label for="hayfam-dashboard-text-align"><?php echo esc_html__( 'Text alignment', 'dashboard-plugin' ); ?></label></th><td><select id="hayfam-dashboard-text-align" name="dashboard[text_align]"><option value=""><?php echo esc_html__( 'Theme default', 'dashboard-plugin' ); ?></option><?php foreach ( array( 'left' => 'Left', 'center' => 'Centre', 'right' => 'Right' ) as $align_key => $align_label ) : ?><option value="<?php echo esc_attr( $align_key ); ?>" <?php selected( $current['text_align'], $align_key ); ?>><?php echo esc_html( $align_label ); ?></option><?php endforeach; ?></select></td></tr>
 				</table>
 
@@ -496,7 +497,15 @@ class Hayfam_Dashboard_Settings {
 
 	private static function sanitize_css_line_height( $value ) {
 		$value = trim( sanitize_text_field( (string) $value ) );
-		return preg_match( '/^(?:normal|[0-9]+(?:\.[0-9]+)?)$/', $value ) ? $value : '';
+		if ( 'normal' === $value ) {
+			return $value;
+		}
+
+		if ( preg_match( '/^[0-9]+(?:\.[0-9]+)?$/', $value ) && (float) $value >= 1 ) {
+			return $value;
+		}
+
+		return '';
 	}
 
 	private static function unique_shortcode( $shortcode, $dashboard_id, $dashboards ) {

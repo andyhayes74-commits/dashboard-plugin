@@ -235,6 +235,9 @@ class Hayfam_Dashboard_Shortcode {
 			if ( ! empty( $dashboard['value_font_weight'] ) ) {
 				$styles['font-weight'] = sanitize_text_field( $dashboard['value_font_weight'] ) . ' !important';
 			}
+			if ( empty( $dashboard['line_height'] ) ) {
+				$styles['line-height'] = '1.15 !important';
+			}
 		}
 
 		return $styles;
