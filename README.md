@@ -21,11 +21,13 @@ It does not load Elementor classes or widgets. Elementor can still be used as th
 
 ## Installation
 
-1. Deactivate and remove older Dashboard Plugin copies first. Keep only one copy active.
+1. Leave your current v2 plugin active while installing the new ZIP. Do not delete it first, because its uninstall file removes the old settings option.
 2. Download the ZIP from the `v2.1-multiple-dashboards` branch.
 3. In WordPress, open **Plugins → Add New → Upload Plugin**.
-4. Upload the ZIP, install it, and activate **Dashboard Plugin**.
-5. Open **Settings → Dashboard Plugin**.
+4. Upload the ZIP. If WordPress reports that the plugin already exists, install the ZIP into a temporary plugin folder or rename the old plugin folder first without deleting it.
+5. Deactivate the old v2 plugin, then activate v2.1. The existing settings are copied automatically into v2.1's settings option.
+6. Open **Settings → Dashboard Plugin** and confirm the first tab works before deleting the old plugin copy.
+7. Keep only v2.1 active. Never leave two Dashboard Plugin versions active together.
 
 Download: `https://github.com/andyhayes74-commits/dashboard-plugin/archive/refs/heads/v2.1-multiple-dashboards.zip`
 
