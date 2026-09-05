@@ -12,7 +12,7 @@ The top text, live value and bottom text are independently configurable and inde
 
 ## Project status
 
-The initial MVP is implemented on the `feature/elementor-dashboard-metric` branch.
+The v1.1 MVP is implemented on the `v1.1` branch.
 
 Implemented:
 
@@ -26,6 +26,7 @@ Implemented:
 - Settings page and cache clearing
 - Fallback output and debug logging
 - Dependency notice when Elementor is unavailable
+- Elementor-compatible typed widget method signatures to prevent PHP fatal errors
 
 The live Google Sheet connection still needs to be tested against the final published output sheet.
 

@@ -15,27 +15,27 @@ use Elementor\Widget_Base;
  * Elementor widget that displays before text, a live value, and after text.
  */
 class DP_Dashboard_Metric_Widget extends Widget_Base {
-	public function get_name() {
+	public function get_name(): string {
 		return 'dashboard_metric';
 	}
 
-	public function get_title() {
+	public function get_title(): string {
 		return esc_html__( 'Dashboard Metric', 'dashboard-plugin' );
 	}
 
-	public function get_icon() {
+	public function get_icon(): string {
 		return 'eicon-counter';
 	}
 
-	public function get_categories() {
+	public function get_categories(): array {
 		return array( 'general' );
 	}
 
-	public function get_style_depends() {
+	public function get_style_depends(): array {
 		return array( 'dashboard-plugin' );
 	}
 
-	protected function register_controls() {
+	protected function register_controls(): void {
 		$this->start_controls_section( 'content_section', array( 'label' => esc_html__( 'Content', 'dashboard-plugin' ) ) );
 
 		$this->add_control( 'before_text', array(
@@ -121,7 +121,7 @@ class DP_Dashboard_Metric_Widget extends Widget_Base {
 		$this->end_controls_section();
 	}
 
-	protected function render() {
+	protected function render(): void {
 		$settings = $this->get_settings_for_display();
 		$defaults = DP_Settings::get_all();
 		$source   = ! empty( $settings['source_url']['url'] ) ? $settings['source_url']['url'] : $defaults['source_url'];

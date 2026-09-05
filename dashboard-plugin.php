@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Dashboard Plugin
  * Description: Adds an Elementor widget that displays a value from a published Google Sheet between two styled text blocks.
- * Version: 0.1.0
+ * Version: 1.1.0
  * Author: Andy Hayes
  * License: GPL-2.0-or-later
  * Text Domain: dashboard-plugin
@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'DP_VERSION', '0.1.0' );
+define( 'DP_VERSION', '1.1.0' );
 define( 'DP_FILE', __FILE__ );
 define( 'DP_PATH', plugin_dir_path( __FILE__ ) );
 define( 'DP_URL', plugin_dir_url( __FILE__ ) );
