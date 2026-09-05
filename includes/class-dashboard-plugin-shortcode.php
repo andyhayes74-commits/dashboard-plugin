@@ -34,6 +34,10 @@ class Hayfam_Dashboard_Shortcode {
 		return self::render_dashboard( $dashboard_id, $attributes );
 	}
 
+	public static function render_preview( $dashboard_id ) {
+		return self::render_dashboard( $dashboard_id, array() );
+	}
+
 	private static function render_dashboard( $dashboard_id, $attributes ) {
 		$dashboard = Hayfam_Dashboard_Settings::get_dashboard( $dashboard_id );
 		if ( ! $dashboard ) {

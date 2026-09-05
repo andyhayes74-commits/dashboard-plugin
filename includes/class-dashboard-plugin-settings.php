@@ -206,7 +206,7 @@ class Hayfam_Dashboard_Settings {
 		$message    = isset( $_GET['message'] ) ? sanitize_key( wp_unslash( $_GET['message'] ) ) : '';
 		?>
 		<div class="wrap">
-			<h1><?php echo esc_html__( 'Dashboard Plugin v2.1', 'dashboard-plugin' ); ?></h1>
+			<h1><?php echo esc_html__( 'Dashboard Plugin v2.2', 'dashboard-plugin' ); ?></h1>
 			<p><?php echo esc_html__( 'Create a separate tab and shortcode for each live dashboard metric.', 'dashboard-plugin' ); ?></p>
 
 			<h2 class="nav-tab-wrapper">
@@ -262,6 +262,18 @@ class Hayfam_Dashboard_Settings {
 
 				<?php submit_button( __( 'Save dashboard', 'dashboard-plugin' ) ); ?>
 			</form>
+
+			<div class="hayfam-dashboard-admin-preview" style="max-width:560px;margin:24px 0;padding:20px 24px;border:1px solid #c3c4c7;border-radius:6px;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.04)">
+				<h2 style="margin-top:0"><?php echo esc_html__( 'Dashboard preview', 'dashboard-plugin' ); ?></h2>
+				<p class="description"><?php echo esc_html__( 'This preview uses the last saved settings for this dashboard. Save changes above to refresh it.', 'dashboard-plugin' ); ?></p>
+				<div style="margin-top:18px;padding:24px;text-align:center;background:#f6f7f7;border-radius:4px;font-size:18px;line-height:1.35">
+					<style>
+						.hayfam-dashboard-admin-preview .hayfam-dashboard-metric { align-items: center; }
+						.hayfam-dashboard-admin-preview .hayfam-dashboard-metric__value { margin: 8px 0; font-size: 2.5em; font-weight: 700; line-height: 1; }
+					</style>
+					<?php echo wp_kses_post( Hayfam_Dashboard_Shortcode::render_preview( $current_id ) ); ?>
+				</div>
+			</div>
 
 			<hr>
 			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="display:inline-block;margin-right:12px">
