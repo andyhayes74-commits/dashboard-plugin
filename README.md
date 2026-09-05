@@ -1,13 +1,13 @@
-# Dashboard Plugin v2.12.1
+# Dashboard Plugin v2.12.2
 
-Dashboard Plugin v2.12.1 is a standalone WordPress shortcode plugin for creating multiple live dashboard metrics from published Google Sheets.
+Dashboard Plugin v2.12.2 is a standalone WordPress shortcode plugin for creating multiple live dashboard metrics from published Google Sheets.
 
 It does not load Elementor classes or widgets. Elementor can still be used as the page builder by placing each generated shortcode in a normal Elementor **Shortcode** widget.
 
 ## Branch and version
 
-- Branch: `v2.12.1`
-- Plugin version: `2.12.1`
+- Branch: `v2.12.2`
+- Plugin version: `2.12.2`
 - Settings page: **Settings → Dashboard Plugin**
 
 ## What changed
@@ -38,12 +38,13 @@ It does not load Elementor classes or widgets. Elementor can still be used as th
 - Frontend dashboard output refreshes from WordPress after the page loads, so cached Elementor/page HTML does not prevent current settings from appearing.
 - Added optional mobile layout controls for text size, value size, line spacing, inner padding, maximum width, and graphic height.
 - Added CSS fallbacks so saved font and spacing values continue to apply if an older cached stylesheet is still present on the page.
+- Restored direct frontend font and spacing values and added a responsive frontend pass for mobile overrides.
 
 ## Updating the existing plugin
 
 1. Back up the WordPress files and database first.
 2. In WordPress, go to **Plugins → Add New Plugin → Upload Plugin**.
-3. Upload the stable update package for the v2.12.1 release.
+3. Upload the stable update package for the v2.12.2 release.
 4. WordPress should identify it as the installed Dashboard Plugin and show the current and uploaded versions.
 5. Click **Replace current with uploaded**. This updates the existing plugin; it does not create a second copy, and the saved dashboard settings remain in WordPress.
 6. Return to **Plugins** and confirm Dashboard Plugin is active, then open **Settings → Dashboard Plugin**.
@@ -52,7 +53,7 @@ The release package contains the stable top-level folder `dashboard-plugin-main`
 
 If WordPress offers only a normal new installation or says that the destination folder already exists, cancel the upload. Do not activate a second Dashboard Plugin copy.
 
-Download: `https://github.com/andyhayes74-commits/dashboard-plugin/raw/refs/heads/v2.12.1/dashboard-plugin-main-v2.12.1.zip`
+Download: `https://github.com/andyhayes74-commits/dashboard-plugin/raw/refs/heads/v2.12.2/dashboard-plugin-main-v2.12.2.zip`
 
 ## Creating dashboards
 
