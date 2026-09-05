@@ -44,6 +44,20 @@ class Hayfam_Dashboard_Settings {
 			'fallback'  => 'Data currently unavailable',
 			'cache_ttl' => 300,
 			'class'     => '',
+			'font_family'      => 'inherit',
+			'font_size'        => '',
+			'value_font_size'  => '',
+			'font_weight'      => '',
+			'value_font_weight'=> '',
+			'line_height'      => '',
+			'text_align'       => '',
+			'before_color'     => '',
+			'value_color'      => '',
+			'after_color'      => '',
+			'background_color' => '',
+			'gap'              => '',
+			'padding'          => '',
+			'border_radius'    => '',
 		);
 	}
 
@@ -207,7 +221,7 @@ class Hayfam_Dashboard_Settings {
 		$message    = isset( $_GET['message'] ) ? sanitize_key( wp_unslash( $_GET['message'] ) ) : '';
 		?>
 		<div class="wrap">
-			<h1><?php echo esc_html__( 'Dashboard Plugin v2.3', 'dashboard-plugin' ); ?></h1>
+			<h1><?php echo esc_html__( 'Dashboard Plugin v2.4', 'dashboard-plugin' ); ?></h1>
 			<p><?php echo esc_html__( 'Create a separate tab and shortcode for each live dashboard metric.', 'dashboard-plugin' ); ?></p>
 
 			<h2 class="nav-tab-wrapper">
@@ -252,13 +266,39 @@ class Hayfam_Dashboard_Settings {
 					<tr><th scope="row"><label for="hayfam-dashboard-fallback"><?php echo esc_html__( 'Fallback message', 'dashboard-plugin' ); ?></label></th><td><input id="hayfam-dashboard-fallback" class="regular-text" type="text" name="dashboard[fallback]" value="<?php echo esc_attr( $current['fallback'] ); ?>"></td></tr>
 				</table>
 
+				<h2><?php echo esc_html__( 'Typography', 'dashboard-plugin' ); ?></h2>
+				<table class="form-table" role="presentation">
+					<tr><th scope="row"><label for="hayfam-dashboard-font-family"><?php echo esc_html__( 'Font family', 'dashboard-plugin' ); ?></label></th><td><select id="hayfam-dashboard-font-family" name="dashboard[font_family]"><?php foreach ( self::font_family_options() as $font_key => $font_label ) : ?><option value="<?php echo esc_attr( $font_key ); ?>" <?php selected( $current['font_family'], $font_key ); ?>><?php echo esc_html( $font_label ); ?></option><?php endforeach; ?></select></td></tr>
+					<tr><th scope="row"><label for="hayfam-dashboard-font-size"><?php echo esc_html__( 'Text size', 'dashboard-plugin' ); ?></label></th><td><input id="hayfam-dashboard-font-size" class="small-text" type="text" name="dashboard[font_size]" value="<?php echo esc_attr( $current['font_size'] ); ?>" placeholder="e.g. 18px"><p class="description"><?php echo esc_html__( 'Applies to the dashboard text. Leave blank to use the theme size.', 'dashboard-plugin' ); ?></p></td></tr>
+					<tr><th scope="row"><label for="hayfam-dashboard-value-font-size"><?php echo esc_html__( 'Value size', 'dashboard-plugin' ); ?></label></th><td><input id="hayfam-dashboard-value-font-size" class="small-text" type="text" name="dashboard[value_font_size]" value="<?php echo esc_attr( $current['value_font_size'] ); ?>" placeholder="e.g. 48px"><p class="description"><?php echo esc_html__( 'Controls the figure size independently.', 'dashboard-plugin' ); ?></p></td></tr>
+					<tr><th scope="row"><label for="hayfam-dashboard-font-weight"><?php echo esc_html__( 'Text weight', 'dashboard-plugin' ); ?></label></th><td><select id="hayfam-dashboard-font-weight" name="dashboard[font_weight]"><option value=""><?php echo esc_html__( 'Theme default', 'dashboard-plugin' ); ?></option><?php foreach ( array( '400' => 'Normal', '500' => 'Medium', '600' => 'Semi-bold', '700' => 'Bold', '800' => 'Extra-bold' ) as $weight_key => $weight_label ) : ?><option value="<?php echo esc_attr( $weight_key ); ?>" <?php selected( $current['font_weight'], $weight_key ); ?>><?php echo esc_html( $weight_label ); ?></option><?php endforeach; ?></select></td></tr>
+					<tr><th scope="row"><label for="hayfam-dashboard-value-font-weight"><?php echo esc_html__( 'Value weight', 'dashboard-plugin' ); ?></label></th><td><select id="hayfam-dashboard-value-font-weight" name="dashboard[value_font_weight]"><option value=""><?php echo esc_html__( 'Theme default', 'dashboard-plugin' ); ?></option><?php foreach ( array( '400' => 'Normal', '500' => 'Medium', '600' => 'Semi-bold', '700' => 'Bold', '800' => 'Extra-bold' ) as $weight_key => $weight_label ) : ?><option value="<?php echo esc_attr( $weight_key ); ?>" <?php selected( $current['value_font_weight'], $weight_key ); ?>><?php echo esc_html( $weight_label ); ?></option><?php endforeach; ?></select></td></tr>
+					<tr><th scope="row"><label for="hayfam-dashboard-line-height"><?php echo esc_html__( 'Line height', 'dashboard-plugin' ); ?></label></th><td><input id="hayfam-dashboard-line-height" class="small-text" type="text" name="dashboard[line_height]" value="<?php echo esc_attr( $current['line_height'] ); ?>" placeholder="e.g. 1.3"></td></tr>
+					<tr><th scope="row"><label for="hayfam-dashboard-text-align"><?php echo esc_html__( 'Text alignment', 'dashboard-plugin' ); ?></label></th><td><select id="hayfam-dashboard-text-align" name="dashboard[text_align]"><option value=""><?php echo esc_html__( 'Theme default', 'dashboard-plugin' ); ?></option><?php foreach ( array( 'left' => 'Left', 'center' => 'Centre', 'right' => 'Right' ) as $align_key => $align_label ) : ?><option value="<?php echo esc_attr( $align_key ); ?>" <?php selected( $current['text_align'], $align_key ); ?>><?php echo esc_html( $align_label ); ?></option><?php endforeach; ?></select></td></tr>
+				</table>
+
+				<h2><?php echo esc_html__( 'Colours', 'dashboard-plugin' ); ?></h2>
+				<table class="form-table" role="presentation">
+					<tr><th scope="row"><label for="hayfam-dashboard-before-color"><?php echo esc_html__( 'Text above colour', 'dashboard-plugin' ); ?></label></th><td><input id="hayfam-dashboard-before-color" class="regular-text" type="text" name="dashboard[before_color]" value="<?php echo esc_attr( $current['before_color'] ); ?>" placeholder="#333333"><p class="description"><?php echo esc_html__( 'Use a six- or three-digit hex colour, or leave blank for the theme colour.', 'dashboard-plugin' ); ?></p></td></tr>
+					<tr><th scope="row"><label for="hayfam-dashboard-value-color"><?php echo esc_html__( 'Value colour', 'dashboard-plugin' ); ?></label></th><td><input id="hayfam-dashboard-value-color" class="regular-text" type="text" name="dashboard[value_color]" value="<?php echo esc_attr( $current['value_color'] ); ?>" placeholder="#2f855a"></td></tr>
+					<tr><th scope="row"><label for="hayfam-dashboard-after-color"><?php echo esc_html__( 'Text below colour', 'dashboard-plugin' ); ?></label></th><td><input id="hayfam-dashboard-after-color" class="regular-text" type="text" name="dashboard[after_color]" value="<?php echo esc_attr( $current['after_color'] ); ?>" placeholder="#333333"></td></tr>
+					<tr><th scope="row"><label for="hayfam-dashboard-background-color"><?php echo esc_html__( 'Background colour', 'dashboard-plugin' ); ?></label></th><td><input id="hayfam-dashboard-background-color" class="regular-text" type="text" name="dashboard[background_color]" value="<?php echo esc_attr( $current['background_color'] ); ?>" placeholder="#ffffff"></td></tr>
+				</table>
+
+				<h2><?php echo esc_html__( 'Spacing and shape', 'dashboard-plugin' ); ?></h2>
+				<table class="form-table" role="presentation">
+					<tr><th scope="row"><label for="hayfam-dashboard-gap"><?php echo esc_html__( 'Space between lines', 'dashboard-plugin' ); ?></label></th><td><input id="hayfam-dashboard-gap" class="small-text" type="text" name="dashboard[gap]" value="<?php echo esc_attr( $current['gap'] ); ?>" placeholder="e.g. 8px"></td></tr>
+					<tr><th scope="row"><label for="hayfam-dashboard-padding"><?php echo esc_html__( 'Inner padding', 'dashboard-plugin' ); ?></label></th><td><input id="hayfam-dashboard-padding" class="small-text" type="text" name="dashboard[padding]" value="<?php echo esc_attr( $current['padding'] ); ?>" placeholder="e.g. 16px"></td></tr>
+					<tr><th scope="row"><label for="hayfam-dashboard-border-radius"><?php echo esc_html__( 'Corner radius', 'dashboard-plugin' ); ?></label></th><td><input id="hayfam-dashboard-border-radius" class="small-text" type="text" name="dashboard[border_radius]" value="<?php echo esc_attr( $current['border_radius'] ); ?>" placeholder="e.g. 8px"></td></tr>
+				</table>
+
 				<h2><?php echo esc_html__( 'Formatting and caching', 'dashboard-plugin' ); ?></h2>
 				<table class="form-table" role="presentation">
 					<tr><th scope="row"><label for="hayfam-dashboard-decimals"><?php echo esc_html__( 'Decimal places', 'dashboard-plugin' ); ?></label></th><td><input id="hayfam-dashboard-decimals" class="small-text" type="number" name="dashboard[decimals]" value="<?php echo esc_attr( $current['decimals'] ); ?>" min="-1" max="10"><p class="description"><?php echo esc_html__( '-1 preserves the source value.', 'dashboard-plugin' ); ?></p></td></tr>
 					<tr><th scope="row"><label for="hayfam-dashboard-thousands"><?php echo esc_html__( 'Thousands separator', 'dashboard-plugin' ); ?></label></th><td><input id="hayfam-dashboard-thousands" class="small-text" type="text" name="dashboard[thousands]" value="<?php echo esc_attr( $current['thousands'] ); ?>"></td></tr>
 					<tr><th scope="row"><label for="hayfam-dashboard-decimal"><?php echo esc_html__( 'Decimal separator', 'dashboard-plugin' ); ?></label></th><td><input id="hayfam-dashboard-decimal" class="small-text" type="text" name="dashboard[decimal]" value="<?php echo esc_attr( $current['decimal'] ); ?>"></td></tr>
 					<tr><th scope="row"><label for="hayfam-dashboard-cache"><?php echo esc_html__( 'Cache duration (seconds)', 'dashboard-plugin' ); ?></label></th><td><input id="hayfam-dashboard-cache" class="small-text" type="number" name="dashboard[cache_ttl]" value="<?php echo esc_attr( $current['cache_ttl'] ); ?>" min="60"></td></tr>
-					<tr><th scope="row"><label for="hayfam-dashboard-class"><?php echo esc_html__( 'Custom CSS class', 'dashboard-plugin' ); ?></label></th><td><input id="hayfam-dashboard-class" class="regular-text" type="text" name="dashboard[class]" value="<?php echo esc_attr( $current['class'] ); ?>"><p class="description"><?php echo esc_html__( 'Optional class for styling this dashboard separately.', 'dashboard-plugin' ); ?></p></td></tr>
+					<tr><th scope="row"><label for="hayfam-dashboard-class"><?php echo esc_html__( 'Custom CSS class', 'dashboard-plugin' ); ?></label></th><td><input id="hayfam-dashboard-class" class="regular-text" type="text" name="dashboard[class]" value="<?php echo esc_attr( $current['class'] ); ?>"><p class="description"><?php echo esc_html__( 'Optional advanced class for additional theme or CSS styling.', 'dashboard-plugin' ); ?></p></td></tr>
 					<tr><th scope="row"><?php echo esc_html__( 'Debug logging', 'dashboard-plugin' ); ?></th><td><label><input type="checkbox" name="debug" value="1" <?php checked( ! empty( $settings['debug'] ), true ); ?>> <?php echo esc_html__( 'Write diagnostic messages when WP_DEBUG is enabled.', 'dashboard-plugin' ); ?></label></td></tr>
 				</table>
 
@@ -271,7 +311,7 @@ class Hayfam_Dashboard_Settings {
 				<div style="margin-top:18px;padding:24px;text-align:center;background:#f6f7f7;border-radius:4px;font-size:18px;line-height:1.35">
 					<style>
 						.hayfam-dashboard-admin-preview .hayfam-dashboard-metric { align-items: center; }
-						.hayfam-dashboard-admin-preview .hayfam-dashboard-metric__value { margin: 8px 0; font-size: 2.5em; font-weight: 700; line-height: 1; }
+						.hayfam-dashboard-admin-preview .hayfam-dashboard-metric__value { margin: 8px 0; font-size: var(--hayfam-dashboard-value-font-size, 2.5em); font-weight: var(--hayfam-dashboard-value-font-weight, 700); line-height: 1; }
 					</style>
 					<?php echo wp_kses_post( Hayfam_Dashboard_Shortcode::render_preview( $current_id ) ); ?>
 				</div>
@@ -316,6 +356,20 @@ class Hayfam_Dashboard_Settings {
 		$dashboard['fallback']   = sanitize_text_field( $dashboard['fallback'] );
 		$dashboard['cache_ttl']  = max( 60, absint( $dashboard['cache_ttl'] ) );
 		$dashboard['class']      = sanitize_text_field( $dashboard['class'] );
+		$dashboard['font_family']       = array_key_exists( $dashboard['font_family'], self::font_family_options() ) ? $dashboard['font_family'] : 'inherit';
+		$dashboard['font_size']         = self::sanitize_css_length( $dashboard['font_size'] );
+		$dashboard['value_font_size']   = self::sanitize_css_length( $dashboard['value_font_size'] );
+		$dashboard['font_weight']       = in_array( (string) $dashboard['font_weight'], array( '400', '500', '600', '700', '800' ), true ) ? (string) $dashboard['font_weight'] : '';
+		$dashboard['value_font_weight'] = in_array( (string) $dashboard['value_font_weight'], array( '400', '500', '600', '700', '800' ), true ) ? (string) $dashboard['value_font_weight'] : '';
+		$dashboard['line_height']       = self::sanitize_css_line_height( $dashboard['line_height'] );
+		$dashboard['text_align']        = in_array( $dashboard['text_align'], array( 'left', 'center', 'right' ), true ) ? $dashboard['text_align'] : '';
+		$dashboard['before_color']      = sanitize_hex_color( $dashboard['before_color'] ) ?: '';
+		$dashboard['value_color']       = sanitize_hex_color( $dashboard['value_color'] ) ?: '';
+		$dashboard['after_color']       = sanitize_hex_color( $dashboard['after_color'] ) ?: '';
+		$dashboard['background_color']  = sanitize_hex_color( $dashboard['background_color'] ) ?: '';
+		$dashboard['gap']               = self::sanitize_css_length( $dashboard['gap'] );
+		$dashboard['padding']           = self::sanitize_css_length( $dashboard['padding'] );
+		$dashboard['border_radius']     = self::sanitize_css_length( $dashboard['border_radius'] );
 
 		if ( ! preg_match( '/^[A-Z]+[1-9][0-9]*$/', $dashboard['cell'] ) ) {
 			$dashboard['cell'] = 'B2';
@@ -326,6 +380,28 @@ class Hayfam_Dashboard_Settings {
 		}
 
 		return $dashboard;
+	}
+
+	public static function font_family_options() {
+		return array(
+			'inherit'   => __( 'Theme default', 'dashboard-plugin' ),
+			'system'    => __( 'System sans-serif', 'dashboard-plugin' ),
+			'arial'     => 'Arial',
+			'georgia'   => 'Georgia',
+			'courier'   => 'Courier New',
+			'trebuchet' => 'Trebuchet MS',
+			'verdana'   => 'Verdana',
+		);
+	}
+
+	private static function sanitize_css_length( $value ) {
+		$value = trim( sanitize_text_field( (string) $value ) );
+		return preg_match( '/^(?:0|[0-9]+(?:\.[0-9]+)?(?:px|em|rem|%|vw|vh))$/', $value ) ? $value : '';
+	}
+
+	private static function sanitize_css_line_height( $value ) {
+		$value = trim( sanitize_text_field( (string) $value ) );
+		return preg_match( '/^(?:normal|[0-9]+(?:\.[0-9]+)?)$/', $value ) ? $value : '';
 	}
 
 	private static function unique_shortcode( $shortcode, $dashboard_id, $dashboards ) {
