@@ -112,7 +112,6 @@ class Hayfam_Dashboard_Shortcode {
 		$source = esc_url_raw( $attributes['source_url'] );
 		$sheet  = sanitize_text_field( $attributes['sheet'] );
 		$cell   = strtoupper( preg_replace( '/\s+/', '', sanitize_text_field( $attributes['cell'] ) ) );
-		$ttl    = absint( $dashboard['cache_ttl'] );
 		$override = sanitize_text_field( $attributes['override'] );
 		$result   = array( 'success' => false );
 
@@ -122,7 +121,7 @@ class Hayfam_Dashboard_Shortcode {
 				'value'   => $override,
 			);
 		} elseif ( $source ) {
-			$result = ( new Hayfam_Dashboard_Sheets_Client() )->get_value( $source, $sheet, $cell, $ttl );
+			$result = ( new Hayfam_Dashboard_Sheets_Client() )->get_value( $source, $sheet, $cell );
 		}
 
 		$has_value = ! empty( $result['success'] );
