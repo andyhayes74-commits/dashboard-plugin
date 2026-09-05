@@ -1,13 +1,13 @@
-# Dashboard Plugin v2.11.0
+# Dashboard Plugin v2.11.1
 
-Dashboard Plugin v2.11.0 is a standalone WordPress shortcode plugin for creating multiple live dashboard metrics from published Google Sheets.
+Dashboard Plugin v2.11.1 is a standalone WordPress shortcode plugin for creating multiple live dashboard metrics from published Google Sheets.
 
 It does not load Elementor classes or widgets. Elementor can still be used as the page builder by placing each generated shortcode in a normal Elementor **Shortcode** widget.
 
 ## Branch and version
 
-- Branch: `v2.11.0`
-- Plugin version: `2.11.0`
+- Branch: `v2.11.1`
+- Plugin version: `2.11.1`
 - Settings page: **Settings → Dashboard Plugin**
 
 ## What changed
@@ -183,5 +183,6 @@ The optional CSS class remains available for advanced styling or theme-specific 
 - Requires WordPress 6.4+ and PHP 7.4+.
 - Google Sheet values are fetched again on every dashboard render and frontend refresh. The old five-minute WordPress transient cache is no longer used.
 - The published Google Sheet or an upstream CDN may still take time to expose a newly edited value; the plugin sends no-cache headers and a unique refresh parameter to reduce that possibility.
+- Fixed live-refresh handling for pound signs and other Unicode characters entered in dashboard text fields.
 - The plugin does not request Google credentials.
 - The plugin has no Elementor runtime dependency.
