@@ -149,7 +149,7 @@ class Hayfam_Dashboard_Shortcode {
 
 		if ( isset( $font_families[ $dashboard['font_family'] ] ) && 'inherit' !== $dashboard['font_family'] ) {
 			$styles['--hayfam-dashboard-font-family'] = $font_families[ $dashboard['font_family'] ];
-			$styles['font-family'] = $font_families[ $dashboard['font_family'] ];
+			$styles['font-family'] = $font_families[ $dashboard['font_family'] ] . ' !important';
 		}
 
 		$properties = array(
@@ -167,7 +167,7 @@ class Hayfam_Dashboard_Shortcode {
 			if ( isset( $dashboard[ $setting ] ) && '' !== (string) $dashboard[ $setting ] ) {
 				$value = sanitize_text_field( $dashboard[ $setting ] );
 				$styles[ $property_names[0] ] = $value;
-				$styles[ $property_names[1] ] = $value;
+				$styles[ $property_names[1] ] = $value . ' !important';
 			}
 		}
 
@@ -176,6 +176,27 @@ class Hayfam_Dashboard_Shortcode {
 
 	private static function element_styles( $dashboard, $element ) {
 		$styles = array();
+		$font_families = array(
+			'inherit'   => 'inherit',
+			'system'    => 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+			'arial'     => 'Arial, Helvetica, sans-serif',
+			'georgia'   => 'Georgia, "Times New Roman", serif',
+			'courier'   => '"Courier New", Courier, monospace',
+			'trebuchet' => '"Trebuchet MS", Arial, sans-serif',
+			'verdana'   => 'Verdana, Arial, sans-serif',
+		);
+
+		if ( isset( $font_families[ $dashboard['font_family'] ] ) && 'inherit' !== $dashboard['font_family'] ) {
+			$styles['font-family'] = $font_families[ $dashboard['font_family'] ] . ' !important';
+		}
+
+		if ( ! empty( $dashboard['font_size'] ) ) {
+			$styles['font-size'] = sanitize_text_field( $dashboard['font_size'] ) . ' !important';
+		}
+
+		if ( ! empty( $dashboard['line_height'] ) ) {
+			$styles['line-height'] = sanitize_text_field( $dashboard['line_height'] ) . ' !important';
+		}
 
 		$colour_settings = array(
 			'before' => 'before_color',
@@ -184,15 +205,15 @@ class Hayfam_Dashboard_Shortcode {
 		);
 
 		if ( isset( $colour_settings[ $element ], $dashboard[ $colour_settings[ $element ] ] ) && '' !== (string) $dashboard[ $colour_settings[ $element ] ] ) {
-			$styles['color'] = sanitize_hex_color( $dashboard[ $colour_settings[ $element ] ] );
+			$styles['color'] = sanitize_hex_color( $dashboard[ $colour_settings[ $element ] ] ) . ' !important';
 		}
 
 		if ( 'value' === $element ) {
 			if ( ! empty( $dashboard['value_font_size'] ) ) {
-				$styles['font-size'] = sanitize_text_field( $dashboard['value_font_size'] );
+				$styles['font-size'] = sanitize_text_field( $dashboard['value_font_size'] ) . ' !important';
 			}
 			if ( ! empty( $dashboard['value_font_weight'] ) ) {
-				$styles['font-weight'] = sanitize_text_field( $dashboard['value_font_weight'] );
+				$styles['font-weight'] = sanitize_text_field( $dashboard['value_font_weight'] ) . ' !important';
 			}
 		}
 

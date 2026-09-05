@@ -294,8 +294,8 @@ class Hayfam_Dashboard_Settings {
 				<h2><?php echo esc_html__( 'Typography', 'dashboard-plugin' ); ?></h2>
 				<table class="form-table" role="presentation">
 					<tr><th scope="row"><label for="hayfam-dashboard-font-family"><?php echo esc_html__( 'Font family', 'dashboard-plugin' ); ?></label></th><td><select id="hayfam-dashboard-font-family" name="dashboard[font_family]"><?php foreach ( self::font_family_options() as $font_key => $font_label ) : ?><option value="<?php echo esc_attr( $font_key ); ?>" <?php selected( $current['font_family'], $font_key ); ?>><?php echo esc_html( $font_label ); ?></option><?php endforeach; ?></select></td></tr>
-					<tr><th scope="row"><label for="hayfam-dashboard-font-size"><?php echo esc_html__( 'Text size', 'dashboard-plugin' ); ?></label></th><td><input id="hayfam-dashboard-font-size" class="small-text" type="text" name="dashboard[font_size]" value="<?php echo esc_attr( $current['font_size'] ); ?>" placeholder="e.g. 18px"><p class="description"><?php echo esc_html__( 'Applies to the dashboard text. Leave blank to use the theme size.', 'dashboard-plugin' ); ?></p></td></tr>
-					<tr><th scope="row"><label for="hayfam-dashboard-value-font-size"><?php echo esc_html__( 'Value size', 'dashboard-plugin' ); ?></label></th><td><input id="hayfam-dashboard-value-font-size" class="small-text" type="text" name="dashboard[value_font_size]" value="<?php echo esc_attr( $current['value_font_size'] ); ?>" placeholder="e.g. 48px"><p class="description"><?php echo esc_html__( 'Controls the figure size independently.', 'dashboard-plugin' ); ?></p></td></tr>
+					<tr><th scope="row"><label for="hayfam-dashboard-font-size"><?php echo esc_html__( 'Text size', 'dashboard-plugin' ); ?></label></th><td><input id="hayfam-dashboard-font-size" class="small-text" type="text" name="dashboard[font_size]" value="<?php echo esc_attr( $current['font_size'] ); ?>" placeholder="e.g. 18px or 18"><p class="description"><?php echo esc_html__( 'Applies to the dashboard text. Enter a number for pixels, or include a unit such as px, em, rem, %, vw, or vh. Leave blank to use the theme size.', 'dashboard-plugin' ); ?></p></td></tr>
+					<tr><th scope="row"><label for="hayfam-dashboard-value-font-size"><?php echo esc_html__( 'Value size', 'dashboard-plugin' ); ?></label></th><td><input id="hayfam-dashboard-value-font-size" class="small-text" type="text" name="dashboard[value_font_size]" value="<?php echo esc_attr( $current['value_font_size'] ); ?>" placeholder="e.g. 48px or 48"><p class="description"><?php echo esc_html__( 'Controls the figure size independently. A bare number is treated as pixels.', 'dashboard-plugin' ); ?></p></td></tr>
 					<tr><th scope="row"><label for="hayfam-dashboard-font-weight"><?php echo esc_html__( 'Text weight', 'dashboard-plugin' ); ?></label></th><td><select id="hayfam-dashboard-font-weight" name="dashboard[font_weight]"><option value=""><?php echo esc_html__( 'Theme default', 'dashboard-plugin' ); ?></option><?php foreach ( array( '400' => 'Normal', '500' => 'Medium', '600' => 'Semi-bold', '700' => 'Bold', '800' => 'Extra-bold' ) as $weight_key => $weight_label ) : ?><option value="<?php echo esc_attr( $weight_key ); ?>" <?php selected( $current['font_weight'], $weight_key ); ?>><?php echo esc_html( $weight_label ); ?></option><?php endforeach; ?></select></td></tr>
 					<tr><th scope="row"><label for="hayfam-dashboard-value-font-weight"><?php echo esc_html__( 'Value weight', 'dashboard-plugin' ); ?></label></th><td><select id="hayfam-dashboard-value-font-weight" name="dashboard[value_font_weight]"><option value=""><?php echo esc_html__( 'Theme default', 'dashboard-plugin' ); ?></option><?php foreach ( array( '400' => 'Normal', '500' => 'Medium', '600' => 'Semi-bold', '700' => 'Bold', '800' => 'Extra-bold' ) as $weight_key => $weight_label ) : ?><option value="<?php echo esc_attr( $weight_key ); ?>" <?php selected( $current['value_font_weight'], $weight_key ); ?>><?php echo esc_html( $weight_label ); ?></option><?php endforeach; ?></select></td></tr>
 					<tr><th scope="row"><label for="hayfam-dashboard-line-height"><?php echo esc_html__( 'Line height', 'dashboard-plugin' ); ?></label></th><td><input id="hayfam-dashboard-line-height" class="small-text" type="text" name="dashboard[line_height]" value="<?php echo esc_attr( $current['line_height'] ); ?>" placeholder="e.g. 1.3"></td></tr>
@@ -387,6 +387,7 @@ class Hayfam_Dashboard_Settings {
 		$dashboard['fallback']   = sanitize_text_field( $dashboard['fallback'] );
 		$dashboard['cache_ttl']  = max( 60, absint( $dashboard['cache_ttl'] ) );
 		$dashboard['class']      = sanitize_text_field( $dashboard['class'] );
+		$dashboard['font_family']       = sanitize_key( (string) $dashboard['font_family'] );
 		$dashboard['font_family']       = array_key_exists( $dashboard['font_family'], self::font_family_options() ) ? $dashboard['font_family'] : 'inherit';
 		$dashboard['font_size']         = self::sanitize_css_length( $dashboard['font_size'] );
 		$dashboard['value_font_size']   = self::sanitize_css_length( $dashboard['value_font_size'] );
@@ -427,7 +428,11 @@ class Hayfam_Dashboard_Settings {
 
 	private static function sanitize_css_length( $value ) {
 		$value = trim( sanitize_text_field( (string) $value ) );
-		return preg_match( '/^(?:0|[0-9]+(?:\.[0-9]+)?(?:px|em|rem|%|vw|vh))$/', $value ) ? $value : '';
+		if ( '0' === $value || preg_match( '/^[0-9]+(?:\.[0-9]+)?(?:px|em|rem|%|vw|vh)$/', $value ) ) {
+			return $value;
+		}
+
+		return preg_match( '/^[0-9]+(?:\.[0-9]+)?$/', $value ) ? $value . 'px' : '';
 	}
 
 	private static function sanitize_css_line_height( $value ) {
