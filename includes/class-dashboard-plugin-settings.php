@@ -9,8 +9,10 @@ class Hayfam_Dashboard_Settings {
 
 	public static function init() {
 		add_action( 'admin_menu', array( __CLASS__, 'register_menu' ) );
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_admin_assets' ) );
 		add_action( 'admin_post_hayfam_dashboard_save', array( __CLASS__, 'save_dashboard' ) );
 		add_action( 'admin_post_hayfam_dashboard_add', array( __CLASS__, 'add_dashboard' ) );
+		add_action( 'admin_post_hayfam_dashboard_duplicate', array( __CLASS__, 'duplicate_dashboard' ) );
 		add_action( 'admin_post_hayfam_dashboard_delete', array( __CLASS__, 'delete_dashboard' ) );
 		add_action( 'admin_post_hayfam_dashboard_clear_cache', array( __CLASS__, 'clear_cache' ) );
 	}
@@ -58,6 +60,20 @@ class Hayfam_Dashboard_Settings {
 			'gap'              => '',
 			'padding'          => '',
 			'border_radius'    => '',
+			'widget_preset'    => 'plain',
+			'widget_border'    => 'none',
+			'widget_background'=> 'transparent',
+			'widget_graphic'   => 'none',
+			'theme_preset'    => 'none',
+			'animated_graphic' => 'none',
+			'graphic_max'     => '100',
+			'milestones'      => array(
+				array( 'percent' => '0',   'label' => '£0' ),
+				array( 'percent' => '25',  'label' => '' ),
+				array( 'percent' => '50',  'label' => '' ),
+				array( 'percent' => '75',  'label' => '' ),
+				array( 'percent' => '100', 'label' => '' ),
+			),
 		);
 	}
 
@@ -88,6 +104,8 @@ class Hayfam_Dashboard_Settings {
 			$dashboard['id']      = $id;
 			$dashboard['label']   = sanitize_text_field( $dashboard['label'] );
 			$dashboard['shortcode'] = sanitize_key( $dashboard['shortcode'] );
+			$dashboard['line_height'] = self::sanitize_css_line_height( $dashboard['line_height'] );
+			$dashboard['milestones'] = self::sanitize_milestones( $dashboard['milestones'] );
 
 			if ( ! $dashboard['shortcode'] || 'dashboard_metric' === $dashboard['shortcode'] ) {
 				$dashboard['shortcode'] = 'dashboard_' . $id;
@@ -179,6 +197,29 @@ class Hayfam_Dashboard_Settings {
 		self::redirect( $id, 'added' );
 	}
 
+	public static function duplicate_dashboard() {
+		self::verify_admin_request( 'hayfam_dashboard_duplicate' );
+
+		$dashboard_id = isset( $_POST['dashboard_id'] ) ? sanitize_key( wp_unslash( $_POST['dashboard_id'] ) ) : '';
+		$settings     = self::get_all();
+
+		if ( ! $dashboard_id || ! isset( $settings['dashboards'][ $dashboard_id ] ) ) {
+			self::redirect( $dashboard_id, 'error' );
+		}
+
+		$source      = $settings['dashboards'][ $dashboard_id ];
+		$new_label   = $source['label'] . ' Copy';
+		$new_id      = self::make_id( $new_label, $settings['dashboards'] );
+		$duplicate   = $source;
+		$duplicate['id'] = $new_id;
+		$duplicate['label'] = $new_label;
+		$duplicate['shortcode'] = self::unique_shortcode( 'dashboard_' . $new_id, $new_id, $settings['dashboards'] );
+		$settings['dashboards'][ $new_id ] = $duplicate;
+
+		update_option( HAYFAM_DASHBOARD_SETTINGS_OPTION, $settings );
+		self::redirect( $new_id, 'duplicated' );
+	}
+
 	public static function delete_dashboard() {
 		self::verify_admin_request( 'hayfam_dashboard_delete' );
 
@@ -207,6 +248,21 @@ class Hayfam_Dashboard_Settings {
 		add_options_page( __( 'Dashboard Plugin', 'dashboard-plugin' ), __( 'Dashboard Plugin', 'dashboard-plugin' ), 'manage_options', self::PAGE_SLUG, array( __CLASS__, 'render_page' ) );
 	}
 
+	public static function enqueue_admin_assets( $hook_suffix ) {
+		if ( 'settings_page_' . self::PAGE_SLUG !== $hook_suffix ) {
+			return;
+		}
+
+		wp_enqueue_style( 'hayfam-dashboard-plugin' );
+		wp_enqueue_script(
+			'hayfam-dashboard-admin-preview',
+			HAYFAM_DASHBOARD_URL . 'assets/js/dashboard-plugin-admin.js',
+			array(),
+			HAYFAM_DASHBOARD_VERSION,
+			true
+		);
+	}
+
 	public static function render_page() {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return;
@@ -221,7 +277,7 @@ class Hayfam_Dashboard_Settings {
 		$message    = isset( $_GET['message'] ) ? sanitize_key( wp_unslash( $_GET['message'] ) ) : '';
 		?>
 		<div class="wrap">
-			<h1><?php echo esc_html__( 'Dashboard Plugin v2.4', 'dashboard-plugin' ); ?></h1>
+			<h1><?php echo esc_html__( 'Dashboard Plugin v2.9.1', 'dashboard-plugin' ); ?></h1>
 			<p><?php echo esc_html__( 'Create a separate tab and shortcode for each live dashboard metric.', 'dashboard-plugin' ); ?></p>
 
 			<h2 class="nav-tab-wrapper">
@@ -233,11 +289,12 @@ class Hayfam_Dashboard_Settings {
 
 			<?php if ( 'saved' === $message ) : ?><div class="notice notice-success is-dismissible"><p><?php echo esc_html__( 'Dashboard saved.', 'dashboard-plugin' ); ?></p></div><?php endif; ?>
 			<?php if ( 'added' === $message ) : ?><div class="notice notice-success is-dismissible"><p><?php echo esc_html__( 'Dashboard added.', 'dashboard-plugin' ); ?></p></div><?php endif; ?>
+			<?php if ( 'duplicated' === $message ) : ?><div class="notice notice-success is-dismissible"><p><?php echo esc_html__( 'Dashboard duplicated.', 'dashboard-plugin' ); ?></p></div><?php endif; ?>
 			<?php if ( 'deleted' === $message ) : ?><div class="notice notice-success is-dismissible"><p><?php echo esc_html__( 'Dashboard deleted.', 'dashboard-plugin' ); ?></p></div><?php endif; ?>
 			<?php if ( 'cache_cleared' === $message ) : ?><div class="notice notice-success is-dismissible"><p><?php echo esc_html__( 'Cached dashboard values cleared.', 'dashboard-plugin' ); ?></p></div><?php endif; ?>
 			<?php if ( 'error' === $message ) : ?><div class="notice notice-error is-dismissible"><p><?php echo esc_html__( 'The requested dashboard action could not be completed.', 'dashboard-plugin' ); ?></p></div><?php endif; ?>
 
-			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+			<form id="hayfam-dashboard-settings-form" method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
 				<input type="hidden" name="action" value="hayfam_dashboard_save">
 				<input type="hidden" name="dashboard_id" value="<?php echo esc_attr( $current_id ); ?>">
 				<?php wp_nonce_field( 'hayfam_dashboard_save' ); ?>
@@ -269,11 +326,11 @@ class Hayfam_Dashboard_Settings {
 				<h2><?php echo esc_html__( 'Typography', 'dashboard-plugin' ); ?></h2>
 				<table class="form-table" role="presentation">
 					<tr><th scope="row"><label for="hayfam-dashboard-font-family"><?php echo esc_html__( 'Font family', 'dashboard-plugin' ); ?></label></th><td><select id="hayfam-dashboard-font-family" name="dashboard[font_family]"><?php foreach ( self::font_family_options() as $font_key => $font_label ) : ?><option value="<?php echo esc_attr( $font_key ); ?>" <?php selected( $current['font_family'], $font_key ); ?>><?php echo esc_html( $font_label ); ?></option><?php endforeach; ?></select></td></tr>
-					<tr><th scope="row"><label for="hayfam-dashboard-font-size"><?php echo esc_html__( 'Text size', 'dashboard-plugin' ); ?></label></th><td><input id="hayfam-dashboard-font-size" class="small-text" type="text" name="dashboard[font_size]" value="<?php echo esc_attr( $current['font_size'] ); ?>" placeholder="e.g. 18px"><p class="description"><?php echo esc_html__( 'Applies to the dashboard text. Leave blank to use the theme size.', 'dashboard-plugin' ); ?></p></td></tr>
-					<tr><th scope="row"><label for="hayfam-dashboard-value-font-size"><?php echo esc_html__( 'Value size', 'dashboard-plugin' ); ?></label></th><td><input id="hayfam-dashboard-value-font-size" class="small-text" type="text" name="dashboard[value_font_size]" value="<?php echo esc_attr( $current['value_font_size'] ); ?>" placeholder="e.g. 48px"><p class="description"><?php echo esc_html__( 'Controls the figure size independently.', 'dashboard-plugin' ); ?></p></td></tr>
+					<tr><th scope="row"><label for="hayfam-dashboard-font-size"><?php echo esc_html__( 'Text size', 'dashboard-plugin' ); ?></label></th><td><input id="hayfam-dashboard-font-size" class="small-text" type="text" name="dashboard[font_size]" value="<?php echo esc_attr( $current['font_size'] ); ?>" placeholder="e.g. 18px or 18"><p class="description"><?php echo esc_html__( 'Applies to the dashboard text. Enter a number for pixels, or include a unit such as px, em, rem, %, vw, or vh. Leave blank to use the theme size.', 'dashboard-plugin' ); ?></p></td></tr>
+					<tr><th scope="row"><label for="hayfam-dashboard-value-font-size"><?php echo esc_html__( 'Value size', 'dashboard-plugin' ); ?></label></th><td><input id="hayfam-dashboard-value-font-size" class="small-text" type="text" name="dashboard[value_font_size]" value="<?php echo esc_attr( $current['value_font_size'] ); ?>" placeholder="e.g. 48px or 48"><p class="description"><?php echo esc_html__( 'Controls the figure size independently. A bare number is treated as pixels.', 'dashboard-plugin' ); ?></p></td></tr>
 					<tr><th scope="row"><label for="hayfam-dashboard-font-weight"><?php echo esc_html__( 'Text weight', 'dashboard-plugin' ); ?></label></th><td><select id="hayfam-dashboard-font-weight" name="dashboard[font_weight]"><option value=""><?php echo esc_html__( 'Theme default', 'dashboard-plugin' ); ?></option><?php foreach ( array( '400' => 'Normal', '500' => 'Medium', '600' => 'Semi-bold', '700' => 'Bold', '800' => 'Extra-bold' ) as $weight_key => $weight_label ) : ?><option value="<?php echo esc_attr( $weight_key ); ?>" <?php selected( $current['font_weight'], $weight_key ); ?>><?php echo esc_html( $weight_label ); ?></option><?php endforeach; ?></select></td></tr>
 					<tr><th scope="row"><label for="hayfam-dashboard-value-font-weight"><?php echo esc_html__( 'Value weight', 'dashboard-plugin' ); ?></label></th><td><select id="hayfam-dashboard-value-font-weight" name="dashboard[value_font_weight]"><option value=""><?php echo esc_html__( 'Theme default', 'dashboard-plugin' ); ?></option><?php foreach ( array( '400' => 'Normal', '500' => 'Medium', '600' => 'Semi-bold', '700' => 'Bold', '800' => 'Extra-bold' ) as $weight_key => $weight_label ) : ?><option value="<?php echo esc_attr( $weight_key ); ?>" <?php selected( $current['value_font_weight'], $weight_key ); ?>><?php echo esc_html( $weight_label ); ?></option><?php endforeach; ?></select></td></tr>
-					<tr><th scope="row"><label for="hayfam-dashboard-line-height"><?php echo esc_html__( 'Line height', 'dashboard-plugin' ); ?></label></th><td><input id="hayfam-dashboard-line-height" class="small-text" type="text" name="dashboard[line_height]" value="<?php echo esc_attr( $current['line_height'] ); ?>" placeholder="e.g. 1.3"></td></tr>
+					<tr><th scope="row"><label for="hayfam-dashboard-line-height"><?php echo esc_html__( 'Line height', 'dashboard-plugin' ); ?></label></th><td><input id="hayfam-dashboard-line-height" class="small-text" type="text" name="dashboard[line_height]" value="<?php echo esc_attr( $current['line_height'] ); ?>" placeholder="e.g. 1.3"><p class="description"><?php echo esc_html__( 'Use 1.2 to 1.6 for normal readability. Values below 1 are ignored to prevent the text lines overlapping.', 'dashboard-plugin' ); ?></p></td></tr>
 					<tr><th scope="row"><label for="hayfam-dashboard-text-align"><?php echo esc_html__( 'Text alignment', 'dashboard-plugin' ); ?></label></th><td><select id="hayfam-dashboard-text-align" name="dashboard[text_align]"><option value=""><?php echo esc_html__( 'Theme default', 'dashboard-plugin' ); ?></option><?php foreach ( array( 'left' => 'Left', 'center' => 'Centre', 'right' => 'Right' ) as $align_key => $align_label ) : ?><option value="<?php echo esc_attr( $align_key ); ?>" <?php selected( $current['text_align'], $align_key ); ?>><?php echo esc_html( $align_label ); ?></option><?php endforeach; ?></select></td></tr>
 				</table>
 
@@ -292,6 +349,19 @@ class Hayfam_Dashboard_Settings {
 					<tr><th scope="row"><label for="hayfam-dashboard-border-radius"><?php echo esc_html__( 'Corner radius', 'dashboard-plugin' ); ?></label></th><td><input id="hayfam-dashboard-border-radius" class="small-text" type="text" name="dashboard[border_radius]" value="<?php echo esc_attr( $current['border_radius'] ); ?>" placeholder="e.g. 8px"></td></tr>
 				</table>
 
+				<h2><?php echo esc_html__( 'Widget appearance', 'dashboard-plugin' ); ?></h2>
+				<p class="description"><?php echo esc_html__( 'Choose a ready-made widget treatment or a brand theme. These options add visual styling without requiring CSS.', 'dashboard-plugin' ); ?></p>
+				<table class="form-table" role="presentation">
+					<tr><th scope="row"><label for="hayfam-dashboard-theme-preset"><?php echo esc_html__( 'Theme preset', 'dashboard-plugin' ); ?></label></th><td><select id="hayfam-dashboard-theme-preset" name="dashboard[theme_preset]"><?php foreach ( self::theme_preset_options() as $theme_key => $theme_label ) : ?><option value="<?php echo esc_attr( $theme_key ); ?>" <?php selected( $current['theme_preset'], $theme_key ); ?>><?php echo esc_html( $theme_label ); ?></option><?php endforeach; ?></select><p class="description"><?php echo esc_html__( 'Theme presets provide matching font and colour defaults. The individual controls below can still override them.', 'dashboard-plugin' ); ?></p></td></tr>
+					<tr><th scope="row"><label for="hayfam-dashboard-widget-preset"><?php echo esc_html__( 'Widget style', 'dashboard-plugin' ); ?></label></th><td><select id="hayfam-dashboard-widget-preset" name="dashboard[widget_preset]"><?php foreach ( self::widget_preset_options() as $widget_key => $widget_label ) : ?><option value="<?php echo esc_attr( $widget_key ); ?>" <?php selected( $current['widget_preset'], $widget_key ); ?>><?php echo esc_html( $widget_label ); ?></option><?php endforeach; ?></select></td></tr>
+					<tr><th scope="row"><label for="hayfam-dashboard-widget-border"><?php echo esc_html__( 'Border style', 'dashboard-plugin' ); ?></label></th><td><select id="hayfam-dashboard-widget-border" name="dashboard[widget_border]"><?php foreach ( self::widget_border_options() as $widget_key => $widget_label ) : ?><option value="<?php echo esc_attr( $widget_key ); ?>" <?php selected( $current['widget_border'], $widget_key ); ?>><?php echo esc_html( $widget_label ); ?></option><?php endforeach; ?></select></td></tr>
+					<tr><th scope="row"><label for="hayfam-dashboard-widget-background"><?php echo esc_html__( 'Background treatment', 'dashboard-plugin' ); ?></label></th><td><select id="hayfam-dashboard-widget-background" name="dashboard[widget_background]"><?php foreach ( self::widget_background_options() as $widget_key => $widget_label ) : ?><option value="<?php echo esc_attr( $widget_key ); ?>" <?php selected( $current['widget_background'], $widget_key ); ?>><?php echo esc_html( $widget_label ); ?></option><?php endforeach; ?></select></td></tr>
+					<tr><th scope="row"><label for="hayfam-dashboard-widget-graphic"><?php echo esc_html__( 'Decorative graphic', 'dashboard-plugin' ); ?></label></th><td><select id="hayfam-dashboard-widget-graphic" name="dashboard[widget_graphic]"><?php foreach ( self::widget_graphic_options() as $widget_key => $widget_label ) : ?><option value="<?php echo esc_attr( $widget_key ); ?>" <?php selected( $current['widget_graphic'], $widget_key ); ?>><?php echo esc_html( $widget_label ); ?></option><?php endforeach; ?></select></td></tr>
+					<tr><th scope="row"><label for="hayfam-dashboard-animated-graphic"><?php echo esc_html__( 'Animated graphic', 'dashboard-plugin' ); ?></label></th><td><select id="hayfam-dashboard-animated-graphic" name="dashboard[animated_graphic]"><?php foreach ( self::animated_graphic_options() as $graphic_key => $graphic_label ) : ?><option value="<?php echo esc_attr( $graphic_key ); ?>" <?php selected( $current['animated_graphic'], $graphic_key ); ?>><?php echo esc_html( $graphic_label ); ?></option><?php endforeach; ?></select><p class="description"><?php echo esc_html__( 'Adds a data-driven graphic based on the dashboard value.', 'dashboard-plugin' ); ?></p></td></tr>
+					<tr><th scope="row"><label for="hayfam-dashboard-graphic-max"><?php echo esc_html__( 'Graphic maximum', 'dashboard-plugin' ); ?></label></th><td><input id="hayfam-dashboard-graphic-max" class="small-text" type="text" name="dashboard[graphic_max]" value="<?php echo esc_attr( $current['graphic_max'] ); ?>" placeholder="100"><p class="description"><?php echo esc_html__( 'Percentage graphics use dashboard value ÷ this maximum. For example, 75 with a maximum of 100 gives 75%.', 'dashboard-plugin' ); ?></p></td></tr>
+					<tr><th scope="row"><?php echo esc_html__( 'Fundraising milestones', 'dashboard-plugin' ); ?></th><td><fieldset class="hayfam-dashboard-milestones-fieldset" <?php disabled( 'fundraising_bar' !== $current['animated_graphic'], true ); ?>><legend class="screen-reader-text"><?php echo esc_html__( 'Fundraising milestones', 'dashboard-plugin' ); ?></legend><?php foreach ( $current['milestones'] as $milestone_index => $milestone ) : ?><p class="hayfam-dashboard-milestone-row"><label for="hayfam-dashboard-milestone-<?php echo esc_attr( $milestone_index ); ?>-percent"><?php echo esc_html__( 'Level', 'dashboard-plugin' ); ?> <input id="hayfam-dashboard-milestone-<?php echo esc_attr( $milestone_index ); ?>-percent" class="small-text hayfam-dashboard-milestone-percent" type="text" name="dashboard[milestones][<?php echo esc_attr( $milestone_index ); ?>][percent]" value="<?php echo esc_attr( $milestone['percent'] ); ?>" inputmode="decimal">%</label> <label for="hayfam-dashboard-milestone-<?php echo esc_attr( $milestone_index ); ?>-label"><?php echo esc_html__( 'Label', 'dashboard-plugin' ); ?> <input id="hayfam-dashboard-milestone-<?php echo esc_attr( $milestone_index ); ?>-label" class="regular-text hayfam-dashboard-milestone-label" type="text" name="dashboard[milestones][<?php echo esc_attr( $milestone_index ); ?>][label]" value="<?php echo esc_attr( $milestone['label'] ); ?>" placeholder="e.g. New toaster"></label></p><?php endforeach; ?><p class="description"><?php echo esc_html__( 'These labels are used by the animated fundraising bar. Set a percentage from 0 to 100 and leave a label blank to hide that marker. They become active when the fundraising bar is selected.', 'dashboard-plugin' ); ?></p></fieldset></td></tr>
+				</table>
+
 				<h2><?php echo esc_html__( 'Formatting and caching', 'dashboard-plugin' ); ?></h2>
 				<table class="form-table" role="presentation">
 					<tr><th scope="row"><label for="hayfam-dashboard-decimals"><?php echo esc_html__( 'Decimal places', 'dashboard-plugin' ); ?></label></th><td><input id="hayfam-dashboard-decimals" class="small-text" type="number" name="dashboard[decimals]" value="<?php echo esc_attr( $current['decimals'] ); ?>" min="-1" max="10"><p class="description"><?php echo esc_html__( '-1 preserves the source value.', 'dashboard-plugin' ); ?></p></td></tr>
@@ -307,13 +377,11 @@ class Hayfam_Dashboard_Settings {
 
 			<div class="hayfam-dashboard-admin-preview" style="max-width:560px;margin:24px 0;padding:20px 24px;border:1px solid #c3c4c7;border-radius:6px;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.04)">
 				<h2 style="margin-top:0"><?php echo esc_html__( 'Dashboard preview', 'dashboard-plugin' ); ?></h2>
-				<p class="description"><?php echo esc_html__( 'This preview uses the last saved settings for this dashboard. Save changes above to refresh it.', 'dashboard-plugin' ); ?></p>
-				<div style="margin-top:18px;padding:24px;text-align:center;background:#f6f7f7;border-radius:4px;font-size:18px;line-height:1.35">
-					<style>
-						.hayfam-dashboard-admin-preview .hayfam-dashboard-metric { align-items: center; }
-						.hayfam-dashboard-admin-preview .hayfam-dashboard-metric__value { margin: 8px 0; font-size: var(--hayfam-dashboard-value-font-size, 2.5em); font-weight: var(--hayfam-dashboard-value-font-weight, 700); line-height: 1; }
-					</style>
-					<?php echo wp_kses_post( Hayfam_Dashboard_Shortcode::render_preview( $current_id ) ); ?>
+				<p class="description"><?php echo esc_html__( 'The widget updates as you edit the text and appearance controls. Save to store the settings. Google Sheet source changes take effect after saving.', 'dashboard-plugin' ); ?></p>
+				<div style="margin-top:18px;padding:24px;background:#f6f7f7;border-radius:4px">
+					<div id="hayfam-dashboard-preview-output">
+						<?php echo wp_kses_post( Hayfam_Dashboard_Shortcode::render_preview( $current_id ) ); ?>
+					</div>
 				</div>
 			</div>
 
@@ -323,6 +391,12 @@ class Hayfam_Dashboard_Settings {
 				<input type="hidden" name="dashboard_id" value="<?php echo esc_attr( $current_id ); ?>">
 				<?php wp_nonce_field( 'hayfam_dashboard_clear_cache' ); ?>
 				<?php submit_button( __( 'Clear cached values', 'dashboard-plugin' ), 'secondary', 'submit', false ); ?>
+			</form>
+			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="display:inline-block;margin-right:12px">
+				<input type="hidden" name="action" value="hayfam_dashboard_duplicate">
+				<input type="hidden" name="dashboard_id" value="<?php echo esc_attr( $current_id ); ?>">
+				<?php wp_nonce_field( 'hayfam_dashboard_duplicate' ); ?>
+				<?php submit_button( __( 'Duplicate this dashboard', 'dashboard-plugin' ), 'secondary', 'submit', false ); ?>
 			</form>
 			<?php if ( count( $dashboards ) > 1 ) : ?>
 				<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="display:inline-block">
@@ -356,6 +430,7 @@ class Hayfam_Dashboard_Settings {
 		$dashboard['fallback']   = sanitize_text_field( $dashboard['fallback'] );
 		$dashboard['cache_ttl']  = max( 60, absint( $dashboard['cache_ttl'] ) );
 		$dashboard['class']      = sanitize_text_field( $dashboard['class'] );
+		$dashboard['font_family']       = sanitize_key( (string) $dashboard['font_family'] );
 		$dashboard['font_family']       = array_key_exists( $dashboard['font_family'], self::font_family_options() ) ? $dashboard['font_family'] : 'inherit';
 		$dashboard['font_size']         = self::sanitize_css_length( $dashboard['font_size'] );
 		$dashboard['value_font_size']   = self::sanitize_css_length( $dashboard['value_font_size'] );
@@ -370,6 +445,14 @@ class Hayfam_Dashboard_Settings {
 		$dashboard['gap']               = self::sanitize_css_length( $dashboard['gap'] );
 		$dashboard['padding']           = self::sanitize_css_length( $dashboard['padding'] );
 		$dashboard['border_radius']     = self::sanitize_css_length( $dashboard['border_radius'] );
+		$dashboard['widget_preset']     = array_key_exists( $dashboard['widget_preset'], self::widget_preset_options() ) ? $dashboard['widget_preset'] : 'plain';
+		$dashboard['widget_border']     = array_key_exists( $dashboard['widget_border'], self::widget_border_options() ) ? $dashboard['widget_border'] : 'none';
+		$dashboard['widget_background'] = array_key_exists( $dashboard['widget_background'], self::widget_background_options() ) ? $dashboard['widget_background'] : 'transparent';
+		$dashboard['widget_graphic']    = array_key_exists( $dashboard['widget_graphic'], self::widget_graphic_options() ) ? $dashboard['widget_graphic'] : 'none';
+		$dashboard['theme_preset']      = array_key_exists( $dashboard['theme_preset'], self::theme_preset_options() ) ? $dashboard['theme_preset'] : 'none';
+		$dashboard['animated_graphic']  = array_key_exists( $dashboard['animated_graphic'], self::animated_graphic_options() ) ? $dashboard['animated_graphic'] : 'none';
+		$dashboard['graphic_max']       = self::sanitize_graphic_max( $dashboard['graphic_max'] );
+		$dashboard['milestones']        = self::sanitize_milestones( $dashboard['milestones'] );
 
 		if ( ! preg_match( '/^[A-Z]+[1-9][0-9]*$/', $dashboard['cell'] ) ) {
 			$dashboard['cell'] = 'B2';
@@ -386,6 +469,7 @@ class Hayfam_Dashboard_Settings {
 		return array(
 			'inherit'   => __( 'Theme default', 'dashboard-plugin' ),
 			'system'    => __( 'System sans-serif', 'dashboard-plugin' ),
+			'condensed' => __( 'Bold condensed display', 'dashboard-plugin' ),
 			'arial'     => 'Arial',
 			'georgia'   => 'Georgia',
 			'courier'   => 'Courier New',
@@ -394,14 +478,124 @@ class Hayfam_Dashboard_Settings {
 		);
 	}
 
+	public static function theme_preset_options() {
+		return array(
+			'none'            => __( 'None', 'dashboard-plugin' ),
+			'marcham_fridge'  => __( 'Marcham Community Fridge', 'dashboard-plugin' ),
+		);
+	}
+
+	public static function widget_preset_options() {
+		return array(
+			'plain'          => __( 'Plain', 'dashboard-plugin' ),
+			'soft_card'      => __( 'Soft card', 'dashboard-plugin' ),
+			'outlined_card'  => __( 'Outlined card', 'dashboard-plugin' ),
+			'dark_card'      => __( 'Dark card', 'dashboard-plugin' ),
+			'gradient_card'  => __( 'Gradient card', 'dashboard-plugin' ),
+		);
+	}
+
+	public static function widget_border_options() {
+		return array(
+			'none'   => __( 'No border', 'dashboard-plugin' ),
+			'solid'  => __( 'Solid', 'dashboard-plugin' ),
+			'dashed' => __( 'Dashed', 'dashboard-plugin' ),
+			'double' => __( 'Double', 'dashboard-plugin' ),
+			'accent' => __( 'Accent colour', 'dashboard-plugin' ),
+		);
+	}
+
+	public static function widget_background_options() {
+		return array(
+			'transparent'    => __( 'Transparent', 'dashboard-plugin' ),
+			'white'          => __( 'White', 'dashboard-plugin' ),
+			'soft_grey'      => __( 'Soft grey', 'dashboard-plugin' ),
+			'warm'           => __( 'Warm cream', 'dashboard-plugin' ),
+			'dark'           => __( 'Dark', 'dashboard-plugin' ),
+			'green_gradient' => __( 'Green gradient', 'dashboard-plugin' ),
+			'blue_gradient'  => __( 'Blue gradient', 'dashboard-plugin' ),
+		);
+	}
+
+	public static function widget_graphic_options() {
+		return array(
+			'none'          => __( 'None', 'dashboard-plugin' ),
+			'top_stripe'    => __( 'Top accent stripe', 'dashboard-plugin' ),
+			'corner_circles'=> __( 'Corner circles', 'dashboard-plugin' ),
+			'dots'          => __( 'Dot pattern', 'dashboard-plugin' ),
+			'side_bars'     => __( 'Side bars', 'dashboard-plugin' ),
+			'wave'          => __( 'Wave accent', 'dashboard-plugin' ),
+			'rings'         => __( 'Concentric rings', 'dashboard-plugin' ),
+			'diagonal'      => __( 'Diagonal lines', 'dashboard-plugin' ),
+			'glow'          => __( 'Soft glow', 'dashboard-plugin' ),
+		);
+	}
+
+	public static function animated_graphic_options() {
+		return array(
+			'none'         => __( 'None', 'dashboard-plugin' ),
+			'progress_bar' => __( 'Animated progress bar', 'dashboard-plugin' ),
+			'progress_arc' => __( 'Animated progress arc', 'dashboard-plugin' ),
+			'battery'      => __( 'Animated battery', 'dashboard-plugin' ),
+			'pulse'        => __( 'Animated pulse', 'dashboard-plugin' ),
+			'bars'         => __( 'Animated rising bars', 'dashboard-plugin' ),
+			'fundraising_bar' => __( 'Animated fundraising bar', 'dashboard-plugin' ),
+		);
+	}
+
+	private static function sanitize_milestones( $milestones ) {
+		$defaults = self::dashboard_defaults()['milestones'];
+		$input    = is_array( $milestones ) ? $milestones : array();
+		$result   = array();
+
+		foreach ( $defaults as $index => $default ) {
+			$item    = isset( $input[ $index ] ) && is_array( $input[ $index ] ) ? $input[ $index ] : array();
+			$percent = isset( $item['percent'] ) ? trim( sanitize_text_field( (string) $item['percent'] ) ) : $default['percent'];
+			$label   = isset( $item['label'] ) ? sanitize_text_field( $item['label'] ) : $default['label'];
+
+			if ( ! preg_match( '/^[0-9]+(?:\.[0-9]+)?$/', $percent ) ) {
+				$percent = $default['percent'];
+			}
+
+			$percent = (string) max( 0, min( 100, (float) $percent ) );
+			$result[] = array(
+				'percent' => $percent,
+				'label'   => $label,
+			);
+		}
+
+		return $result;
+	}
+
 	private static function sanitize_css_length( $value ) {
 		$value = trim( sanitize_text_field( (string) $value ) );
-		return preg_match( '/^(?:0|[0-9]+(?:\.[0-9]+)?(?:px|em|rem|%|vw|vh))$/', $value ) ? $value : '';
+		if ( '0' === $value || preg_match( '/^[0-9]+(?:\.[0-9]+)?(?:px|em|rem|%|vw|vh)$/', $value ) ) {
+			return $value;
+		}
+
+		return preg_match( '/^[0-9]+(?:\.[0-9]+)?$/', $value ) ? $value . 'px' : '';
 	}
 
 	private static function sanitize_css_line_height( $value ) {
 		$value = trim( sanitize_text_field( (string) $value ) );
-		return preg_match( '/^(?:normal|[0-9]+(?:\.[0-9]+)?)$/', $value ) ? $value : '';
+		if ( 'normal' === $value ) {
+			return $value;
+		}
+
+		if ( preg_match( '/^[0-9]+(?:\.[0-9]+)?$/', $value ) && (float) $value >= 1 ) {
+			return $value;
+		}
+
+		return '';
+	}
+
+	private static function sanitize_graphic_max( $value ) {
+		$value = trim( sanitize_text_field( (string) $value ) );
+		if ( preg_match( '/^[0-9]+(?:\.[0-9]+)?$/', $value ) && (float) $value > 0 ) {
+			return $value;
+		}
+
+		return '100';
 	}
 
 	private static function unique_shortcode( $shortcode, $dashboard_id, $dashboards ) {

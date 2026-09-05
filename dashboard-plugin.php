@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Dashboard Plugin
  * Description: Creates multiple configurable dashboard shortcodes backed by published Google Sheets.
- * Version: 2.4.0
+ * Version: 2.9.1
  * Author: Andy Hayes
  * License: GPL-2.0-or-later
  * Text Domain: dashboard-plugin
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'HAYFAM_DASHBOARD_VERSION', '2.4.0' );
+define( 'HAYFAM_DASHBOARD_VERSION', '2.9.1' );
 define( 'HAYFAM_DASHBOARD_FILE', __FILE__ );
 define( 'HAYFAM_DASHBOARD_PATH', plugin_dir_path( __FILE__ ) );
 define( 'HAYFAM_DASHBOARD_URL', plugin_dir_url( __FILE__ ) );
@@ -47,4 +47,4 @@ function hayfam_dashboard_register_assets() {
 		HAYFAM_DASHBOARD_VERSION
 	);
 }
-add_action( 'wp_enqueue_scripts', 'hayfam_dashboard_register_assets' );
+add_action( 'init', 'hayfam_dashboard_register_assets' );
