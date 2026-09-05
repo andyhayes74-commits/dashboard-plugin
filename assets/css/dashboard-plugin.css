@@ -9,7 +9,7 @@
 	font-weight: var(--hayfam-dashboard-font-weight, inherit);
 	line-height: var(--hayfam-dashboard-line-height, 1.25);
 	text-align: var(--hayfam-dashboard-text-align, inherit);
-	color: var(--hayfam-dashboard-text-color, inherit);
+	color: var(--hayfam-dashboard-text-color, #1f2937);
 	background-color: var(--hayfam-dashboard-background-color, transparent);
 	padding: var(--hayfam-dashboard-padding, 0);
 	border-radius: var(--hayfam-dashboard-border-radius, 0);

@@ -9,6 +9,7 @@ class Hayfam_Dashboard_Settings {
 
 	public static function init() {
 		add_action( 'admin_menu', array( __CLASS__, 'register_menu' ) );
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_admin_assets' ) );
 		add_action( 'admin_post_hayfam_dashboard_save', array( __CLASS__, 'save_dashboard' ) );
 		add_action( 'admin_post_hayfam_dashboard_add', array( __CLASS__, 'add_dashboard' ) );
 		add_action( 'admin_post_hayfam_dashboard_duplicate', array( __CLASS__, 'duplicate_dashboard' ) );
@@ -236,6 +237,21 @@ class Hayfam_Dashboard_Settings {
 		add_options_page( __( 'Dashboard Plugin', 'dashboard-plugin' ), __( 'Dashboard Plugin', 'dashboard-plugin' ), 'manage_options', self::PAGE_SLUG, array( __CLASS__, 'render_page' ) );
 	}
 
+	public static function enqueue_admin_assets( $hook_suffix ) {
+		if ( 'settings_page_' . self::PAGE_SLUG !== $hook_suffix ) {
+			return;
+		}
+
+		wp_enqueue_style( 'hayfam-dashboard-plugin' );
+		wp_enqueue_script(
+			'hayfam-dashboard-admin-preview',
+			HAYFAM_DASHBOARD_URL . 'assets/js/dashboard-plugin-admin.js',
+			array(),
+			HAYFAM_DASHBOARD_VERSION,
+			true
+		);
+	}
+
 	public static function render_page() {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return;
@@ -250,7 +266,7 @@ class Hayfam_Dashboard_Settings {
 		$message    = isset( $_GET['message'] ) ? sanitize_key( wp_unslash( $_GET['message'] ) ) : '';
 		?>
 		<div class="wrap">
-			<h1><?php echo esc_html__( 'Dashboard Plugin v2.5.0', 'dashboard-plugin' ); ?></h1>
+			<h1><?php echo esc_html__( 'Dashboard Plugin v2.6.0', 'dashboard-plugin' ); ?></h1>
 			<p><?php echo esc_html__( 'Create a separate tab and shortcode for each live dashboard metric.', 'dashboard-plugin' ); ?></p>
 
 			<h2 class="nav-tab-wrapper">
@@ -267,7 +283,7 @@ class Hayfam_Dashboard_Settings {
 			<?php if ( 'cache_cleared' === $message ) : ?><div class="notice notice-success is-dismissible"><p><?php echo esc_html__( 'Cached dashboard values cleared.', 'dashboard-plugin' ); ?></p></div><?php endif; ?>
 			<?php if ( 'error' === $message ) : ?><div class="notice notice-error is-dismissible"><p><?php echo esc_html__( 'The requested dashboard action could not be completed.', 'dashboard-plugin' ); ?></p></div><?php endif; ?>
 
-			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+			<form id="hayfam-dashboard-settings-form" method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
 				<input type="hidden" name="action" value="hayfam_dashboard_save">
 				<input type="hidden" name="dashboard_id" value="<?php echo esc_attr( $current_id ); ?>">
 				<?php wp_nonce_field( 'hayfam_dashboard_save' ); ?>
@@ -346,13 +362,11 @@ class Hayfam_Dashboard_Settings {
 
 			<div class="hayfam-dashboard-admin-preview" style="max-width:560px;margin:24px 0;padding:20px 24px;border:1px solid #c3c4c7;border-radius:6px;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.04)">
 				<h2 style="margin-top:0"><?php echo esc_html__( 'Dashboard preview', 'dashboard-plugin' ); ?></h2>
-				<p class="description"><?php echo esc_html__( 'This preview uses the last saved settings for this dashboard. Save changes above to refresh it.', 'dashboard-plugin' ); ?></p>
-				<div style="margin-top:18px;padding:24px;text-align:center;background:#f6f7f7;border-radius:4px;font-size:18px;line-height:1.35">
-					<style>
-						.hayfam-dashboard-admin-preview .hayfam-dashboard-metric { align-items: center; }
-						.hayfam-dashboard-admin-preview .hayfam-dashboard-metric__value { margin: 8px 0; font-size: var(--hayfam-dashboard-value-font-size, 2.5em); font-weight: var(--hayfam-dashboard-value-font-weight, 700); line-height: 1; }
-					</style>
-					<?php echo wp_kses_post( Hayfam_Dashboard_Shortcode::render_preview( $current_id ) ); ?>
+				<p class="description"><?php echo esc_html__( 'The widget updates as you edit the text and appearance controls. Save to store the settings. Google Sheet source changes take effect after saving.', 'dashboard-plugin' ); ?></p>
+				<div style="margin-top:18px;padding:24px;background:#f6f7f7;border-radius:4px">
+					<div id="hayfam-dashboard-preview-output">
+						<?php echo wp_kses_post( Hayfam_Dashboard_Shortcode::render_preview( $current_id ) ); ?>
+					</div>
 				</div>
 			</div>
 

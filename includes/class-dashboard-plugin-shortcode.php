@@ -166,6 +166,8 @@ class Hayfam_Dashboard_Shortcode {
 			'align-items'    => 'stretch',
 			'box-sizing'     => 'border-box',
 		);
+		$is_dark_widget = 'dark_card' === $dashboard['widget_preset'] || 'dark' === $dashboard['widget_background'];
+		$styles['color'] = ( $is_dark_widget ? '#ffffff' : '#1f2937' ) . ' !important';
 
 		if ( isset( $font_families[ $dashboard['font_family'] ] ) && 'inherit' !== $dashboard['font_family'] ) {
 			$styles['--hayfam-dashboard-font-family'] = $font_families[ $dashboard['font_family'] ];
