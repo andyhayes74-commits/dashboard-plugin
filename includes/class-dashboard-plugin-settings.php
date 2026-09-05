@@ -48,6 +48,8 @@ class Hayfam_Dashboard_Settings {
 			'font_family'      => 'inherit',
 			'font_size'        => '',
 			'value_font_size'  => '',
+			'mobile_font_size' => '',
+			'mobile_value_font_size' => '',
 			'font_weight'      => '',
 			'value_font_weight'=> '',
 			'line_height'      => '',
@@ -58,6 +60,10 @@ class Hayfam_Dashboard_Settings {
 			'background_color' => '',
 			'gap'              => '',
 			'padding'          => '',
+			'mobile_gap'       => '',
+			'mobile_padding'   => '',
+			'mobile_width'     => '',
+			'mobile_graphic_height' => '',
 			'border_radius'    => '',
 			'widget_preset'    => 'plain',
 			'widget_border'    => 'none',
@@ -341,6 +347,17 @@ class Hayfam_Dashboard_Settings {
 					<tr><th scope="row"><label for="hayfam-dashboard-border-radius"><?php echo esc_html__( 'Corner radius', 'dashboard-plugin' ); ?></label></th><td><input id="hayfam-dashboard-border-radius" class="small-text" type="text" name="dashboard[border_radius]" value="<?php echo esc_attr( $current['border_radius'] ); ?>" placeholder="e.g. 8px"></td></tr>
 				</table>
 
+				<h2><?php echo esc_html__( 'Mobile layout', 'dashboard-plugin' ); ?></h2>
+				<p class="description"><?php echo esc_html__( 'Optional settings for screens up to 767px wide. Leave a field blank to keep the normal dashboard setting.', 'dashboard-plugin' ); ?></p>
+				<table class="form-table" role="presentation">
+					<tr><th scope="row"><label for="hayfam-dashboard-mobile-font-size"><?php echo esc_html__( 'Mobile text size', 'dashboard-plugin' ); ?></label></th><td><input id="hayfam-dashboard-mobile-font-size" class="small-text" type="text" name="dashboard[mobile_font_size]" value="<?php echo esc_attr( $current['mobile_font_size'] ); ?>" placeholder="e.g. 16px or 16"></td></tr>
+					<tr><th scope="row"><label for="hayfam-dashboard-mobile-value-font-size"><?php echo esc_html__( 'Mobile value size', 'dashboard-plugin' ); ?></label></th><td><input id="hayfam-dashboard-mobile-value-font-size" class="small-text" type="text" name="dashboard[mobile_value_font_size]" value="<?php echo esc_attr( $current['mobile_value_font_size'] ); ?>" placeholder="e.g. 36px or 36"></td></tr>
+					<tr><th scope="row"><label for="hayfam-dashboard-mobile-gap"><?php echo esc_html__( 'Mobile line spacing', 'dashboard-plugin' ); ?></label></th><td><input id="hayfam-dashboard-mobile-gap" class="small-text" type="text" name="dashboard[mobile_gap]" value="<?php echo esc_attr( $current['mobile_gap'] ); ?>" placeholder="e.g. 4px"></td></tr>
+					<tr><th scope="row"><label for="hayfam-dashboard-mobile-padding"><?php echo esc_html__( 'Mobile inner padding', 'dashboard-plugin' ); ?></label></th><td><input id="hayfam-dashboard-mobile-padding" class="small-text" type="text" name="dashboard[mobile_padding]" value="<?php echo esc_attr( $current['mobile_padding'] ); ?>" placeholder="e.g. 16px"></td></tr>
+					<tr><th scope="row"><label for="hayfam-dashboard-mobile-width"><?php echo esc_html__( 'Mobile maximum width', 'dashboard-plugin' ); ?></label></th><td><input id="hayfam-dashboard-mobile-width" class="small-text" type="text" name="dashboard[mobile_width]" value="<?php echo esc_attr( $current['mobile_width'] ); ?>" placeholder="e.g. 92% or 340px"></td></tr>
+					<tr><th scope="row"><label for="hayfam-dashboard-mobile-graphic-height"><?php echo esc_html__( 'Mobile graphic height', 'dashboard-plugin' ); ?></label></th><td><input id="hayfam-dashboard-mobile-graphic-height" class="small-text" type="text" name="dashboard[mobile_graphic_height]" value="<?php echo esc_attr( $current['mobile_graphic_height'] ); ?>" placeholder="e.g. 200px"><p class="description"><?php echo esc_html__( 'Also controls the height of the fundraising bar and rising bars on mobile.', 'dashboard-plugin' ); ?></p></td></tr>
+				</table>
+
 				<h2><?php echo esc_html__( 'Widget appearance', 'dashboard-plugin' ); ?></h2>
 				<p class="description"><?php echo esc_html__( 'Choose a ready-made widget treatment or a brand theme. These options add visual styling without requiring CSS.', 'dashboard-plugin' ); ?></p>
 				<table class="form-table" role="presentation">
@@ -419,6 +436,8 @@ class Hayfam_Dashboard_Settings {
 		$dashboard['font_family']       = array_key_exists( $dashboard['font_family'], self::font_family_options() ) ? $dashboard['font_family'] : 'inherit';
 		$dashboard['font_size']         = self::sanitize_css_length( $dashboard['font_size'] );
 		$dashboard['value_font_size']   = self::sanitize_css_length( $dashboard['value_font_size'] );
+		$dashboard['mobile_font_size']  = self::sanitize_css_length( $dashboard['mobile_font_size'] );
+		$dashboard['mobile_value_font_size'] = self::sanitize_css_length( $dashboard['mobile_value_font_size'] );
 		$dashboard['font_weight']       = in_array( (string) $dashboard['font_weight'], array( '400', '500', '600', '700', '800' ), true ) ? (string) $dashboard['font_weight'] : '';
 		$dashboard['value_font_weight'] = in_array( (string) $dashboard['value_font_weight'], array( '400', '500', '600', '700', '800' ), true ) ? (string) $dashboard['value_font_weight'] : '';
 		$dashboard['line_height']       = self::sanitize_css_line_height( $dashboard['line_height'] );
@@ -429,6 +448,10 @@ class Hayfam_Dashboard_Settings {
 		$dashboard['background_color']  = sanitize_hex_color( $dashboard['background_color'] ) ?: '';
 		$dashboard['gap']               = self::sanitize_css_length( $dashboard['gap'] );
 		$dashboard['padding']           = self::sanitize_css_length( $dashboard['padding'] );
+		$dashboard['mobile_gap']        = self::sanitize_css_length( $dashboard['mobile_gap'] );
+		$dashboard['mobile_padding']    = self::sanitize_css_length( $dashboard['mobile_padding'] );
+		$dashboard['mobile_width']      = self::sanitize_css_length( $dashboard['mobile_width'] );
+		$dashboard['mobile_graphic_height'] = self::sanitize_css_length( $dashboard['mobile_graphic_height'] );
 		$dashboard['border_radius']     = self::sanitize_css_length( $dashboard['border_radius'] );
 		$dashboard['widget_preset']     = array_key_exists( $dashboard['widget_preset'], self::widget_preset_options() ) ? $dashboard['widget_preset'] : 'plain';
 		$dashboard['widget_border']     = array_key_exists( $dashboard['widget_border'], self::widget_border_options() ) ? $dashboard['widget_border'] : 'none';
