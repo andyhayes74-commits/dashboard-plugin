@@ -26,14 +26,16 @@ It does not load Elementor classes or widgets. Elementor can still be used as th
 
 1. Back up the WordPress files and database first.
 2. In WordPress, go to **Plugins → Add New Plugin → Upload Plugin**.
-3. Upload the ZIP from the `v2.3` branch.
+3. Upload the stable update package named `dashboard-plugin-main-v2.3.zip`.
 4. WordPress should identify it as the installed Dashboard Plugin and show the current and uploaded versions.
 5. Click **Replace current with uploaded**. This updates the existing plugin; it does not create a second copy, and the saved dashboard settings remain in WordPress.
 6. Return to **Plugins** and confirm Dashboard Plugin is active, then open **Settings → Dashboard Plugin**.
 
+The package contains the stable top-level folder `dashboard-plugin-main`, matching the installation created from the main-branch ZIP. Do not use the raw `v2.3` branch archive for updating: its branch-specific folder name makes WordPress treat it as a separate plugin.
+
 If WordPress offers only a normal new installation or says that the destination folder already exists, cancel the upload. Do not activate a second Dashboard Plugin copy.
 
-Download: `https://github.com/andyhayes74-commits/dashboard-plugin/archive/refs/heads/v2.3.zip`
+Download: `https://github.com/andyhayes74-commits/dashboard-plugin/raw/refs/heads/v2.3/dashboard-plugin-main-v2.3.zip`
 
 ## Creating dashboards
 
