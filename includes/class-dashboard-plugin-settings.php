@@ -64,6 +64,8 @@ class Hayfam_Dashboard_Settings {
 			'widget_border'    => 'none',
 			'widget_background'=> 'transparent',
 			'widget_graphic'   => 'none',
+			'animated_graphic' => 'none',
+			'graphic_max'     => '100',
 		);
 	}
 
@@ -266,7 +268,7 @@ class Hayfam_Dashboard_Settings {
 		$message    = isset( $_GET['message'] ) ? sanitize_key( wp_unslash( $_GET['message'] ) ) : '';
 		?>
 		<div class="wrap">
-			<h1><?php echo esc_html__( 'Dashboard Plugin v2.6.0', 'dashboard-plugin' ); ?></h1>
+			<h1><?php echo esc_html__( 'Dashboard Plugin v2.7.0', 'dashboard-plugin' ); ?></h1>
 			<p><?php echo esc_html__( 'Create a separate tab and shortcode for each live dashboard metric.', 'dashboard-plugin' ); ?></p>
 
 			<h2 class="nav-tab-wrapper">
@@ -345,6 +347,8 @@ class Hayfam_Dashboard_Settings {
 					<tr><th scope="row"><label for="hayfam-dashboard-widget-border"><?php echo esc_html__( 'Border style', 'dashboard-plugin' ); ?></label></th><td><select id="hayfam-dashboard-widget-border" name="dashboard[widget_border]"><?php foreach ( self::widget_border_options() as $widget_key => $widget_label ) : ?><option value="<?php echo esc_attr( $widget_key ); ?>" <?php selected( $current['widget_border'], $widget_key ); ?>><?php echo esc_html( $widget_label ); ?></option><?php endforeach; ?></select></td></tr>
 					<tr><th scope="row"><label for="hayfam-dashboard-widget-background"><?php echo esc_html__( 'Background treatment', 'dashboard-plugin' ); ?></label></th><td><select id="hayfam-dashboard-widget-background" name="dashboard[widget_background]"><?php foreach ( self::widget_background_options() as $widget_key => $widget_label ) : ?><option value="<?php echo esc_attr( $widget_key ); ?>" <?php selected( $current['widget_background'], $widget_key ); ?>><?php echo esc_html( $widget_label ); ?></option><?php endforeach; ?></select></td></tr>
 					<tr><th scope="row"><label for="hayfam-dashboard-widget-graphic"><?php echo esc_html__( 'Decorative graphic', 'dashboard-plugin' ); ?></label></th><td><select id="hayfam-dashboard-widget-graphic" name="dashboard[widget_graphic]"><?php foreach ( self::widget_graphic_options() as $widget_key => $widget_label ) : ?><option value="<?php echo esc_attr( $widget_key ); ?>" <?php selected( $current['widget_graphic'], $widget_key ); ?>><?php echo esc_html( $widget_label ); ?></option><?php endforeach; ?></select></td></tr>
+					<tr><th scope="row"><label for="hayfam-dashboard-animated-graphic"><?php echo esc_html__( 'Animated graphic', 'dashboard-plugin' ); ?></label></th><td><select id="hayfam-dashboard-animated-graphic" name="dashboard[animated_graphic]"><?php foreach ( self::animated_graphic_options() as $graphic_key => $graphic_label ) : ?><option value="<?php echo esc_attr( $graphic_key ); ?>" <?php selected( $current['animated_graphic'], $graphic_key ); ?>><?php echo esc_html( $graphic_label ); ?></option><?php endforeach; ?></select><p class="description"><?php echo esc_html__( 'Adds a data-driven graphic based on the dashboard value.', 'dashboard-plugin' ); ?></p></td></tr>
+					<tr><th scope="row"><label for="hayfam-dashboard-graphic-max"><?php echo esc_html__( 'Graphic maximum', 'dashboard-plugin' ); ?></label></th><td><input id="hayfam-dashboard-graphic-max" class="small-text" type="text" name="dashboard[graphic_max]" value="<?php echo esc_attr( $current['graphic_max'] ); ?>" placeholder="100"><p class="description"><?php echo esc_html__( 'Percentage graphics use dashboard value ÷ this maximum. For example, 75 with a maximum of 100 gives 75%.', 'dashboard-plugin' ); ?></p></td></tr>
 				</table>
 
 				<h2><?php echo esc_html__( 'Formatting and caching', 'dashboard-plugin' ); ?></h2>
@@ -434,6 +438,8 @@ class Hayfam_Dashboard_Settings {
 		$dashboard['widget_border']     = array_key_exists( $dashboard['widget_border'], self::widget_border_options() ) ? $dashboard['widget_border'] : 'none';
 		$dashboard['widget_background'] = array_key_exists( $dashboard['widget_background'], self::widget_background_options() ) ? $dashboard['widget_background'] : 'transparent';
 		$dashboard['widget_graphic']    = array_key_exists( $dashboard['widget_graphic'], self::widget_graphic_options() ) ? $dashboard['widget_graphic'] : 'none';
+		$dashboard['animated_graphic']  = array_key_exists( $dashboard['animated_graphic'], self::animated_graphic_options() ) ? $dashboard['animated_graphic'] : 'none';
+		$dashboard['graphic_max']       = self::sanitize_graphic_max( $dashboard['graphic_max'] );
 
 		if ( ! preg_match( '/^[A-Z]+[1-9][0-9]*$/', $dashboard['cell'] ) ) {
 			$dashboard['cell'] = 'B2';
@@ -497,6 +503,21 @@ class Hayfam_Dashboard_Settings {
 			'corner_circles'=> __( 'Corner circles', 'dashboard-plugin' ),
 			'dots'          => __( 'Dot pattern', 'dashboard-plugin' ),
 			'side_bars'     => __( 'Side bars', 'dashboard-plugin' ),
+			'wave'          => __( 'Wave accent', 'dashboard-plugin' ),
+			'rings'         => __( 'Concentric rings', 'dashboard-plugin' ),
+			'diagonal'      => __( 'Diagonal lines', 'dashboard-plugin' ),
+			'glow'          => __( 'Soft glow', 'dashboard-plugin' ),
+		);
+	}
+
+	public static function animated_graphic_options() {
+		return array(
+			'none'         => __( 'None', 'dashboard-plugin' ),
+			'progress_bar' => __( 'Animated progress bar', 'dashboard-plugin' ),
+			'progress_arc' => __( 'Animated progress arc', 'dashboard-plugin' ),
+			'battery'      => __( 'Animated battery', 'dashboard-plugin' ),
+			'pulse'        => __( 'Animated pulse', 'dashboard-plugin' ),
+			'bars'         => __( 'Animated rising bars', 'dashboard-plugin' ),
 		);
 	}
 
@@ -520,6 +541,15 @@ class Hayfam_Dashboard_Settings {
 		}
 
 		return '';
+	}
+
+	private static function sanitize_graphic_max( $value ) {
+		$value = trim( sanitize_text_field( (string) $value ) );
+		if ( preg_match( '/^[0-9]+(?:\.[0-9]+)?$/', $value ) && (float) $value > 0 ) {
+			return $value;
+		}
+
+		return '100';
 	}
 
 	private static function unique_shortcode( $shortcode, $dashboard_id, $dashboards ) {

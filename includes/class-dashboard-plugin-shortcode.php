@@ -91,12 +91,61 @@ class Hayfam_Dashboard_Shortcode {
 		wp_enqueue_style( 'hayfam-dashboard-plugin' );
 
 		$output  = '<div class="' . esc_attr( implode( ' ', $classes ) ) . '"' . self::style_attribute( $styles ) . '>';
+		$output .= self::animated_graphic( $dashboard, $value );
 		$output .= '<div class="hayfam-dashboard-metric__before"' . self::style_attribute( self::element_styles( $dashboard, 'before' ) ) . '>' . self::text( $attributes['before'] ) . '</div>';
 		$output .= '<div class="hayfam-dashboard-metric__value"' . self::style_attribute( self::element_styles( $dashboard, 'value' ) ) . '>' . esc_html( $prefix . $value . $suffix ) . '</div>';
 		$output .= '<div class="hayfam-dashboard-metric__after"' . self::style_attribute( self::element_styles( $dashboard, 'after' ) ) . '>' . self::text( $attributes['after'] ) . '</div>';
 		$output .= '</div>';
 
 		return $output;
+	}
+
+	private static function animated_graphic( $dashboard, $value ) {
+		$type = isset( $dashboard['animated_graphic'] ) ? sanitize_key( $dashboard['animated_graphic'] ) : 'none';
+		$options = Hayfam_Dashboard_Settings::animated_graphic_options();
+		if ( 'none' === $type || ! isset( $options[ $type ] ) ) {
+			return '';
+		}
+
+		$percent = self::graphic_percent( $dashboard, $value );
+		$label   = sprintf( __( 'Progress %s percent', 'dashboard-plugin' ), number_format_i18n( $percent, 0 ) );
+		$style   = '--hayfam-dashboard-graphic-percent:' . $percent . '%';
+		$output  = '<div class="hayfam-dashboard-animated hayfam-dashboard-animated--' . esc_attr( str_replace( '_', '-', $type ) ) . '" data-hayfam-animated-graphic="' . esc_attr( $type ) . '" style="' . esc_attr( $style ) . '" role="img" aria-label="' . esc_attr( $label ) . '">';
+
+		switch ( $type ) {
+			case 'progress_bar':
+				$output .= '<span class="hayfam-dashboard-animated__track"><span class="hayfam-dashboard-animated__fill"></span></span>';
+				break;
+			case 'progress_arc':
+				$output .= '<span class="hayfam-dashboard-animated__arc"><span class="hayfam-dashboard-animated__arc-label">' . esc_html( number_format_i18n( $percent, 0 ) ) . '%</span></span>';
+				break;
+			case 'battery':
+				$output .= '<span class="hayfam-dashboard-animated__battery"><span class="hayfam-dashboard-animated__battery-level"></span><span class="hayfam-dashboard-animated__battery-terminal"></span></span>';
+				break;
+			case 'pulse':
+				$output .= '<span class="hayfam-dashboard-animated__pulse"></span>';
+				break;
+			case 'bars':
+				$heights = array( 42, 68, 54, 86, 100 );
+				$output .= '<span class="hayfam-dashboard-animated__bars">';
+				foreach ( $heights as $height ) {
+					$bar_height = max( 12, min( 100, $height * $percent / 100 ) );
+					$output .= '<span style="' . esc_attr( '--hayfam-dashboard-bar-height:' . $bar_height . '%' ) . '"></span>';
+				}
+				$output .= '</span>';
+				break;
+		}
+
+		return $output . '</div>';
+	}
+
+	private static function graphic_percent( $dashboard, $value ) {
+		$numeric = preg_replace( '/[^0-9.\-]/', '', (string) $value );
+		$number  = is_numeric( $numeric ) ? (float) $numeric : 0;
+		$maximum = isset( $dashboard['graphic_max'] ) && (float) $dashboard['graphic_max'] > 0 ? (float) $dashboard['graphic_max'] : 100;
+		$percent = ( $number / $maximum ) * 100;
+
+		return round( max( 0, min( 100, $percent ) ), 2 );
 	}
 
 	private static function format_value( $value, $attributes ) {
@@ -190,6 +239,17 @@ class Hayfam_Dashboard_Shortcode {
 				$value = sanitize_text_field( $dashboard[ $setting ] );
 				$styles[ $property_names[0] ] = $value;
 				$styles[ $property_names[1] ] = $value . ' !important';
+			}
+		}
+
+		$colour_variables = array(
+			'before_color' => '--hayfam-dashboard-before-color',
+			'value_color'  => '--hayfam-dashboard-value-color',
+			'after_color'  => '--hayfam-dashboard-after-color',
+		);
+		foreach ( $colour_variables as $setting => $variable ) {
+			if ( ! empty( $dashboard[ $setting ] ) ) {
+				$styles[ $variable ] = sanitize_hex_color( $dashboard[ $setting ] );
 			}
 		}
 

@@ -50,7 +50,9 @@
 		preset: 'widget_preset',
 		border: 'widget_border',
 		background: 'widget_background',
-		graphic: 'widget_graphic'
+		graphic: 'widget_graphic',
+		animatedGraphic: 'animated_graphic',
+		graphicMax: 'graphic_max'
 	};
 	var initialPrefix = getValue(fieldNames.prefix);
 	var initialSuffix = getValue(fieldNames.suffix);
@@ -128,6 +130,100 @@
 		return /^\d+(?:\.\d+)?$/.test(trimmed) ? trimmed + 'px' : trimmed;
 	}
 
+	function graphicPercent(rawValue, rawMaximum) {
+		var number = parseFloat(String(rawValue || '').replace(/,/g, '').replace(/[^0-9.\-]/g, ''));
+		var maximum = parseFloat(String(rawMaximum || '').replace(/,/g, ''));
+		if (isNaN(number)) {
+			number = 0;
+		}
+		if (isNaN(maximum) || maximum <= 0) {
+			maximum = 100;
+		}
+		return Math.max(0, Math.min(100, (number / maximum) * 100));
+	}
+
+	function createAnimatedGraphic(type) {
+		var graphic = document.createElement('div');
+		graphic.className = 'hayfam-dashboard-animated hayfam-dashboard-animated--' + type.replace(/_/g, '-');
+		graphic.setAttribute('data-hayfam-animated-graphic', type);
+		graphic.setAttribute('role', 'img');
+
+		if (type === 'progress_bar') {
+			var track = document.createElement('span');
+			track.className = 'hayfam-dashboard-animated__track';
+			var fill = document.createElement('span');
+			fill.className = 'hayfam-dashboard-animated__fill';
+			track.appendChild(fill);
+			graphic.appendChild(track);
+		} else if (type === 'progress_arc') {
+			var arc = document.createElement('span');
+			arc.className = 'hayfam-dashboard-animated__arc';
+			var arcLabel = document.createElement('span');
+			arcLabel.className = 'hayfam-dashboard-animated__arc-label';
+			arc.appendChild(arcLabel);
+			graphic.appendChild(arc);
+		} else if (type === 'battery') {
+			var battery = document.createElement('span');
+			battery.className = 'hayfam-dashboard-animated__battery';
+			var level = document.createElement('span');
+			level.className = 'hayfam-dashboard-animated__battery-level';
+			var terminal = document.createElement('span');
+			terminal.className = 'hayfam-dashboard-animated__battery-terminal';
+			battery.appendChild(level);
+			battery.appendChild(terminal);
+			graphic.appendChild(battery);
+		} else if (type === 'pulse') {
+			var pulse = document.createElement('span');
+			pulse.className = 'hayfam-dashboard-animated__pulse';
+			graphic.appendChild(pulse);
+		} else if (type === 'bars') {
+			var bars = document.createElement('span');
+			bars.className = 'hayfam-dashboard-animated__bars';
+			[42, 68, 54, 86, 100].forEach(function () {
+				var bar = document.createElement('span');
+				bars.appendChild(bar);
+			});
+			graphic.appendChild(bars);
+		}
+
+		return graphic;
+	}
+
+	function updateAnimatedGraphic(displayValue) {
+		var type = getValue(fieldNames.animatedGraphic);
+		var existing = widget.querySelector('.hayfam-dashboard-animated');
+		if (!type || type === 'none') {
+			if (existing) {
+				existing.remove();
+			}
+			return;
+		}
+
+		if (!existing || existing.getAttribute('data-hayfam-animated-graphic') !== type) {
+			if (existing) {
+				existing.remove();
+			}
+			existing = createAnimatedGraphic(type);
+			widget.insertBefore(existing, before);
+		}
+
+		var percent = graphicPercent(displayValue, getValue(fieldNames.graphicMax));
+		existing.style.setProperty('--hayfam-dashboard-graphic-percent', percent + '%');
+		existing.setAttribute('aria-label', 'Progress ' + Math.round(percent) + ' percent');
+		var label = existing.querySelector('.hayfam-dashboard-animated__arc-label');
+		if (label) {
+			label.textContent = Math.round(percent) + '%';
+		}
+		if (type === 'bars') {
+			[42, 68, 54, 86, 100].forEach(function (height, index) {
+				var bar = existing.querySelectorAll('.hayfam-dashboard-animated__bars > span')[index];
+				if (bar) {
+					bar.style.setProperty('--hayfam-dashboard-bar-height', Math.max(12, Math.min(100, height * percent / 100)) + '%');
+				}
+			});
+		}
+	}
+
 	function update() {
 		var prefix = getValue(fieldNames.prefix);
 		var suffix = getValue(fieldNames.suffix);
@@ -137,6 +233,7 @@
 		setText(before, getValue(fieldNames.before));
 		setText(value, prefix + displayValue + suffix);
 		setText(after, getValue(fieldNames.after));
+		updateAnimatedGraphic(displayValue);
 
 		setWidgetClass('preset', getValue(fieldNames.preset));
 		setWidgetClass('border', getValue(fieldNames.border));
