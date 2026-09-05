@@ -7,35 +7,64 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Hayfam_Dashboard_Shortcode {
 	public static function init() {
 		add_shortcode( 'dashboard_metric', array( __CLASS__, 'render' ) );
+
+		foreach ( Hayfam_Dashboard_Settings::get_dashboards() as $dashboard_id => $dashboard ) {
+			if ( empty( $dashboard['shortcode'] ) || 'dashboard_metric' === $dashboard['shortcode'] ) {
+				continue;
+			}
+
+			add_shortcode(
+				$dashboard['shortcode'],
+				function ( $attributes ) use ( $dashboard_id ) {
+					return self::render_dashboard( $dashboard_id, $attributes );
+				}
+			);
+		}
 	}
 
 	public static function render( $attributes = array() ) {
+		$dashboard_id = '';
+
+		if ( isset( $attributes['dashboard'] ) ) {
+			$dashboard_id = $attributes['dashboard'];
+		} elseif ( isset( $attributes['id'] ) ) {
+			$dashboard_id = $attributes['id'];
+		}
+
+		return self::render_dashboard( $dashboard_id, $attributes );
+	}
+
+	private static function render_dashboard( $dashboard_id, $attributes ) {
+		$dashboard = Hayfam_Dashboard_Settings::get_dashboard( $dashboard_id );
+		if ( ! $dashboard ) {
+			return '';
+		}
+
 		$attributes = shortcode_atts(
 			array(
-				'source_url' => '',
-				'sheet'      => '',
-				'cell'       => 'B2',
-				'before'     => 'So far we have saved',
-				'after'      => 'Of food from landfill',
-				'prefix'     => '',
-				'suffix'     => ' KG',
-				'decimals'   => '-1',
-				'thousands'  => ',',
-				'decimal'    => '.',
-				'fallback'   => 'Data currently unavailable',
-				'class'      => '',
+				'source_url' => $dashboard['source_url'],
+				'sheet'      => $dashboard['sheet'],
+				'cell'       => $dashboard['cell'],
+				'before'     => $dashboard['before'],
+				'after'      => $dashboard['after'],
+				'prefix'     => $dashboard['prefix'],
+				'suffix'     => $dashboard['suffix'],
+				'decimals'   => $dashboard['decimals'],
+				'thousands'  => $dashboard['thousands'],
+				'decimal'    => $dashboard['decimal'],
+				'fallback'   => $dashboard['fallback'],
+				'class'      => $dashboard['class'],
 			),
 			$attributes,
 			'dashboard_metric'
 		);
 
-		$global = Hayfam_Dashboard_Settings::get_all();
-		$source = ! empty( $attributes['source_url'] ) ? esc_url_raw( $attributes['source_url'] ) : $global['source_url'];
-		$sheet  = ! empty( $attributes['sheet'] ) ? sanitize_text_field( $attributes['sheet'] ) : $global['default_sheet'];
+		$source = esc_url_raw( $attributes['source_url'] );
+		$sheet  = sanitize_text_field( $attributes['sheet'] );
 		$cell   = strtoupper( preg_replace( '/\s+/', '', sanitize_text_field( $attributes['cell'] ) ) );
-		$ttl    = absint( $global['cache_ttl'] );
-
+		$ttl    = absint( $dashboard['cache_ttl'] );
 		$result = array( 'success' => false );
+
 		if ( $source ) {
 			$result = ( new Hayfam_Dashboard_Sheets_Client() )->get_value( $source, $sheet, $cell, $ttl );
 		}
@@ -89,4 +118,3 @@ class Hayfam_Dashboard_Shortcode {
 		return array_unique( $classes );
 	}
 }
-
