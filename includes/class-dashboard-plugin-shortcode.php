@@ -7,6 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Hayfam_Dashboard_Shortcode {
 	public static function init() {
 		add_shortcode( 'dashboard_metric', array( __CLASS__, 'render' ) );
+		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
 
 		foreach ( Hayfam_Dashboard_Settings::get_dashboards() as $dashboard_id => $dashboard ) {
 			if ( empty( $dashboard['shortcode'] ) || 'dashboard_metric' === $dashboard['shortcode'] ) {
@@ -35,10 +36,54 @@ class Hayfam_Dashboard_Shortcode {
 	}
 
 	public static function render_preview( $dashboard_id ) {
-		return self::render_dashboard( $dashboard_id, array() );
+		return self::render_dashboard( $dashboard_id, array(), false );
 	}
 
-	private static function render_dashboard( $dashboard_id, $attributes ) {
+	public static function register_rest_routes() {
+		register_rest_route(
+			'hayfam-dashboard/v1',
+			'/render',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( __CLASS__, 'rest_render' ),
+				'permission_callback' => '__return_true',
+				'args'                => array(
+					'id' => array(
+						'required'          => true,
+						'sanitize_callback' => 'sanitize_key',
+					),
+				),
+			)
+		);
+	}
+
+	public static function rest_render( WP_REST_Request $request ) {
+		$dashboard_id = sanitize_key( (string) $request->get_param( 'id' ) );
+		$dashboard    = Hayfam_Dashboard_Settings::get_dashboard( $dashboard_id );
+
+		if ( ! $dashboard_id || ! $dashboard || $dashboard_id !== $dashboard['id'] ) {
+			return new WP_Error( 'dashboard_not_found', __( 'Dashboard not found.', 'dashboard-plugin' ), array( 'status' => 404 ) );
+		}
+
+		$attributes = $request->get_param( 'attributes' );
+		if ( is_string( $attributes ) ) {
+			$attributes = json_decode( wp_unslash( $attributes ), true );
+		}
+		$attributes = is_array( $attributes ) ? $attributes : array();
+		$html       = self::render_dashboard( $dashboard_id, $attributes, false );
+		$response   = rest_ensure_response(
+			array(
+				'html'       => $html,
+				'fetched_at' => current_time( 'timestamp', true ),
+			)
+		);
+		$response->header( 'Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0' );
+		$response->header( 'Pragma', 'no-cache' );
+
+		return $response;
+	}
+
+	private static function render_dashboard( $dashboard_id, $attributes, $live_refresh = true ) {
 		$dashboard = Hayfam_Dashboard_Settings::get_dashboard( $dashboard_id );
 		if ( ! $dashboard ) {
 			return '';
@@ -89,8 +134,30 @@ class Hayfam_Dashboard_Shortcode {
 		$styles    = self::styles( $dashboard );
 
 		wp_enqueue_style( 'hayfam-dashboard-plugin' );
+		if ( $live_refresh ) {
+			wp_enqueue_script( 'hayfam-dashboard-plugin-frontend' );
+		}
 
-		$output  = '<div class="' . esc_attr( implode( ' ', $classes ) ) . '"' . self::style_attribute( $styles ) . '>';
+		$live_attributes = array(
+			'source_url' => $attributes['source_url'],
+			'sheet'      => $attributes['sheet'],
+			'cell'       => $attributes['cell'],
+			'before'     => $attributes['before'],
+			'after'      => $attributes['after'],
+			'prefix'     => $attributes['prefix'],
+			'suffix'     => $attributes['suffix'],
+			'override'   => $attributes['override'],
+			'decimals'   => $attributes['decimals'],
+			'thousands'  => $attributes['thousands'],
+			'decimal'    => $attributes['decimal'],
+			'fallback'   => $attributes['fallback'],
+			'class'      => $attributes['class'],
+		);
+		$output  = '<div class="' . esc_attr( implode( ' ', $classes ) ) . '"' . self::style_attribute( $styles ) . ' data-hayfam-dashboard-live="' . esc_attr( $live_refresh ? '1' : '0' ) . '"';
+		if ( $live_refresh ) {
+			$output .= ' data-hayfam-dashboard-id="' . esc_attr( $dashboard['id'] ) . '" data-hayfam-dashboard-refresh-url="' . esc_url( rest_url( 'hayfam-dashboard/v1/render' ) ) . '" data-hayfam-dashboard-attributes="' . esc_attr( wp_json_encode( $live_attributes ) ) . '"';
+		}
+		$output .= '>';
 		$output .= self::animated_graphic( $dashboard, $value );
 		$output .= '<div class="hayfam-dashboard-metric__before"' . self::style_attribute( self::element_styles( $dashboard, 'before' ) ) . '>' . self::text( $attributes['before'] ) . '</div>';
 		$output .= '<div class="hayfam-dashboard-metric__value"' . self::style_attribute( self::element_styles( $dashboard, 'value' ) ) . '>' . esc_html( $prefix . $value . $suffix ) . '</div>';
