@@ -1,13 +1,13 @@
-# Dashboard Plugin v2.4.3
+# Dashboard Plugin v2.5.0
 
-Dashboard Plugin v2.4.3 is a standalone WordPress shortcode plugin for creating multiple live dashboard metrics from published Google Sheets.
+Dashboard Plugin v2.5.0 is a standalone WordPress shortcode plugin for creating multiple live dashboard metrics from published Google Sheets.
 
 It does not load Elementor classes or widgets. Elementor can still be used as the page builder by placing each generated shortcode in a normal Elementor **Shortcode** widget.
 
 ## Branch and version
 
-- Branch: `v2.4.3`
-- Plugin version: `2.4.3`
+- Branch: `v2.5.0`
+- Plugin version: `2.5.0`
 - Settings page: **Settings → Dashboard Plugin**
 
 ## What changed
@@ -22,6 +22,7 @@ It does not load Elementor classes or widgets. Elementor can still be used as th
 - Existing dashboards can be duplicated from the settings page. A duplicate copies its source, text, override, formatting, and style settings and receives a new shortcode.
 - Saved dashboard styles are also written directly onto the rendered output, so they remain effective when a theme or page builder delays the plugin stylesheet.
 - Text and value sizes accept either a unit such as `24px` or a bare number such as `24`, which is saved as pixels.
+- Added widget appearance presets, border styles, background treatments, and decorative CSS graphics.
 - Each dashboard can use an optional override figure instead of the Google Sheet value.
 - A dashboard can be tested with an override figure before a Google Sheet URL is added.
 - Added settings-based typography, colour, alignment, spacing, background, and corner-radius controls.
@@ -30,7 +31,7 @@ It does not load Elementor classes or widgets. Elementor can still be used as th
 
 1. Back up the WordPress files and database first.
 2. In WordPress, go to **Plugins → Add New Plugin → Upload Plugin**.
-3. Upload the stable update package for the v2.4.3 release.
+3. Upload the stable update package for the v2.5.0 release.
 4. WordPress should identify it as the installed Dashboard Plugin and show the current and uploaded versions.
 5. Click **Replace current with uploaded**. This updates the existing plugin; it does not create a second copy, and the saved dashboard settings remain in WordPress.
 6. Return to **Plugins** and confirm Dashboard Plugin is active, then open **Settings → Dashboard Plugin**.
@@ -39,7 +40,7 @@ The release package contains the stable top-level folder `dashboard-plugin-main`
 
 If WordPress offers only a normal new installation or says that the destination folder already exists, cancel the upload. Do not activate a second Dashboard Plugin copy.
 
-Download: `https://github.com/andyhayes74-commits/dashboard-plugin/raw/refs/heads/v2.4.3/dashboard-plugin-main-v2.4.3.zip`
+Download: `https://github.com/andyhayes74-commits/dashboard-plugin/raw/refs/heads/v2.5.0/dashboard-plugin-main-v2.5.0.zip`
 
 ## Creating dashboards
 
@@ -133,6 +134,9 @@ Each dashboard can now be styled from **Settings → Dashboard Plugin** without 
 - **Typography** — font family, text size, value size, weights, line height, and alignment.
 - **Colours** — colours for the text above, value, text below, and background.
 - **Spacing and shape** — line spacing, inner padding, and corner radius.
+- **Widget appearance** — card preset, border style, background treatment, and decorative graphic.
+
+Widget styles include plain, soft card, outlined card, dark card, and gradient card presets. Borders include solid, dashed, double, and accent options. Backgrounds include transparent, white, soft grey, warm cream, dark, green gradient, and blue gradient. Decorative graphics include a top stripe, corner circles, dots, and side bars.
 
 Every dashboard still uses these classes:
 

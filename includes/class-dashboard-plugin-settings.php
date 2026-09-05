@@ -59,6 +59,10 @@ class Hayfam_Dashboard_Settings {
 			'gap'              => '',
 			'padding'          => '',
 			'border_radius'    => '',
+			'widget_preset'    => 'plain',
+			'widget_border'    => 'none',
+			'widget_background'=> 'transparent',
+			'widget_graphic'   => 'none',
 		);
 	}
 
@@ -245,7 +249,7 @@ class Hayfam_Dashboard_Settings {
 		$message    = isset( $_GET['message'] ) ? sanitize_key( wp_unslash( $_GET['message'] ) ) : '';
 		?>
 		<div class="wrap">
-			<h1><?php echo esc_html__( 'Dashboard Plugin v2.4.1', 'dashboard-plugin' ); ?></h1>
+			<h1><?php echo esc_html__( 'Dashboard Plugin v2.5.0', 'dashboard-plugin' ); ?></h1>
 			<p><?php echo esc_html__( 'Create a separate tab and shortcode for each live dashboard metric.', 'dashboard-plugin' ); ?></p>
 
 			<h2 class="nav-tab-wrapper">
@@ -315,6 +319,15 @@ class Hayfam_Dashboard_Settings {
 					<tr><th scope="row"><label for="hayfam-dashboard-gap"><?php echo esc_html__( 'Space between lines', 'dashboard-plugin' ); ?></label></th><td><input id="hayfam-dashboard-gap" class="small-text" type="text" name="dashboard[gap]" value="<?php echo esc_attr( $current['gap'] ); ?>" placeholder="e.g. 8px"></td></tr>
 					<tr><th scope="row"><label for="hayfam-dashboard-padding"><?php echo esc_html__( 'Inner padding', 'dashboard-plugin' ); ?></label></th><td><input id="hayfam-dashboard-padding" class="small-text" type="text" name="dashboard[padding]" value="<?php echo esc_attr( $current['padding'] ); ?>" placeholder="e.g. 16px"></td></tr>
 					<tr><th scope="row"><label for="hayfam-dashboard-border-radius"><?php echo esc_html__( 'Corner radius', 'dashboard-plugin' ); ?></label></th><td><input id="hayfam-dashboard-border-radius" class="small-text" type="text" name="dashboard[border_radius]" value="<?php echo esc_attr( $current['border_radius'] ); ?>" placeholder="e.g. 8px"></td></tr>
+				</table>
+
+				<h2><?php echo esc_html__( 'Widget appearance', 'dashboard-plugin' ); ?></h2>
+				<p class="description"><?php echo esc_html__( 'Choose a ready-made widget treatment. These options add the visual card, border, background, and decorative graphic without requiring CSS.', 'dashboard-plugin' ); ?></p>
+				<table class="form-table" role="presentation">
+					<tr><th scope="row"><label for="hayfam-dashboard-widget-preset"><?php echo esc_html__( 'Widget style', 'dashboard-plugin' ); ?></label></th><td><select id="hayfam-dashboard-widget-preset" name="dashboard[widget_preset]"><?php foreach ( self::widget_preset_options() as $widget_key => $widget_label ) : ?><option value="<?php echo esc_attr( $widget_key ); ?>" <?php selected( $current['widget_preset'], $widget_key ); ?>><?php echo esc_html( $widget_label ); ?></option><?php endforeach; ?></select></td></tr>
+					<tr><th scope="row"><label for="hayfam-dashboard-widget-border"><?php echo esc_html__( 'Border style', 'dashboard-plugin' ); ?></label></th><td><select id="hayfam-dashboard-widget-border" name="dashboard[widget_border]"><?php foreach ( self::widget_border_options() as $widget_key => $widget_label ) : ?><option value="<?php echo esc_attr( $widget_key ); ?>" <?php selected( $current['widget_border'], $widget_key ); ?>><?php echo esc_html( $widget_label ); ?></option><?php endforeach; ?></select></td></tr>
+					<tr><th scope="row"><label for="hayfam-dashboard-widget-background"><?php echo esc_html__( 'Background treatment', 'dashboard-plugin' ); ?></label></th><td><select id="hayfam-dashboard-widget-background" name="dashboard[widget_background]"><?php foreach ( self::widget_background_options() as $widget_key => $widget_label ) : ?><option value="<?php echo esc_attr( $widget_key ); ?>" <?php selected( $current['widget_background'], $widget_key ); ?>><?php echo esc_html( $widget_label ); ?></option><?php endforeach; ?></select></td></tr>
+					<tr><th scope="row"><label for="hayfam-dashboard-widget-graphic"><?php echo esc_html__( 'Decorative graphic', 'dashboard-plugin' ); ?></label></th><td><select id="hayfam-dashboard-widget-graphic" name="dashboard[widget_graphic]"><?php foreach ( self::widget_graphic_options() as $widget_key => $widget_label ) : ?><option value="<?php echo esc_attr( $widget_key ); ?>" <?php selected( $current['widget_graphic'], $widget_key ); ?>><?php echo esc_html( $widget_label ); ?></option><?php endforeach; ?></select></td></tr>
 				</table>
 
 				<h2><?php echo esc_html__( 'Formatting and caching', 'dashboard-plugin' ); ?></h2>
@@ -402,6 +415,10 @@ class Hayfam_Dashboard_Settings {
 		$dashboard['gap']               = self::sanitize_css_length( $dashboard['gap'] );
 		$dashboard['padding']           = self::sanitize_css_length( $dashboard['padding'] );
 		$dashboard['border_radius']     = self::sanitize_css_length( $dashboard['border_radius'] );
+		$dashboard['widget_preset']     = array_key_exists( $dashboard['widget_preset'], self::widget_preset_options() ) ? $dashboard['widget_preset'] : 'plain';
+		$dashboard['widget_border']     = array_key_exists( $dashboard['widget_border'], self::widget_border_options() ) ? $dashboard['widget_border'] : 'none';
+		$dashboard['widget_background'] = array_key_exists( $dashboard['widget_background'], self::widget_background_options() ) ? $dashboard['widget_background'] : 'transparent';
+		$dashboard['widget_graphic']    = array_key_exists( $dashboard['widget_graphic'], self::widget_graphic_options() ) ? $dashboard['widget_graphic'] : 'none';
 
 		if ( ! preg_match( '/^[A-Z]+[1-9][0-9]*$/', $dashboard['cell'] ) ) {
 			$dashboard['cell'] = 'B2';
@@ -423,6 +440,48 @@ class Hayfam_Dashboard_Settings {
 			'courier'   => 'Courier New',
 			'trebuchet' => 'Trebuchet MS',
 			'verdana'   => 'Verdana',
+		);
+	}
+
+	public static function widget_preset_options() {
+		return array(
+			'plain'          => __( 'Plain', 'dashboard-plugin' ),
+			'soft_card'      => __( 'Soft card', 'dashboard-plugin' ),
+			'outlined_card'  => __( 'Outlined card', 'dashboard-plugin' ),
+			'dark_card'      => __( 'Dark card', 'dashboard-plugin' ),
+			'gradient_card'  => __( 'Gradient card', 'dashboard-plugin' ),
+		);
+	}
+
+	public static function widget_border_options() {
+		return array(
+			'none'   => __( 'No border', 'dashboard-plugin' ),
+			'solid'  => __( 'Solid', 'dashboard-plugin' ),
+			'dashed' => __( 'Dashed', 'dashboard-plugin' ),
+			'double' => __( 'Double', 'dashboard-plugin' ),
+			'accent' => __( 'Accent colour', 'dashboard-plugin' ),
+		);
+	}
+
+	public static function widget_background_options() {
+		return array(
+			'transparent'    => __( 'Transparent', 'dashboard-plugin' ),
+			'white'          => __( 'White', 'dashboard-plugin' ),
+			'soft_grey'      => __( 'Soft grey', 'dashboard-plugin' ),
+			'warm'           => __( 'Warm cream', 'dashboard-plugin' ),
+			'dark'           => __( 'Dark', 'dashboard-plugin' ),
+			'green_gradient' => __( 'Green gradient', 'dashboard-plugin' ),
+			'blue_gradient'  => __( 'Blue gradient', 'dashboard-plugin' ),
+		);
+	}
+
+	public static function widget_graphic_options() {
+		return array(
+			'none'          => __( 'None', 'dashboard-plugin' ),
+			'top_stripe'    => __( 'Top accent stripe', 'dashboard-plugin' ),
+			'corner_circles'=> __( 'Corner circles', 'dashboard-plugin' ),
+			'dots'          => __( 'Dot pattern', 'dashboard-plugin' ),
+			'side_bars'     => __( 'Side bars', 'dashboard-plugin' ),
 		);
 	}
 

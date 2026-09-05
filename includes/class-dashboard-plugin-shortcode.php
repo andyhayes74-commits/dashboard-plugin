@@ -85,6 +85,7 @@ class Hayfam_Dashboard_Shortcode {
 		$prefix    = $has_value ? sanitize_text_field( $attributes['prefix'] ) : '';
 		$suffix    = $has_value ? sanitize_text_field( $attributes['suffix'] ) : '';
 		$classes   = self::classes( $attributes['class'] );
+		$classes   = array_merge( $classes, self::widget_classes( $dashboard ) );
 		$styles    = self::styles( $dashboard );
 
 		wp_enqueue_style( 'hayfam-dashboard-plugin' );
@@ -128,6 +129,25 @@ class Hayfam_Dashboard_Shortcode {
 		}
 
 		return array_unique( $classes );
+	}
+
+	private static function widget_classes( $dashboard ) {
+		$classes = array( 'hayfam-dashboard-widget' );
+		$settings = array(
+			'widget_preset'     => 'preset',
+			'widget_border'     => 'border',
+			'widget_background' => 'background',
+			'widget_graphic'    => 'graphic',
+		);
+
+		foreach ( $settings as $setting => $class_suffix ) {
+			$value = isset( $dashboard[ $setting ] ) ? sanitize_html_class( $dashboard[ $setting ] ) : '';
+			if ( $value ) {
+				$classes[] = 'hayfam-dashboard-widget--' . $class_suffix . '-' . str_replace( '_', '-', $value );
+			}
+		}
+
+		return $classes;
 	}
 
 	private static function styles( $dashboard ) {
