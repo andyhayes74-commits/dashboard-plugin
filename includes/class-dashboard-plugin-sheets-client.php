@@ -5,7 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 class Hayfam_Dashboard_Sheets_Client {
-	public function get_value( $source_url, $sheet, $cell, $ttl = 300 ) {
+	public function get_value( $source_url, $sheet, $cell ) {
 		$source_url = esc_url_raw( trim( (string) $source_url ) );
 		$sheet      = sanitize_text_field( (string) $sheet );
 		$cell       = strtoupper( preg_replace( '/\s+/', '', (string) $cell ) );
@@ -18,18 +18,16 @@ class Hayfam_Dashboard_Sheets_Client {
 			return $this->failure( 'invalid_cell' );
 		}
 
-		$cached = Hayfam_Dashboard_Cache::get( $source_url, $sheet, $cell );
-		if ( is_array( $cached ) && array_key_exists( 'value', $cached ) ) {
-			$cached['cached'] = true;
-			return $cached;
-		}
-
 		$response = wp_safe_remote_get(
 			$this->build_request_url( $source_url, $sheet, $cell ),
 			array(
 				'timeout'     => 10,
 				'redirection' => 3,
-				'headers'     => array( 'Accept' => 'text/csv,text/plain;q=0.9,*/*;q=0.8' ),
+				'headers'     => array(
+					'Accept'        => 'text/csv,text/plain;q=0.9,*/*;q=0.8',
+					'Cache-Control' => 'no-cache',
+					'Pragma'        => 'no-cache',
+				),
 			)
 		);
 
@@ -59,8 +57,6 @@ class Hayfam_Dashboard_Sheets_Client {
 			'cached'     => false,
 		);
 
-		Hayfam_Dashboard_Cache::set( $source_url, $sheet, $cell, $result, $ttl );
-
 		return $result;
 	}
 
@@ -81,8 +77,9 @@ class Hayfam_Dashboard_Sheets_Client {
 
 	private function build_request_url( $source_url, $sheet, $cell ) {
 		$args = array(
-			'output' => 'csv',
-			'range'  => $cell,
+			'output'         => 'csv',
+			'range'          => $cell,
+			'_hayfam_refresh' => microtime( true ),
 		);
 
 		if ( $sheet ) {
@@ -138,4 +135,3 @@ class Hayfam_Dashboard_Sheets_Client {
 		}
 	}
 }
-
