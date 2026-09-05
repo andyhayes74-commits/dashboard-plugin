@@ -11,6 +11,7 @@ class Hayfam_Dashboard_Settings {
 		add_action( 'admin_menu', array( __CLASS__, 'register_menu' ) );
 		add_action( 'admin_post_hayfam_dashboard_save', array( __CLASS__, 'save_dashboard' ) );
 		add_action( 'admin_post_hayfam_dashboard_add', array( __CLASS__, 'add_dashboard' ) );
+		add_action( 'admin_post_hayfam_dashboard_duplicate', array( __CLASS__, 'duplicate_dashboard' ) );
 		add_action( 'admin_post_hayfam_dashboard_delete', array( __CLASS__, 'delete_dashboard' ) );
 		add_action( 'admin_post_hayfam_dashboard_clear_cache', array( __CLASS__, 'clear_cache' ) );
 	}
@@ -179,6 +180,29 @@ class Hayfam_Dashboard_Settings {
 		self::redirect( $id, 'added' );
 	}
 
+	public static function duplicate_dashboard() {
+		self::verify_admin_request( 'hayfam_dashboard_duplicate' );
+
+		$dashboard_id = isset( $_POST['dashboard_id'] ) ? sanitize_key( wp_unslash( $_POST['dashboard_id'] ) ) : '';
+		$settings     = self::get_all();
+
+		if ( ! $dashboard_id || ! isset( $settings['dashboards'][ $dashboard_id ] ) ) {
+			self::redirect( $dashboard_id, 'error' );
+		}
+
+		$source      = $settings['dashboards'][ $dashboard_id ];
+		$new_label   = $source['label'] . ' Copy';
+		$new_id      = self::make_id( $new_label, $settings['dashboards'] );
+		$duplicate   = $source;
+		$duplicate['id'] = $new_id;
+		$duplicate['label'] = $new_label;
+		$duplicate['shortcode'] = self::unique_shortcode( 'dashboard_' . $new_id, $new_id, $settings['dashboards'] );
+		$settings['dashboards'][ $new_id ] = $duplicate;
+
+		update_option( HAYFAM_DASHBOARD_SETTINGS_OPTION, $settings );
+		self::redirect( $new_id, 'duplicated' );
+	}
+
 	public static function delete_dashboard() {
 		self::verify_admin_request( 'hayfam_dashboard_delete' );
 
@@ -221,7 +245,7 @@ class Hayfam_Dashboard_Settings {
 		$message    = isset( $_GET['message'] ) ? sanitize_key( wp_unslash( $_GET['message'] ) ) : '';
 		?>
 		<div class="wrap">
-			<h1><?php echo esc_html__( 'Dashboard Plugin v2.4', 'dashboard-plugin' ); ?></h1>
+			<h1><?php echo esc_html__( 'Dashboard Plugin v2.4.1', 'dashboard-plugin' ); ?></h1>
 			<p><?php echo esc_html__( 'Create a separate tab and shortcode for each live dashboard metric.', 'dashboard-plugin' ); ?></p>
 
 			<h2 class="nav-tab-wrapper">
@@ -233,6 +257,7 @@ class Hayfam_Dashboard_Settings {
 
 			<?php if ( 'saved' === $message ) : ?><div class="notice notice-success is-dismissible"><p><?php echo esc_html__( 'Dashboard saved.', 'dashboard-plugin' ); ?></p></div><?php endif; ?>
 			<?php if ( 'added' === $message ) : ?><div class="notice notice-success is-dismissible"><p><?php echo esc_html__( 'Dashboard added.', 'dashboard-plugin' ); ?></p></div><?php endif; ?>
+			<?php if ( 'duplicated' === $message ) : ?><div class="notice notice-success is-dismissible"><p><?php echo esc_html__( 'Dashboard duplicated.', 'dashboard-plugin' ); ?></p></div><?php endif; ?>
 			<?php if ( 'deleted' === $message ) : ?><div class="notice notice-success is-dismissible"><p><?php echo esc_html__( 'Dashboard deleted.', 'dashboard-plugin' ); ?></p></div><?php endif; ?>
 			<?php if ( 'cache_cleared' === $message ) : ?><div class="notice notice-success is-dismissible"><p><?php echo esc_html__( 'Cached dashboard values cleared.', 'dashboard-plugin' ); ?></p></div><?php endif; ?>
 			<?php if ( 'error' === $message ) : ?><div class="notice notice-error is-dismissible"><p><?php echo esc_html__( 'The requested dashboard action could not be completed.', 'dashboard-plugin' ); ?></p></div><?php endif; ?>
@@ -323,6 +348,12 @@ class Hayfam_Dashboard_Settings {
 				<input type="hidden" name="dashboard_id" value="<?php echo esc_attr( $current_id ); ?>">
 				<?php wp_nonce_field( 'hayfam_dashboard_clear_cache' ); ?>
 				<?php submit_button( __( 'Clear cached values', 'dashboard-plugin' ), 'secondary', 'submit', false ); ?>
+			</form>
+			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="display:inline-block;margin-right:12px">
+				<input type="hidden" name="action" value="hayfam_dashboard_duplicate">
+				<input type="hidden" name="dashboard_id" value="<?php echo esc_attr( $current_id ); ?>">
+				<?php wp_nonce_field( 'hayfam_dashboard_duplicate' ); ?>
+				<?php submit_button( __( 'Duplicate this dashboard', 'dashboard-plugin' ), 'secondary', 'submit', false ); ?>
 			</form>
 			<?php if ( count( $dashboards ) > 1 ) : ?>
 				<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="display:inline-block">
