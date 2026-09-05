@@ -326,9 +326,9 @@ class Hayfam_Dashboard_Shortcode {
 				$styles[ $property_names[0] ] = $value;
 				$inline_value = $value . ' !important';
 				$active_variables = array(
-					'font_size' => 'var(--hayfam-dashboard-active-font-size) !important',
-					'gap'       => 'var(--hayfam-dashboard-active-gap) !important',
-					'padding'   => 'var(--hayfam-dashboard-active-padding) !important',
+					'font_size' => 'var(--hayfam-dashboard-active-font-size, var(--hayfam-dashboard-font-size, inherit)) !important',
+					'gap'       => 'var(--hayfam-dashboard-active-gap, var(--hayfam-dashboard-gap, 0)) !important',
+					'padding'   => 'var(--hayfam-dashboard-active-padding, var(--hayfam-dashboard-padding, 0)) !important',
 				);
 				$styles[ $property_names[1] ] = isset( $active_variables[ $setting ] ) ? $active_variables[ $setting ] : $inline_value;
 			}
@@ -384,7 +384,7 @@ class Hayfam_Dashboard_Shortcode {
 
 		$font_size = ! empty( $dashboard['font_size'] ) ? $dashboard['font_size'] : $theme['font_size'];
 		if ( $font_size ) {
-			$styles['font-size'] = 'var(--hayfam-dashboard-active-font-size) !important';
+			$styles['font-size'] = 'var(--hayfam-dashboard-active-font-size, var(--hayfam-dashboard-font-size, inherit)) !important';
 		}
 
 		$line_height = ! empty( $dashboard['line_height'] ) ? $dashboard['line_height'] : $theme['line_height'];
@@ -409,7 +409,7 @@ class Hayfam_Dashboard_Shortcode {
 		if ( 'value' === $element ) {
 			$value_font_size = ! empty( $dashboard['value_font_size'] ) ? $dashboard['value_font_size'] : $theme['value_font_size'];
 			if ( $value_font_size ) {
-				$styles['font-size'] = 'var(--hayfam-dashboard-active-value-font-size) !important';
+				$styles['font-size'] = 'var(--hayfam-dashboard-active-value-font-size, var(--hayfam-dashboard-value-font-size, inherit)) !important';
 			}
 			$value_font_weight = ! empty( $dashboard['value_font_weight'] ) ? $dashboard['value_font_weight'] : $theme['value_font_weight'];
 			if ( $value_font_weight ) {
