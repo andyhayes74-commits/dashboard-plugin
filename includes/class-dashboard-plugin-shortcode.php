@@ -89,10 +89,10 @@ class Hayfam_Dashboard_Shortcode {
 
 		wp_enqueue_style( 'hayfam-dashboard-plugin' );
 
-		$output  = '<div class="' . esc_attr( implode( ' ', $classes ) ) . '"' . ( $styles ? ' style="' . esc_attr( $styles ) . '"' : '' ) . '>';
-		$output .= '<div class="hayfam-dashboard-metric__before">' . self::text( $attributes['before'] ) . '</div>';
-		$output .= '<div class="hayfam-dashboard-metric__value">' . esc_html( $prefix . $value . $suffix ) . '</div>';
-		$output .= '<div class="hayfam-dashboard-metric__after">' . self::text( $attributes['after'] ) . '</div>';
+		$output  = '<div class="' . esc_attr( implode( ' ', $classes ) ) . '"' . self::style_attribute( $styles ) . '>';
+		$output .= '<div class="hayfam-dashboard-metric__before"' . self::style_attribute( self::element_styles( $dashboard, 'before' ) ) . '>' . self::text( $attributes['before'] ) . '</div>';
+		$output .= '<div class="hayfam-dashboard-metric__value"' . self::style_attribute( self::element_styles( $dashboard, 'value' ) ) . '>' . esc_html( $prefix . $value . $suffix ) . '</div>';
+		$output .= '<div class="hayfam-dashboard-metric__after"' . self::style_attribute( self::element_styles( $dashboard, 'after' ) ) . '>' . self::text( $attributes['after'] ) . '</div>';
 		$output .= '</div>';
 
 		return $output;
@@ -140,39 +140,77 @@ class Hayfam_Dashboard_Shortcode {
 			'trebuchet' => '"Trebuchet MS", Arial, sans-serif',
 			'verdana'   => 'Verdana, Arial, sans-serif',
 		);
-		$styles = array();
+		$styles = array(
+			'display'        => 'flex',
+			'flex-direction' => 'column',
+			'align-items'    => 'stretch',
+			'box-sizing'     => 'border-box',
+		);
 
 		if ( isset( $font_families[ $dashboard['font_family'] ] ) && 'inherit' !== $dashboard['font_family'] ) {
 			$styles['--hayfam-dashboard-font-family'] = $font_families[ $dashboard['font_family'] ];
+			$styles['font-family'] = $font_families[ $dashboard['font_family'] ];
 		}
 
 		$properties = array(
-			'font_size'         => '--hayfam-dashboard-font-size',
-			'value_font_size'   => '--hayfam-dashboard-value-font-size',
-			'font_weight'       => '--hayfam-dashboard-font-weight',
-			'value_font_weight' => '--hayfam-dashboard-value-font-weight',
-			'line_height'       => '--hayfam-dashboard-line-height',
-			'text_align'        => '--hayfam-dashboard-text-align',
-			'before_color'      => '--hayfam-dashboard-before-color',
-			'value_color'       => '--hayfam-dashboard-value-color',
-			'after_color'       => '--hayfam-dashboard-after-color',
-			'background_color'  => '--hayfam-dashboard-background-color',
-			'gap'               => '--hayfam-dashboard-gap',
-			'padding'           => '--hayfam-dashboard-padding',
-			'border_radius'     => '--hayfam-dashboard-border-radius',
+			'font_size'         => array( '--hayfam-dashboard-font-size', 'font-size' ),
+			'font_weight'       => array( '--hayfam-dashboard-font-weight', 'font-weight' ),
+			'line_height'       => array( '--hayfam-dashboard-line-height', 'line-height' ),
+			'text_align'        => array( '--hayfam-dashboard-text-align', 'text-align' ),
+			'background_color'  => array( '--hayfam-dashboard-background-color', 'background-color' ),
+			'gap'               => array( '--hayfam-dashboard-gap', 'gap' ),
+			'padding'           => array( '--hayfam-dashboard-padding', 'padding' ),
+			'border_radius'     => array( '--hayfam-dashboard-border-radius', 'border-radius' ),
 		);
 
-		foreach ( $properties as $setting => $property ) {
+		foreach ( $properties as $setting => $property_names ) {
 			if ( isset( $dashboard[ $setting ] ) && '' !== (string) $dashboard[ $setting ] ) {
-				$styles[ $property ] = sanitize_text_field( $dashboard[ $setting ] );
+				$value = sanitize_text_field( $dashboard[ $setting ] );
+				$styles[ $property_names[0] ] = $value;
+				$styles[ $property_names[1] ] = $value;
 			}
+		}
+
+		return $styles;
+	}
+
+	private static function element_styles( $dashboard, $element ) {
+		$styles = array();
+
+		$colour_settings = array(
+			'before' => 'before_color',
+			'value'  => 'value_color',
+			'after'  => 'after_color',
+		);
+
+		if ( isset( $colour_settings[ $element ], $dashboard[ $colour_settings[ $element ] ] ) && '' !== (string) $dashboard[ $colour_settings[ $element ] ] ) {
+			$styles['color'] = sanitize_hex_color( $dashboard[ $colour_settings[ $element ] ] );
+		}
+
+		if ( 'value' === $element ) {
+			if ( ! empty( $dashboard['value_font_size'] ) ) {
+				$styles['font-size'] = sanitize_text_field( $dashboard['value_font_size'] );
+			}
+			if ( ! empty( $dashboard['value_font_weight'] ) ) {
+				$styles['font-weight'] = sanitize_text_field( $dashboard['value_font_weight'] );
+			}
+		}
+
+		return $styles;
+	}
+
+	private static function style_attribute( $styles ) {
+		if ( empty( $styles ) || ! is_array( $styles ) ) {
+			return '';
 		}
 
 		$output = array();
 		foreach ( $styles as $property => $value ) {
-			$output[] = $property . ':' . $value;
+			if ( '' !== (string) $value ) {
+				$output[] = $property . ':' . $value;
+			}
 		}
 
-		return implode( ';', $output );
+		return $output ? ' style="' . esc_attr( implode( ';', $output ) ) . '"' : '';
 	}
 }

@@ -1,13 +1,13 @@
-# Dashboard Plugin v2.4.1
+# Dashboard Plugin v2.4.2
 
-Dashboard Plugin v2.4.1 is a standalone WordPress shortcode plugin for creating multiple live dashboard metrics from published Google Sheets.
+Dashboard Plugin v2.4.2 is a standalone WordPress shortcode plugin for creating multiple live dashboard metrics from published Google Sheets.
 
 It does not load Elementor classes or widgets. Elementor can still be used as the page builder by placing each generated shortcode in a normal Elementor **Shortcode** widget.
 
 ## Branch and version
 
-- Branch: `v2.4.1`
-- Plugin version: `2.4.1`
+- Branch: `v2.4.2`
+- Plugin version: `2.4.2`
 - Settings page: **Settings → Dashboard Plugin**
 
 ## What changed
@@ -20,6 +20,7 @@ It does not load Elementor classes or widgets. Elementor can still be used as th
 - The compatibility shortcode `[dashboard_metric]` remains available.
 - Each dashboard tab includes a preview using the last saved settings and live cached Sheet value.
 - Existing dashboards can be duplicated from the settings page. A duplicate copies its source, text, override, formatting, and style settings and receives a new shortcode.
+- Saved dashboard styles are also written directly onto the rendered output, so they remain effective when a theme or page builder delays the plugin stylesheet.
 - Each dashboard can use an optional override figure instead of the Google Sheet value.
 - A dashboard can be tested with an override figure before a Google Sheet URL is added.
 - Added settings-based typography, colour, alignment, spacing, background, and corner-radius controls.
@@ -28,7 +29,7 @@ It does not load Elementor classes or widgets. Elementor can still be used as th
 
 1. Back up the WordPress files and database first.
 2. In WordPress, go to **Plugins → Add New Plugin → Upload Plugin**.
-3. Upload the stable update package for the v2.4.1 release.
+3. Upload the stable update package for the v2.4.2 release.
 4. WordPress should identify it as the installed Dashboard Plugin and show the current and uploaded versions.
 5. Click **Replace current with uploaded**. This updates the existing plugin; it does not create a second copy, and the saved dashboard settings remain in WordPress.
 6. Return to **Plugins** and confirm Dashboard Plugin is active, then open **Settings → Dashboard Plugin**.
@@ -37,7 +38,7 @@ The release package contains the stable top-level folder `dashboard-plugin-main`
 
 If WordPress offers only a normal new installation or says that the destination folder already exists, cancel the upload. Do not activate a second Dashboard Plugin copy.
 
-Download: `https://github.com/andyhayes74-commits/dashboard-plugin/raw/refs/heads/v2.4.1/dashboard-plugin-main-v2.4.1.zip`
+Download: `https://github.com/andyhayes74-commits/dashboard-plugin/raw/refs/heads/v2.4.2/dashboard-plugin-main-v2.4.2.zip`
 
 ## Creating dashboards
 
