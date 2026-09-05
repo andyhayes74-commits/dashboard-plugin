@@ -1,13 +1,13 @@
-# Dashboard Plugin v2.12.3
+# Dashboard Plugin v2.12.4
 
-Dashboard Plugin v2.12.3 is a standalone WordPress shortcode plugin for creating multiple live dashboard metrics from published Google Sheets.
+Dashboard Plugin v2.12.4 is a standalone WordPress shortcode plugin for creating multiple live dashboard metrics from published Google Sheets.
 
 It does not load Elementor classes or widgets. Elementor can still be used as the page builder by placing each generated shortcode in a normal Elementor **Shortcode** widget.
 
 ## Branch and version
 
-- Branch: `v2.12.3`
-- Plugin version: `2.12.3`
+- Branch: `v2.12.4`
+- Plugin version: `2.12.4`
 - Settings page: **Settings → Dashboard Plugin**
 
 ## What changed
@@ -40,12 +40,13 @@ It does not load Elementor classes or widgets. Elementor can still be used as th
 - Added CSS fallbacks so saved font and spacing values continue to apply if an older cached stylesheet is still present on the page.
 - Restored direct frontend font and spacing values and added a responsive frontend pass for mobile overrides.
 - Fixed the responsive refresh script so it preserves a valid desktop size when a CSS variable is temporarily unavailable.
+- Google Sheet error responses such as `#DIV/0!` are now treated as invalid, retried up to three times, and replaced by the configured fallback message if they persist.
 
 ## Updating the existing plugin
 
 1. Back up the WordPress files and database first.
 2. In WordPress, go to **Plugins → Add New Plugin → Upload Plugin**.
-3. Upload the stable update package for the v2.12.3 release.
+3. Upload the stable update package for the v2.12.4 release.
 4. WordPress should identify it as the installed Dashboard Plugin and show the current and uploaded versions.
 5. Click **Replace current with uploaded**. This updates the existing plugin; it does not create a second copy, and the saved dashboard settings remain in WordPress.
 6. Return to **Plugins** and confirm Dashboard Plugin is active, then open **Settings → Dashboard Plugin**.
@@ -54,7 +55,7 @@ The release package contains the stable top-level folder `dashboard-plugin-main`
 
 If WordPress offers only a normal new installation or says that the destination folder already exists, cancel the upload. Do not activate a second Dashboard Plugin copy.
 
-Download: `https://github.com/andyhayes74-commits/dashboard-plugin/raw/refs/heads/v2.12.3/dashboard-plugin-main-v2.12.3.zip`
+Download: `https://github.com/andyhayes74-commits/dashboard-plugin/raw/refs/heads/v2.12.4/dashboard-plugin-main-v2.12.4.zip`
 
 ## Creating dashboards
 
@@ -188,6 +189,7 @@ The optional CSS class remains available for advanced styling or theme-specific 
 - Requires WordPress 6.4+ and PHP 7.4+.
 - Google Sheet values are fetched again on every dashboard render and frontend refresh. The old five-minute WordPress transient cache is no longer used.
 - The published Google Sheet or an upstream CDN may still take time to expose a newly edited value; the plugin sends no-cache headers and a unique refresh parameter to reduce that possibility.
+- Temporary Google Sheet calculation errors are retried before the dashboard falls back to its configured unavailable-data message.
 - Fixed live-refresh handling for pound signs and other Unicode characters entered in dashboard text fields.
 - The plugin does not request Google credentials.
 - The plugin has no Elementor runtime dependency.
