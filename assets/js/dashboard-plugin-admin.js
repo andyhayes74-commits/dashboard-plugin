@@ -15,6 +15,7 @@
 	var fontFamilies = {
 		inherit: 'inherit',
 		system: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+		condensed: 'Impact, Haettenschweiler, "Arial Narrow Bold", "Arial Narrow", sans-serif',
 		arial: 'Arial, Helvetica, sans-serif',
 		georgia: 'Georgia, "Times New Roman", serif',
 		courier: '"Courier New", Courier, monospace',
@@ -25,7 +26,8 @@
 		preset: 'hayfam-dashboard-widget--preset-',
 		border: 'hayfam-dashboard-widget--border-',
 		background: 'hayfam-dashboard-widget--background-',
-		graphic: 'hayfam-dashboard-widget--graphic-'
+		graphic: 'hayfam-dashboard-widget--graphic-',
+		theme: 'hayfam-dashboard-widget--theme-'
 	};
 	var fieldNames = {
 		before: 'before',
@@ -51,12 +53,32 @@
 		border: 'widget_border',
 		background: 'widget_background',
 		graphic: 'widget_graphic',
+		theme: 'theme_preset',
 		animatedGraphic: 'animated_graphic',
 		graphicMax: 'graphic_max'
 	};
 	var initialPrefix = getValue(fieldNames.prefix);
 	var initialSuffix = getValue(fieldNames.suffix);
 	var sourceValue = stripAffixes(value ? value.textContent : '', initialPrefix, initialSuffix);
+	var themeValues = {
+		marcham_fridge: {
+			fontFamily: 'condensed',
+			fontSize: '20px',
+			valueFontSize: '48px',
+			fontWeight: '700',
+			valueFontWeight: '800',
+			lineHeight: '1.15',
+			textAlign: 'center',
+			beforeColor: '#276b38',
+			valueColor: '#f36c0a',
+			afterColor: '#276b38',
+			backgroundColor: '#fffdf7',
+			gap: '6px',
+			padding: '28px',
+			borderRadius: '18px',
+			bodyColor: '#276b38'
+		}
+	};
 
 	function getField(name) {
 		return form.querySelector('[name="dashboard[' + name + ']"]');
@@ -225,6 +247,7 @@
 	}
 
 	function update() {
+		var selectedTheme = themeValues[getValue(fieldNames.theme)] || {};
 		var prefix = getValue(fieldNames.prefix);
 		var suffix = getValue(fieldNames.suffix);
 		var override = getValue(fieldNames.override).trim();
@@ -239,29 +262,34 @@
 		setWidgetClass('border', getValue(fieldNames.border));
 		setWidgetClass('background', getValue(fieldNames.background));
 		setWidgetClass('graphic', getValue(fieldNames.graphic));
+		setWidgetClass('theme', getValue(fieldNames.theme));
 
-		var family = fontFamilies[getValue(fieldNames.fontFamily)] || '';
+		var familyKey = getValue(fieldNames.fontFamily);
+		if (familyKey === 'inherit' && selectedTheme.fontFamily) {
+			familyKey = selectedTheme.fontFamily;
+		}
+		var family = fontFamilies[familyKey] || '';
 		setStyle(widget, 'font-family', family);
 		setStyle(before, 'font-family', family);
 		setStyle(value, 'font-family', family);
 		setStyle(after, 'font-family', family);
 		setVariable('--hayfam-dashboard-font-family', family);
 
-		var textSize = normaliseLength(getValue(fieldNames.fontSize));
+		var textSize = normaliseLength(getValue(fieldNames.fontSize) || selectedTheme.fontSize);
 		setStyle(widget, 'font-size', textSize);
 		setStyle(before, 'font-size', textSize);
 		setStyle(after, 'font-size', textSize);
 		setVariable('--hayfam-dashboard-font-size', textSize);
 
-		var valueSize = normaliseLength(getValue(fieldNames.valueFontSize));
+		var valueSize = normaliseLength(getValue(fieldNames.valueFontSize) || selectedTheme.valueFontSize);
 		setStyle(value, 'font-size', valueSize);
-		setStyle(widget, 'font-weight', getValue(fieldNames.fontWeight));
-		setStyle(value, 'font-weight', getValue(fieldNames.valueFontWeight));
+		setStyle(widget, 'font-weight', getValue(fieldNames.fontWeight) || selectedTheme.fontWeight);
+		setStyle(value, 'font-weight', getValue(fieldNames.valueFontWeight) || selectedTheme.valueFontWeight);
 		setVariable('--hayfam-dashboard-value-font-size', valueSize);
-		setVariable('--hayfam-dashboard-font-weight', getValue(fieldNames.fontWeight));
-		setVariable('--hayfam-dashboard-value-font-weight', getValue(fieldNames.valueFontWeight));
+		setVariable('--hayfam-dashboard-font-weight', getValue(fieldNames.fontWeight) || selectedTheme.fontWeight);
+		setVariable('--hayfam-dashboard-value-font-weight', getValue(fieldNames.valueFontWeight) || selectedTheme.valueFontWeight);
 
-		var lineHeight = getValue(fieldNames.lineHeight);
+		var lineHeight = getValue(fieldNames.lineHeight) || selectedTheme.lineHeight;
 		if (lineHeight && parseFloat(lineHeight) >= 1) {
 			setStyle(widget, 'line-height', lineHeight);
 			setStyle(before, 'line-height', lineHeight);
@@ -276,11 +304,11 @@
 			setVariable('--hayfam-dashboard-line-height', '');
 		}
 
-		var textAlign = getValue(fieldNames.textAlign);
-		var backgroundColor = getValue(fieldNames.backgroundColor);
-		var gap = normaliseLength(getValue(fieldNames.gap));
-		var padding = normaliseLength(getValue(fieldNames.padding));
-		var borderRadius = normaliseLength(getValue(fieldNames.borderRadius));
+		var textAlign = getValue(fieldNames.textAlign) || selectedTheme.textAlign;
+		var backgroundColor = getValue(fieldNames.backgroundColor) || selectedTheme.backgroundColor;
+		var gap = normaliseLength(getValue(fieldNames.gap) || selectedTheme.gap);
+		var padding = normaliseLength(getValue(fieldNames.padding) || selectedTheme.padding);
+		var borderRadius = normaliseLength(getValue(fieldNames.borderRadius) || selectedTheme.borderRadius);
 		setStyle(widget, 'text-align', textAlign);
 		setStyle(widget, 'background-color', backgroundColor);
 		setStyle(widget, 'gap', gap);
@@ -292,9 +320,9 @@
 		setVariable('--hayfam-dashboard-padding', padding);
 		setVariable('--hayfam-dashboard-border-radius', borderRadius);
 
-		var beforeColor = getValue(fieldNames.beforeColor);
-		var valueColor = getValue(fieldNames.valueColor);
-		var afterColor = getValue(fieldNames.afterColor);
+		var beforeColor = getValue(fieldNames.beforeColor) || selectedTheme.beforeColor;
+		var valueColor = getValue(fieldNames.valueColor) || selectedTheme.valueColor;
+		var afterColor = getValue(fieldNames.afterColor) || selectedTheme.afterColor;
 		setStyle(before, 'color', beforeColor);
 		setStyle(value, 'color', valueColor);
 		setStyle(after, 'color', afterColor);
@@ -303,7 +331,7 @@
 		setVariable('--hayfam-dashboard-after-color', afterColor);
 
 		var dark = getValue(fieldNames.preset) === 'dark_card' || getValue(fieldNames.background) === 'dark';
-		setStyle(widget, 'color', dark ? '#ffffff' : '#1f2937');
+		setStyle(widget, 'color', dark ? '#ffffff' : (selectedTheme.bodyColor || '#1f2937'));
 	}
 
 	form.addEventListener('input', update);

@@ -64,6 +64,7 @@ class Hayfam_Dashboard_Settings {
 			'widget_border'    => 'none',
 			'widget_background'=> 'transparent',
 			'widget_graphic'   => 'none',
+			'theme_preset'    => 'none',
 			'animated_graphic' => 'none',
 			'graphic_max'     => '100',
 		);
@@ -268,7 +269,7 @@ class Hayfam_Dashboard_Settings {
 		$message    = isset( $_GET['message'] ) ? sanitize_key( wp_unslash( $_GET['message'] ) ) : '';
 		?>
 		<div class="wrap">
-			<h1><?php echo esc_html__( 'Dashboard Plugin v2.7.0', 'dashboard-plugin' ); ?></h1>
+			<h1><?php echo esc_html__( 'Dashboard Plugin v2.8.0', 'dashboard-plugin' ); ?></h1>
 			<p><?php echo esc_html__( 'Create a separate tab and shortcode for each live dashboard metric.', 'dashboard-plugin' ); ?></p>
 
 			<h2 class="nav-tab-wrapper">
@@ -341,8 +342,9 @@ class Hayfam_Dashboard_Settings {
 				</table>
 
 				<h2><?php echo esc_html__( 'Widget appearance', 'dashboard-plugin' ); ?></h2>
-				<p class="description"><?php echo esc_html__( 'Choose a ready-made widget treatment. These options add the visual card, border, background, and decorative graphic without requiring CSS.', 'dashboard-plugin' ); ?></p>
+				<p class="description"><?php echo esc_html__( 'Choose a ready-made widget treatment or a brand theme. These options add visual styling without requiring CSS.', 'dashboard-plugin' ); ?></p>
 				<table class="form-table" role="presentation">
+					<tr><th scope="row"><label for="hayfam-dashboard-theme-preset"><?php echo esc_html__( 'Theme preset', 'dashboard-plugin' ); ?></label></th><td><select id="hayfam-dashboard-theme-preset" name="dashboard[theme_preset]"><?php foreach ( self::theme_preset_options() as $theme_key => $theme_label ) : ?><option value="<?php echo esc_attr( $theme_key ); ?>" <?php selected( $current['theme_preset'], $theme_key ); ?>><?php echo esc_html( $theme_label ); ?></option><?php endforeach; ?></select><p class="description"><?php echo esc_html__( 'Theme presets provide matching font and colour defaults. The individual controls below can still override them.', 'dashboard-plugin' ); ?></p></td></tr>
 					<tr><th scope="row"><label for="hayfam-dashboard-widget-preset"><?php echo esc_html__( 'Widget style', 'dashboard-plugin' ); ?></label></th><td><select id="hayfam-dashboard-widget-preset" name="dashboard[widget_preset]"><?php foreach ( self::widget_preset_options() as $widget_key => $widget_label ) : ?><option value="<?php echo esc_attr( $widget_key ); ?>" <?php selected( $current['widget_preset'], $widget_key ); ?>><?php echo esc_html( $widget_label ); ?></option><?php endforeach; ?></select></td></tr>
 					<tr><th scope="row"><label for="hayfam-dashboard-widget-border"><?php echo esc_html__( 'Border style', 'dashboard-plugin' ); ?></label></th><td><select id="hayfam-dashboard-widget-border" name="dashboard[widget_border]"><?php foreach ( self::widget_border_options() as $widget_key => $widget_label ) : ?><option value="<?php echo esc_attr( $widget_key ); ?>" <?php selected( $current['widget_border'], $widget_key ); ?>><?php echo esc_html( $widget_label ); ?></option><?php endforeach; ?></select></td></tr>
 					<tr><th scope="row"><label for="hayfam-dashboard-widget-background"><?php echo esc_html__( 'Background treatment', 'dashboard-plugin' ); ?></label></th><td><select id="hayfam-dashboard-widget-background" name="dashboard[widget_background]"><?php foreach ( self::widget_background_options() as $widget_key => $widget_label ) : ?><option value="<?php echo esc_attr( $widget_key ); ?>" <?php selected( $current['widget_background'], $widget_key ); ?>><?php echo esc_html( $widget_label ); ?></option><?php endforeach; ?></select></td></tr>
@@ -438,6 +440,7 @@ class Hayfam_Dashboard_Settings {
 		$dashboard['widget_border']     = array_key_exists( $dashboard['widget_border'], self::widget_border_options() ) ? $dashboard['widget_border'] : 'none';
 		$dashboard['widget_background'] = array_key_exists( $dashboard['widget_background'], self::widget_background_options() ) ? $dashboard['widget_background'] : 'transparent';
 		$dashboard['widget_graphic']    = array_key_exists( $dashboard['widget_graphic'], self::widget_graphic_options() ) ? $dashboard['widget_graphic'] : 'none';
+		$dashboard['theme_preset']      = array_key_exists( $dashboard['theme_preset'], self::theme_preset_options() ) ? $dashboard['theme_preset'] : 'none';
 		$dashboard['animated_graphic']  = array_key_exists( $dashboard['animated_graphic'], self::animated_graphic_options() ) ? $dashboard['animated_graphic'] : 'none';
 		$dashboard['graphic_max']       = self::sanitize_graphic_max( $dashboard['graphic_max'] );
 
@@ -456,11 +459,19 @@ class Hayfam_Dashboard_Settings {
 		return array(
 			'inherit'   => __( 'Theme default', 'dashboard-plugin' ),
 			'system'    => __( 'System sans-serif', 'dashboard-plugin' ),
+			'condensed' => __( 'Bold condensed display', 'dashboard-plugin' ),
 			'arial'     => 'Arial',
 			'georgia'   => 'Georgia',
 			'courier'   => 'Courier New',
 			'trebuchet' => 'Trebuchet MS',
 			'verdana'   => 'Verdana',
+		);
+	}
+
+	public static function theme_preset_options() {
+		return array(
+			'none'            => __( 'None', 'dashboard-plugin' ),
+			'marcham_fridge'  => __( 'Marcham Community Fridge', 'dashboard-plugin' ),
 		);
 	}
 

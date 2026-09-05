@@ -187,6 +187,7 @@ class Hayfam_Dashboard_Shortcode {
 			'widget_border'     => 'border',
 			'widget_background' => 'background',
 			'widget_graphic'    => 'graphic',
+			'theme_preset'      => 'theme',
 		);
 
 		foreach ( $settings as $setting => $class_suffix ) {
@@ -203,12 +204,14 @@ class Hayfam_Dashboard_Shortcode {
 		$font_families = array(
 			'inherit'   => 'inherit',
 			'system'    => 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+			'condensed' => 'Impact, Haettenschweiler, "Arial Narrow Bold", "Arial Narrow", sans-serif',
 			'arial'     => 'Arial, Helvetica, sans-serif',
 			'georgia'   => 'Georgia, "Times New Roman", serif',
 			'courier'   => '"Courier New", Courier, monospace',
 			'trebuchet' => '"Trebuchet MS", Arial, sans-serif',
 			'verdana'   => 'Verdana, Arial, sans-serif',
 		);
+		$theme  = self::theme_values( $dashboard );
 		$styles = array(
 			'display'        => 'flex',
 			'flex-direction' => 'column',
@@ -216,11 +219,12 @@ class Hayfam_Dashboard_Shortcode {
 			'box-sizing'     => 'border-box',
 		);
 		$is_dark_widget = 'dark_card' === $dashboard['widget_preset'] || 'dark' === $dashboard['widget_background'];
-		$styles['color'] = ( $is_dark_widget ? '#ffffff' : '#1f2937' ) . ' !important';
+		$styles['color'] = ( $is_dark_widget ? '#ffffff' : ( $theme['body_color'] ?: '#1f2937' ) ) . ' !important';
 
-		if ( isset( $font_families[ $dashboard['font_family'] ] ) && 'inherit' !== $dashboard['font_family'] ) {
-			$styles['--hayfam-dashboard-font-family'] = $font_families[ $dashboard['font_family'] ];
-			$styles['font-family'] = $font_families[ $dashboard['font_family'] ] . ' !important';
+		$font_key = ( 'inherit' === $dashboard['font_family'] && $theme['font_family'] ) ? $theme['font_family'] : $dashboard['font_family'];
+		if ( isset( $font_families[ $font_key ] ) && 'inherit' !== $font_key ) {
+			$styles['--hayfam-dashboard-font-family'] = $font_families[ $font_key ];
+			$styles['font-family'] = $font_families[ $font_key ] . ' !important';
 		}
 
 		$properties = array(
@@ -235,8 +239,9 @@ class Hayfam_Dashboard_Shortcode {
 		);
 
 		foreach ( $properties as $setting => $property_names ) {
-			if ( isset( $dashboard[ $setting ] ) && '' !== (string) $dashboard[ $setting ] ) {
-				$value = sanitize_text_field( $dashboard[ $setting ] );
+			$value = isset( $dashboard[ $setting ] ) && '' !== (string) $dashboard[ $setting ] ? $dashboard[ $setting ] : ( isset( $theme[ $setting ] ) ? $theme[ $setting ] : '' );
+			if ( '' !== (string) $value ) {
+				$value = sanitize_text_field( $value );
 				$styles[ $property_names[0] ] = $value;
 				$styles[ $property_names[1] ] = $value . ' !important';
 			}
@@ -248,8 +253,9 @@ class Hayfam_Dashboard_Shortcode {
 			'after_color'  => '--hayfam-dashboard-after-color',
 		);
 		foreach ( $colour_variables as $setting => $variable ) {
-			if ( ! empty( $dashboard[ $setting ] ) ) {
-				$styles[ $variable ] = sanitize_hex_color( $dashboard[ $setting ] );
+			$colour = ! empty( $dashboard[ $setting ] ) ? $dashboard[ $setting ] : ( isset( $theme[ $setting ] ) ? $theme[ $setting ] : '' );
+			if ( $colour ) {
+				$styles[ $variable ] = sanitize_hex_color( $colour );
 			}
 		}
 
@@ -261,6 +267,7 @@ class Hayfam_Dashboard_Shortcode {
 		$font_families = array(
 			'inherit'   => 'inherit',
 			'system'    => 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+			'condensed' => 'Impact, Haettenschweiler, "Arial Narrow Bold", "Arial Narrow", sans-serif',
 			'arial'     => 'Arial, Helvetica, sans-serif',
 			'georgia'   => 'Georgia, "Times New Roman", serif',
 			'courier'   => '"Courier New", Courier, monospace',
@@ -268,16 +275,20 @@ class Hayfam_Dashboard_Shortcode {
 			'verdana'   => 'Verdana, Arial, sans-serif',
 		);
 
-		if ( isset( $font_families[ $dashboard['font_family'] ] ) && 'inherit' !== $dashboard['font_family'] ) {
-			$styles['font-family'] = $font_families[ $dashboard['font_family'] ] . ' !important';
+		$theme    = self::theme_values( $dashboard );
+		$font_key = ( 'inherit' === $dashboard['font_family'] && $theme['font_family'] ) ? $theme['font_family'] : $dashboard['font_family'];
+		if ( isset( $font_families[ $font_key ] ) && 'inherit' !== $font_key ) {
+			$styles['font-family'] = $font_families[ $font_key ] . ' !important';
 		}
 
-		if ( ! empty( $dashboard['font_size'] ) ) {
-			$styles['font-size'] = sanitize_text_field( $dashboard['font_size'] ) . ' !important';
+		$font_size = ! empty( $dashboard['font_size'] ) ? $dashboard['font_size'] : $theme['font_size'];
+		if ( $font_size ) {
+			$styles['font-size'] = sanitize_text_field( $font_size ) . ' !important';
 		}
 
-		if ( ! empty( $dashboard['line_height'] ) ) {
-			$styles['line-height'] = sanitize_text_field( $dashboard['line_height'] ) . ' !important';
+		$line_height = ! empty( $dashboard['line_height'] ) ? $dashboard['line_height'] : $theme['line_height'];
+		if ( $line_height ) {
+			$styles['line-height'] = sanitize_text_field( $line_height ) . ' !important';
 		}
 
 		$colour_settings = array(
@@ -286,23 +297,69 @@ class Hayfam_Dashboard_Shortcode {
 			'after'  => 'after_color',
 		);
 
-		if ( isset( $colour_settings[ $element ], $dashboard[ $colour_settings[ $element ] ] ) && '' !== (string) $dashboard[ $colour_settings[ $element ] ] ) {
-			$styles['color'] = sanitize_hex_color( $dashboard[ $colour_settings[ $element ] ] ) . ' !important';
+		if ( isset( $colour_settings[ $element ] ) ) {
+			$colour_setting = $colour_settings[ $element ];
+			$colour = ! empty( $dashboard[ $colour_setting ] ) ? $dashboard[ $colour_setting ] : ( isset( $theme[ $colour_setting ] ) ? $theme[ $colour_setting ] : '' );
+			if ( $colour ) {
+				$styles['color'] = sanitize_hex_color( $colour ) . ' !important';
+			}
 		}
 
 		if ( 'value' === $element ) {
-			if ( ! empty( $dashboard['value_font_size'] ) ) {
-				$styles['font-size'] = sanitize_text_field( $dashboard['value_font_size'] ) . ' !important';
+			$value_font_size = ! empty( $dashboard['value_font_size'] ) ? $dashboard['value_font_size'] : $theme['value_font_size'];
+			if ( $value_font_size ) {
+				$styles['font-size'] = sanitize_text_field( $value_font_size ) . ' !important';
 			}
-			if ( ! empty( $dashboard['value_font_weight'] ) ) {
-				$styles['font-weight'] = sanitize_text_field( $dashboard['value_font_weight'] ) . ' !important';
+			$value_font_weight = ! empty( $dashboard['value_font_weight'] ) ? $dashboard['value_font_weight'] : $theme['value_font_weight'];
+			if ( $value_font_weight ) {
+				$styles['font-weight'] = sanitize_text_field( $value_font_weight ) . ' !important';
 			}
-			if ( empty( $dashboard['line_height'] ) ) {
+			if ( empty( $dashboard['line_height'] ) && empty( $theme['line_height'] ) ) {
 				$styles['line-height'] = '1.15 !important';
 			}
 		}
 
 		return $styles;
+	}
+
+	private static function theme_values( $dashboard ) {
+		if ( empty( $dashboard['theme_preset'] ) || 'marcham_fridge' !== $dashboard['theme_preset'] ) {
+			return array(
+				'font_family'       => '',
+				'font_size'         => '',
+				'value_font_size'   => '',
+				'font_weight'       => '',
+				'value_font_weight' => '',
+				'line_height'       => '',
+				'text_align'        => '',
+				'before_color'      => '',
+				'value_color'       => '',
+				'after_color'       => '',
+				'background_color'  => '',
+				'gap'               => '',
+				'padding'           => '',
+				'border_radius'     => '',
+				'body_color'        => '',
+			);
+		}
+
+		return array(
+			'font_family'       => 'condensed',
+			'font_size'         => '20px',
+			'value_font_size'   => '48px',
+			'font_weight'       => '700',
+			'value_font_weight' => '800',
+			'line_height'       => '1.15',
+			'text_align'        => 'center',
+			'before_color'      => '#276b38',
+			'value_color'       => '#f36c0a',
+			'after_color'       => '#276b38',
+			'background_color'  => '#fffdf7',
+			'gap'               => '6px',
+			'padding'           => '28px',
+			'border_radius'     => '18px',
+			'body_color'        => '#276b38',
+		);
 	}
 
 	private static function style_attribute( $styles ) {

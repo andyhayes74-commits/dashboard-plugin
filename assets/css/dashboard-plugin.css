@@ -396,3 +396,12 @@
 		transition: none !important;
 	}
 }
+
+/* Brand theme presets. The variables provide a safe fallback for graphics and
+ * allow the theme to share its palette with the live preview and frontend. */
+.hayfam-dashboard-widget--theme-marcham-fridge {
+	--hayfam-dashboard-theme-orange: #f36c0a;
+	--hayfam-dashboard-theme-green: #276b38;
+	--hayfam-dashboard-theme-olive: #748b2b;
+	box-shadow: 0 10px 26px rgba(39, 107, 56, 0.14);
+}

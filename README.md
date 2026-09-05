@@ -1,13 +1,13 @@
-# Dashboard Plugin v2.7.0
+# Dashboard Plugin v2.8.0
 
-Dashboard Plugin v2.7.0 is a standalone WordPress shortcode plugin for creating multiple live dashboard metrics from published Google Sheets.
+Dashboard Plugin v2.8.0 is a standalone WordPress shortcode plugin for creating multiple live dashboard metrics from published Google Sheets.
 
 It does not load Elementor classes or widgets. Elementor can still be used as the page builder by placing each generated shortcode in a normal Elementor **Shortcode** widget.
 
 ## Branch and version
 
-- Branch: `v2.7.0`
-- Plugin version: `2.7.0`
+- Branch: `v2.8.0`
+- Plugin version: `2.8.0`
 - Settings page: **Settings → Dashboard Plugin**
 
 ## What changed
@@ -31,12 +31,13 @@ It does not load Elementor classes or widgets. Elementor can still be used as th
 - Added settings-based typography, colour, alignment, spacing, background, and corner-radius controls.
 - Added wave, concentric ring, diagonal line, and soft glow decorative graphics.
 - Added animated progress bars, arcs, batteries, pulses, and rising bars. Percentage graphics use the dashboard value divided by a configurable graphic maximum, capped between 0% and 100%.
+- Added a Marcham Community Fridge theme preset based on the supplied logo: orange, dark green, olive brand accents, and a bold condensed display font.
 
 ## Updating the existing plugin
 
 1. Back up the WordPress files and database first.
 2. In WordPress, go to **Plugins → Add New Plugin → Upload Plugin**.
-3. Upload the stable update package for the v2.7.0 release.
+3. Upload the stable update package for the v2.8.0 release.
 4. WordPress should identify it as the installed Dashboard Plugin and show the current and uploaded versions.
 5. Click **Replace current with uploaded**. This updates the existing plugin; it does not create a second copy, and the saved dashboard settings remain in WordPress.
 6. Return to **Plugins** and confirm Dashboard Plugin is active, then open **Settings → Dashboard Plugin**.
@@ -45,7 +46,7 @@ The release package contains the stable top-level folder `dashboard-plugin-main`
 
 If WordPress offers only a normal new installation or says that the destination folder already exists, cancel the upload. Do not activate a second Dashboard Plugin copy.
 
-Download: `https://github.com/andyhayes74-commits/dashboard-plugin/raw/refs/heads/v2.7.0/dashboard-plugin-main-v2.7.0.zip`
+Download: `https://github.com/andyhayes74-commits/dashboard-plugin/raw/refs/heads/v2.8.0/dashboard-plugin-main-v2.8.0.zip`
 
 ## Creating dashboards
 
@@ -139,11 +140,13 @@ Each dashboard can now be styled from **Settings → Dashboard Plugin** without 
 - **Typography** — font family, text size, value size, weights, line height, and alignment.
 - **Colours** — colours for the text above, value, text below, and background.
 - **Spacing and shape** — line spacing, inner padding, and corner radius.
-- **Widget appearance** — card preset, border style, background treatment, decorative graphic, animated graphic, and graphic maximum.
+- **Widget appearance** — theme preset, card preset, border style, background treatment, decorative graphic, animated graphic, and graphic maximum.
 
 Widget styles include plain, soft card, outlined card, dark card, and gradient card presets. Borders include solid, dashed, double, and accent options. Backgrounds include transparent, white, soft grey, warm cream, dark, green gradient, and blue gradient. Decorative graphics include a top stripe, corner circles, dots, side bars, waves, rings, diagonal lines, and a soft glow.
 
 Animated graphics include a progress bar, progress arc, battery, pulse, and rising bars. Set **Graphic maximum** to the target total for the metric. For example, a dashboard value of 75 with a maximum of 100 renders at 75%; a value of 105 with a maximum of 500 renders at 21%.
+
+The **Marcham Community Fridge** theme preset uses the logo-inspired palette: orange `#f36c0a`, dark green `#276b38`, and olive `#748b2b`. It uses a bold condensed display font with system fallbacks. Individual typography and colour fields can override the preset.
 
 Every dashboard still uses these classes:
 
