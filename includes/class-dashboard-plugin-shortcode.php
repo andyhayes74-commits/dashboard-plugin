@@ -67,7 +67,10 @@ class Hayfam_Dashboard_Shortcode {
 
 		$attributes = $request->get_param( 'attributes' );
 		if ( is_string( $attributes ) ) {
-			$attributes = json_decode( wp_unslash( $attributes ), true );
+			// REST query parameters are already URL-decoded. Do not call
+			// wp_unslash() here: it removes the backslash from JSON Unicode
+			// escapes such as \u00a3 and turns £ into the literal text u00a3.
+			$attributes = json_decode( $attributes, true );
 		}
 		$attributes = is_array( $attributes ) ? $attributes : array();
 		$html       = self::render_dashboard( $dashboard_id, $attributes, false );
