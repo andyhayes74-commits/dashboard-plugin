@@ -324,7 +324,13 @@ class Hayfam_Dashboard_Shortcode {
 			if ( '' !== (string) $value ) {
 				$value = sanitize_text_field( $value );
 				$styles[ $property_names[0] ] = $value;
-				$styles[ $property_names[1] ] = $value . ' !important';
+				$inline_value = $value . ' !important';
+				$active_variables = array(
+					'font_size' => 'var(--hayfam-dashboard-active-font-size) !important',
+					'gap'       => 'var(--hayfam-dashboard-active-gap) !important',
+					'padding'   => 'var(--hayfam-dashboard-active-padding) !important',
+				);
+				$styles[ $property_names[1] ] = isset( $active_variables[ $setting ] ) ? $active_variables[ $setting ] : $inline_value;
 			}
 		}
 
@@ -337,6 +343,20 @@ class Hayfam_Dashboard_Shortcode {
 			$colour = ! empty( $dashboard[ $setting ] ) ? $dashboard[ $setting ] : ( isset( $theme[ $setting ] ) ? $theme[ $setting ] : '' );
 			if ( $colour ) {
 				$styles[ $variable ] = sanitize_hex_color( $colour );
+			}
+		}
+
+		$mobile_variables = array(
+			'mobile_font_size'        => '--hayfam-dashboard-mobile-font-size',
+			'mobile_value_font_size'  => '--hayfam-dashboard-mobile-value-font-size',
+			'mobile_gap'              => '--hayfam-dashboard-mobile-gap',
+			'mobile_padding'          => '--hayfam-dashboard-mobile-padding',
+			'mobile_width'            => '--hayfam-dashboard-mobile-width',
+			'mobile_graphic_height'   => '--hayfam-dashboard-mobile-graphic-height',
+		);
+		foreach ( $mobile_variables as $setting => $variable ) {
+			if ( ! empty( $dashboard[ $setting ] ) ) {
+				$styles[ $variable ] = sanitize_text_field( $dashboard[ $setting ] );
 			}
 		}
 
@@ -364,7 +384,7 @@ class Hayfam_Dashboard_Shortcode {
 
 		$font_size = ! empty( $dashboard['font_size'] ) ? $dashboard['font_size'] : $theme['font_size'];
 		if ( $font_size ) {
-			$styles['font-size'] = sanitize_text_field( $font_size ) . ' !important';
+			$styles['font-size'] = 'var(--hayfam-dashboard-active-font-size) !important';
 		}
 
 		$line_height = ! empty( $dashboard['line_height'] ) ? $dashboard['line_height'] : $theme['line_height'];
@@ -389,7 +409,7 @@ class Hayfam_Dashboard_Shortcode {
 		if ( 'value' === $element ) {
 			$value_font_size = ! empty( $dashboard['value_font_size'] ) ? $dashboard['value_font_size'] : $theme['value_font_size'];
 			if ( $value_font_size ) {
-				$styles['font-size'] = sanitize_text_field( $value_font_size ) . ' !important';
+				$styles['font-size'] = 'var(--hayfam-dashboard-active-value-font-size) !important';
 			}
 			$value_font_weight = ! empty( $dashboard['value_font_weight'] ) ? $dashboard['value_font_weight'] : $theme['value_font_weight'];
 			if ( $value_font_weight ) {
