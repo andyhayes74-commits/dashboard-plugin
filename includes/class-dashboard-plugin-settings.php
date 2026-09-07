@@ -14,7 +14,6 @@ class Hayfam_Dashboard_Settings {
 		add_action( 'admin_post_hayfam_dashboard_add', array( __CLASS__, 'add_dashboard' ) );
 		add_action( 'admin_post_hayfam_dashboard_duplicate', array( __CLASS__, 'duplicate_dashboard' ) );
 		add_action( 'admin_post_hayfam_dashboard_delete', array( __CLASS__, 'delete_dashboard' ) );
-		add_action( 'admin_post_hayfam_dashboard_clear_cache', array( __CLASS__, 'clear_cache' ) );
 	}
 
 	public static function defaults() {
@@ -49,6 +48,8 @@ class Hayfam_Dashboard_Settings {
 			'font_family'      => 'inherit',
 			'font_size'        => '',
 			'value_font_size'  => '',
+			'mobile_font_size' => '',
+			'mobile_value_font_size' => '',
 			'font_weight'      => '',
 			'value_font_weight'=> '',
 			'line_height'      => '',
@@ -59,6 +60,10 @@ class Hayfam_Dashboard_Settings {
 			'background_color' => '',
 			'gap'              => '',
 			'padding'          => '',
+			'mobile_gap'       => '',
+			'mobile_padding'   => '',
+			'mobile_width'     => '',
+			'mobile_graphic_height' => '',
 			'border_radius'    => '',
 			'widget_preset'    => 'plain',
 			'widget_border'    => 'none',
@@ -238,12 +243,6 @@ class Hayfam_Dashboard_Settings {
 		self::redirect( $next_id, 'deleted' );
 	}
 
-	public static function clear_cache() {
-		self::verify_admin_request( 'hayfam_dashboard_clear_cache' );
-		Hayfam_Dashboard_Cache::clear();
-		self::redirect( isset( $_POST['dashboard_id'] ) ? sanitize_key( wp_unslash( $_POST['dashboard_id'] ) ) : '', 'cache_cleared' );
-	}
-
 	public static function register_menu() {
 		add_options_page( __( 'Dashboard Plugin', 'dashboard-plugin' ), __( 'Dashboard Plugin', 'dashboard-plugin' ), 'manage_options', self::PAGE_SLUG, array( __CLASS__, 'render_page' ) );
 	}
@@ -291,7 +290,6 @@ class Hayfam_Dashboard_Settings {
 			<?php if ( 'added' === $message ) : ?><div class="notice notice-success is-dismissible"><p><?php echo esc_html__( 'Dashboard added.', 'dashboard-plugin' ); ?></p></div><?php endif; ?>
 			<?php if ( 'duplicated' === $message ) : ?><div class="notice notice-success is-dismissible"><p><?php echo esc_html__( 'Dashboard duplicated.', 'dashboard-plugin' ); ?></p></div><?php endif; ?>
 			<?php if ( 'deleted' === $message ) : ?><div class="notice notice-success is-dismissible"><p><?php echo esc_html__( 'Dashboard deleted.', 'dashboard-plugin' ); ?></p></div><?php endif; ?>
-			<?php if ( 'cache_cleared' === $message ) : ?><div class="notice notice-success is-dismissible"><p><?php echo esc_html__( 'Cached dashboard values cleared.', 'dashboard-plugin' ); ?></p></div><?php endif; ?>
 			<?php if ( 'error' === $message ) : ?><div class="notice notice-error is-dismissible"><p><?php echo esc_html__( 'The requested dashboard action could not be completed.', 'dashboard-plugin' ); ?></p></div><?php endif; ?>
 
 			<form id="hayfam-dashboard-settings-form" method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
@@ -349,6 +347,17 @@ class Hayfam_Dashboard_Settings {
 					<tr><th scope="row"><label for="hayfam-dashboard-border-radius"><?php echo esc_html__( 'Corner radius', 'dashboard-plugin' ); ?></label></th><td><input id="hayfam-dashboard-border-radius" class="small-text" type="text" name="dashboard[border_radius]" value="<?php echo esc_attr( $current['border_radius'] ); ?>" placeholder="e.g. 8px"></td></tr>
 				</table>
 
+				<h2><?php echo esc_html__( 'Mobile layout', 'dashboard-plugin' ); ?></h2>
+				<p class="description"><?php echo esc_html__( 'Optional settings for screens up to 767px wide. Leave a field blank to keep the normal dashboard setting.', 'dashboard-plugin' ); ?></p>
+				<table class="form-table" role="presentation">
+					<tr><th scope="row"><label for="hayfam-dashboard-mobile-font-size"><?php echo esc_html__( 'Mobile text size', 'dashboard-plugin' ); ?></label></th><td><input id="hayfam-dashboard-mobile-font-size" class="small-text" type="text" name="dashboard[mobile_font_size]" value="<?php echo esc_attr( $current['mobile_font_size'] ); ?>" placeholder="e.g. 16px or 16"></td></tr>
+					<tr><th scope="row"><label for="hayfam-dashboard-mobile-value-font-size"><?php echo esc_html__( 'Mobile value size', 'dashboard-plugin' ); ?></label></th><td><input id="hayfam-dashboard-mobile-value-font-size" class="small-text" type="text" name="dashboard[mobile_value_font_size]" value="<?php echo esc_attr( $current['mobile_value_font_size'] ); ?>" placeholder="e.g. 36px or 36"></td></tr>
+					<tr><th scope="row"><label for="hayfam-dashboard-mobile-gap"><?php echo esc_html__( 'Mobile line spacing', 'dashboard-plugin' ); ?></label></th><td><input id="hayfam-dashboard-mobile-gap" class="small-text" type="text" name="dashboard[mobile_gap]" value="<?php echo esc_attr( $current['mobile_gap'] ); ?>" placeholder="e.g. 4px"></td></tr>
+					<tr><th scope="row"><label for="hayfam-dashboard-mobile-padding"><?php echo esc_html__( 'Mobile inner padding', 'dashboard-plugin' ); ?></label></th><td><input id="hayfam-dashboard-mobile-padding" class="small-text" type="text" name="dashboard[mobile_padding]" value="<?php echo esc_attr( $current['mobile_padding'] ); ?>" placeholder="e.g. 16px"></td></tr>
+					<tr><th scope="row"><label for="hayfam-dashboard-mobile-width"><?php echo esc_html__( 'Mobile maximum width', 'dashboard-plugin' ); ?></label></th><td><input id="hayfam-dashboard-mobile-width" class="small-text" type="text" name="dashboard[mobile_width]" value="<?php echo esc_attr( $current['mobile_width'] ); ?>" placeholder="e.g. 92% or 340px"></td></tr>
+					<tr><th scope="row"><label for="hayfam-dashboard-mobile-graphic-height"><?php echo esc_html__( 'Mobile graphic height', 'dashboard-plugin' ); ?></label></th><td><input id="hayfam-dashboard-mobile-graphic-height" class="small-text" type="text" name="dashboard[mobile_graphic_height]" value="<?php echo esc_attr( $current['mobile_graphic_height'] ); ?>" placeholder="e.g. 200px"><p class="description"><?php echo esc_html__( 'Also controls the height of the fundraising bar and rising bars on mobile.', 'dashboard-plugin' ); ?></p></td></tr>
+				</table>
+
 				<h2><?php echo esc_html__( 'Widget appearance', 'dashboard-plugin' ); ?></h2>
 				<p class="description"><?php echo esc_html__( 'Choose a ready-made widget treatment or a brand theme. These options add visual styling without requiring CSS.', 'dashboard-plugin' ); ?></p>
 				<table class="form-table" role="presentation">
@@ -362,12 +371,11 @@ class Hayfam_Dashboard_Settings {
 					<tr><th scope="row"><?php echo esc_html__( 'Fundraising milestones', 'dashboard-plugin' ); ?></th><td><fieldset class="hayfam-dashboard-milestones-fieldset" <?php disabled( 'fundraising_bar' !== $current['animated_graphic'], true ); ?>><legend class="screen-reader-text"><?php echo esc_html__( 'Fundraising milestones', 'dashboard-plugin' ); ?></legend><?php foreach ( $current['milestones'] as $milestone_index => $milestone ) : ?><p class="hayfam-dashboard-milestone-row"><label for="hayfam-dashboard-milestone-<?php echo esc_attr( $milestone_index ); ?>-percent"><?php echo esc_html__( 'Level', 'dashboard-plugin' ); ?> <input id="hayfam-dashboard-milestone-<?php echo esc_attr( $milestone_index ); ?>-percent" class="small-text hayfam-dashboard-milestone-percent" type="text" name="dashboard[milestones][<?php echo esc_attr( $milestone_index ); ?>][percent]" value="<?php echo esc_attr( $milestone['percent'] ); ?>" inputmode="decimal">%</label> <label for="hayfam-dashboard-milestone-<?php echo esc_attr( $milestone_index ); ?>-label"><?php echo esc_html__( 'Label', 'dashboard-plugin' ); ?> <input id="hayfam-dashboard-milestone-<?php echo esc_attr( $milestone_index ); ?>-label" class="regular-text hayfam-dashboard-milestone-label" type="text" name="dashboard[milestones][<?php echo esc_attr( $milestone_index ); ?>][label]" value="<?php echo esc_attr( $milestone['label'] ); ?>" placeholder="e.g. New toaster"></label></p><?php endforeach; ?><p class="description"><?php echo esc_html__( 'These labels are used by the animated fundraising bar. Set a percentage from 0 to 100 and leave a label blank to hide that marker. They become active when the fundraising bar is selected.', 'dashboard-plugin' ); ?></p></fieldset></td></tr>
 				</table>
 
-				<h2><?php echo esc_html__( 'Formatting and caching', 'dashboard-plugin' ); ?></h2>
+				<h2><?php echo esc_html__( 'Formatting', 'dashboard-plugin' ); ?></h2>
 				<table class="form-table" role="presentation">
 					<tr><th scope="row"><label for="hayfam-dashboard-decimals"><?php echo esc_html__( 'Decimal places', 'dashboard-plugin' ); ?></label></th><td><input id="hayfam-dashboard-decimals" class="small-text" type="number" name="dashboard[decimals]" value="<?php echo esc_attr( $current['decimals'] ); ?>" min="-1" max="10"><p class="description"><?php echo esc_html__( '-1 preserves the source value.', 'dashboard-plugin' ); ?></p></td></tr>
 					<tr><th scope="row"><label for="hayfam-dashboard-thousands"><?php echo esc_html__( 'Thousands separator', 'dashboard-plugin' ); ?></label></th><td><input id="hayfam-dashboard-thousands" class="small-text" type="text" name="dashboard[thousands]" value="<?php echo esc_attr( $current['thousands'] ); ?>"></td></tr>
 					<tr><th scope="row"><label for="hayfam-dashboard-decimal"><?php echo esc_html__( 'Decimal separator', 'dashboard-plugin' ); ?></label></th><td><input id="hayfam-dashboard-decimal" class="small-text" type="text" name="dashboard[decimal]" value="<?php echo esc_attr( $current['decimal'] ); ?>"></td></tr>
-					<tr><th scope="row"><label for="hayfam-dashboard-cache"><?php echo esc_html__( 'Cache duration (seconds)', 'dashboard-plugin' ); ?></label></th><td><input id="hayfam-dashboard-cache" class="small-text" type="number" name="dashboard[cache_ttl]" value="<?php echo esc_attr( $current['cache_ttl'] ); ?>" min="60"></td></tr>
 					<tr><th scope="row"><label for="hayfam-dashboard-class"><?php echo esc_html__( 'Custom CSS class', 'dashboard-plugin' ); ?></label></th><td><input id="hayfam-dashboard-class" class="regular-text" type="text" name="dashboard[class]" value="<?php echo esc_attr( $current['class'] ); ?>"><p class="description"><?php echo esc_html__( 'Optional advanced class for additional theme or CSS styling.', 'dashboard-plugin' ); ?></p></td></tr>
 					<tr><th scope="row"><?php echo esc_html__( 'Debug logging', 'dashboard-plugin' ); ?></th><td><label><input type="checkbox" name="debug" value="1" <?php checked( ! empty( $settings['debug'] ), true ); ?>> <?php echo esc_html__( 'Write diagnostic messages when WP_DEBUG is enabled.', 'dashboard-plugin' ); ?></label></td></tr>
 				</table>
@@ -377,7 +385,7 @@ class Hayfam_Dashboard_Settings {
 
 			<div class="hayfam-dashboard-admin-preview" style="max-width:560px;margin:24px 0;padding:20px 24px;border:1px solid #c3c4c7;border-radius:6px;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.04)">
 				<h2 style="margin-top:0"><?php echo esc_html__( 'Dashboard preview', 'dashboard-plugin' ); ?></h2>
-				<p class="description"><?php echo esc_html__( 'The widget updates as you edit the text and appearance controls. Save to store the settings. Google Sheet source changes take effect after saving.', 'dashboard-plugin' ); ?></p>
+				<p class="description"><?php echo esc_html__( 'The widget updates as you edit the text and appearance controls. Save to store the settings. Google Sheet values are fetched again whenever the dashboard is refreshed.', 'dashboard-plugin' ); ?></p>
 				<div style="margin-top:18px;padding:24px;background:#f6f7f7;border-radius:4px">
 					<div id="hayfam-dashboard-preview-output">
 						<?php echo wp_kses_post( Hayfam_Dashboard_Shortcode::render_preview( $current_id ) ); ?>
@@ -386,12 +394,6 @@ class Hayfam_Dashboard_Settings {
 			</div>
 
 			<hr>
-			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="display:inline-block;margin-right:12px">
-				<input type="hidden" name="action" value="hayfam_dashboard_clear_cache">
-				<input type="hidden" name="dashboard_id" value="<?php echo esc_attr( $current_id ); ?>">
-				<?php wp_nonce_field( 'hayfam_dashboard_clear_cache' ); ?>
-				<?php submit_button( __( 'Clear cached values', 'dashboard-plugin' ), 'secondary', 'submit', false ); ?>
-			</form>
 			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="display:inline-block;margin-right:12px">
 				<input type="hidden" name="action" value="hayfam_dashboard_duplicate">
 				<input type="hidden" name="dashboard_id" value="<?php echo esc_attr( $current_id ); ?>">
@@ -434,6 +436,8 @@ class Hayfam_Dashboard_Settings {
 		$dashboard['font_family']       = array_key_exists( $dashboard['font_family'], self::font_family_options() ) ? $dashboard['font_family'] : 'inherit';
 		$dashboard['font_size']         = self::sanitize_css_length( $dashboard['font_size'] );
 		$dashboard['value_font_size']   = self::sanitize_css_length( $dashboard['value_font_size'] );
+		$dashboard['mobile_font_size']  = self::sanitize_css_length( $dashboard['mobile_font_size'] );
+		$dashboard['mobile_value_font_size'] = self::sanitize_css_length( $dashboard['mobile_value_font_size'] );
 		$dashboard['font_weight']       = in_array( (string) $dashboard['font_weight'], array( '400', '500', '600', '700', '800' ), true ) ? (string) $dashboard['font_weight'] : '';
 		$dashboard['value_font_weight'] = in_array( (string) $dashboard['value_font_weight'], array( '400', '500', '600', '700', '800' ), true ) ? (string) $dashboard['value_font_weight'] : '';
 		$dashboard['line_height']       = self::sanitize_css_line_height( $dashboard['line_height'] );
@@ -444,6 +448,10 @@ class Hayfam_Dashboard_Settings {
 		$dashboard['background_color']  = sanitize_hex_color( $dashboard['background_color'] ) ?: '';
 		$dashboard['gap']               = self::sanitize_css_length( $dashboard['gap'] );
 		$dashboard['padding']           = self::sanitize_css_length( $dashboard['padding'] );
+		$dashboard['mobile_gap']        = self::sanitize_css_length( $dashboard['mobile_gap'] );
+		$dashboard['mobile_padding']    = self::sanitize_css_length( $dashboard['mobile_padding'] );
+		$dashboard['mobile_width']      = self::sanitize_css_length( $dashboard['mobile_width'] );
+		$dashboard['mobile_graphic_height'] = self::sanitize_css_length( $dashboard['mobile_graphic_height'] );
 		$dashboard['border_radius']     = self::sanitize_css_length( $dashboard['border_radius'] );
 		$dashboard['widget_preset']     = array_key_exists( $dashboard['widget_preset'], self::widget_preset_options() ) ? $dashboard['widget_preset'] : 'plain';
 		$dashboard['widget_border']     = array_key_exists( $dashboard['widget_border'], self::widget_border_options() ) ? $dashboard['widget_border'] : 'none';

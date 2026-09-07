@@ -5,6 +5,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 class Hayfam_Dashboard_Cache {
+	// Retained only so existing installations can safely keep their old option.
+	// Google Sheet values are no longer stored in WordPress transients.
 	const VERSION_OPTION = 'hayfam_dashboard_cache_version';
 
 	public static function get_version() {
@@ -36,4 +38,3 @@ class Hayfam_Dashboard_Cache {
 		update_option( self::VERSION_OPTION, (string) ( $version + 1 ), false );
 	}
 }
-
