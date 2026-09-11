@@ -101,9 +101,20 @@
 			applyResponsiveStyles(dashboard);
 			refreshDashboard(dashboard);
 		});
+		var resizeFrame = null;
+		var scheduleResize = window.requestAnimationFrame || function (callback) {
+			return window.setTimeout(callback, 16);
+		};
 		window.addEventListener('resize', function () {
-			var currentDashboards = document.querySelectorAll('[data-hayfam-dashboard-live="1"]');
-			Array.prototype.forEach.call(currentDashboards, applyResponsiveStyles);
+			if (null !== resizeFrame) {
+				return;
+			}
+
+			resizeFrame = scheduleResize(function () {
+				resizeFrame = null;
+				var currentDashboards = document.querySelectorAll('[data-hayfam-dashboard-live="1"]');
+				Array.prototype.forEach.call(currentDashboards, applyResponsiveStyles);
+			});
 		});
 	}
 
