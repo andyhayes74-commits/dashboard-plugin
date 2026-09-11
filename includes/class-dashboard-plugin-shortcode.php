@@ -55,6 +55,16 @@ class Hayfam_Dashboard_Shortcode {
 				),
 			)
 		);
+
+		register_rest_route(
+			'hayfam-dashboard/v1',
+			'/render-batch',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( __CLASS__, 'rest_render_batch' ),
+				'permission_callback' => '__return_true',
+			)
+		);
 	}
 
 	public static function rest_render( WP_REST_Request $request ) {
@@ -86,31 +96,91 @@ class Hayfam_Dashboard_Shortcode {
 		return $response;
 	}
 
-	private static function render_dashboard( $dashboard_id, $attributes, $live_refresh = true, $fetch_live_value = false ) {
+	public static function rest_render_batch( WP_REST_Request $request ) {
+		$payload = $request->get_param( 'dashboards' );
+		if ( is_string( $payload ) ) {
+			$payload = json_decode( $payload, true );
+		}
+
+		if ( ! is_array( $payload ) || empty( $payload ) ) {
+			return new WP_Error( 'invalid_dashboard_batch', __( 'No dashboards were supplied.', 'dashboard-plugin' ), array( 'status' => 400 ) );
+		}
+
+		$prepared = array();
+		$requests = array();
+
+		foreach ( $payload as $item ) {
+			if ( ! is_array( $item ) ) {
+				continue;
+			}
+
+			$dashboard_id = isset( $item['id'] ) ? sanitize_key( (string) $item['id'] ) : '';
+			$dashboard    = Hayfam_Dashboard_Settings::get_dashboard( $dashboard_id );
+			if ( ! $dashboard_id || ! $dashboard || $dashboard_id !== $dashboard['id'] ) {
+				continue;
+			}
+
+			$attributes = isset( $item['attributes'] ) ? $item['attributes'] : array();
+			if ( is_string( $attributes ) ) {
+				$attributes = json_decode( $attributes, true );
+			}
+			$attributes = self::dashboard_attributes( $dashboard, is_array( $attributes ) ? $attributes : array() );
+			$prepared[] = array(
+				'id'         => $dashboard_id,
+				'dashboard'  => $dashboard,
+				'attributes' => $attributes,
+			);
+
+			$source = esc_url_raw( $attributes['source_url'] );
+			if ( '' !== trim( sanitize_text_field( $attributes['override'] ) ) || ! $source ) {
+				continue;
+			}
+
+			$requests[] = array(
+				'source_url' => $source,
+				'sheet'      => sanitize_text_field( $attributes['sheet'] ),
+				'cell'       => strtoupper( preg_replace( '/\s+/', '', sanitize_text_field( $attributes['cell'] ) ) ),
+			);
+		}
+
+		if ( empty( $prepared ) ) {
+			return new WP_Error( 'dashboard_not_found', __( 'No valid dashboards were supplied.', 'dashboard-plugin' ), array( 'status' => 404 ) );
+		}
+
+		$values  = ( new Hayfam_Dashboard_Sheets_Client() )->get_values( $requests );
+		$results = array();
+
+		foreach ( $prepared as $item ) {
+			$attributes = $item['attributes'];
+			$source     = esc_url_raw( $attributes['source_url'] );
+			$result     = null;
+
+			if ( '' === trim( sanitize_text_field( $attributes['override'] ) ) && $source ) {
+				$key    = Hayfam_Dashboard_Sheets_Client::value_key( $source, $attributes['sheet'], $attributes['cell'] );
+				$result = isset( $values[ $key ] ) ? $values[ $key ] : array( 'success' => false, 'error' => 'request_failed' );
+			}
+
+			$results[] = array(
+				'id'         => $item['id'],
+				'html'       => self::render_dashboard( $item['id'], $attributes, false, true, $result ),
+				'fetched_at' => current_time( 'timestamp', true ),
+			);
+		}
+
+		$response = rest_ensure_response( array( 'dashboards' => $results ) );
+		$response->header( 'Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0' );
+		$response->header( 'Pragma', 'no-cache' );
+
+		return $response;
+	}
+
+	private static function render_dashboard( $dashboard_id, $attributes, $live_refresh = true, $fetch_live_value = false, $prefetched_result = null ) {
 		$dashboard = Hayfam_Dashboard_Settings::get_dashboard( $dashboard_id );
 		if ( ! $dashboard ) {
 			return '';
 		}
 
-		$attributes = shortcode_atts(
-			array(
-				'source_url' => $dashboard['source_url'],
-				'sheet'      => $dashboard['sheet'],
-				'cell'       => $dashboard['cell'],
-				'before'     => $dashboard['before'],
-				'after'      => $dashboard['after'],
-				'prefix'     => $dashboard['prefix'],
-				'suffix'     => $dashboard['suffix'],
-				'override'   => $dashboard['override'],
-				'decimals'   => $dashboard['decimals'],
-				'thousands'  => $dashboard['thousands'],
-				'decimal'    => $dashboard['decimal'],
-				'fallback'   => $dashboard['fallback'],
-				'class'      => $dashboard['class'],
-			),
-			$attributes,
-			'dashboard_metric'
-		);
+		$attributes = self::dashboard_attributes( $dashboard, $attributes );
 
 		$source = esc_url_raw( $attributes['source_url'] );
 		$sheet  = sanitize_text_field( $attributes['sheet'] );
@@ -124,7 +194,7 @@ class Hayfam_Dashboard_Shortcode {
 				'value'   => $override,
 			);
 		} elseif ( $source && $fetch_live_value ) {
-			$result = ( new Hayfam_Dashboard_Sheets_Client() )->get_value( $source, $sheet, $cell );
+			$result = is_array( $prefetched_result ) ? $prefetched_result : ( new Hayfam_Dashboard_Sheets_Client() )->get_value( $source, $sheet, $cell );
 		}
 
 		$has_value = ! empty( $result['success'] );
@@ -157,7 +227,7 @@ class Hayfam_Dashboard_Shortcode {
 		);
 		$output  = '<div class="' . esc_attr( implode( ' ', $classes ) ) . '"' . self::style_attribute( $styles ) . ' data-hayfam-dashboard-live="' . esc_attr( $live_refresh ? '1' : '0' ) . '"';
 		if ( $live_refresh ) {
-			$output .= ' data-hayfam-dashboard-id="' . esc_attr( $dashboard['id'] ) . '" data-hayfam-dashboard-refresh-url="' . esc_url( rest_url( 'hayfam-dashboard/v1/render' ) ) . '" data-hayfam-dashboard-attributes="' . esc_attr( wp_json_encode( $live_attributes ) ) . '"';
+			$output .= ' data-hayfam-dashboard-id="' . esc_attr( $dashboard['id'] ) . '" data-hayfam-dashboard-refresh-url="' . esc_url( rest_url( 'hayfam-dashboard/v1/render' ) ) . '" data-hayfam-dashboard-refresh-batch-url="' . esc_url( rest_url( 'hayfam-dashboard/v1/render-batch' ) ) . '" data-hayfam-dashboard-attributes="' . esc_attr( wp_json_encode( $live_attributes ) ) . '"';
 		}
 		$output .= '>';
 		$output .= self::animated_graphic( $dashboard, $value );
@@ -167,6 +237,28 @@ class Hayfam_Dashboard_Shortcode {
 		$output .= '</div>';
 
 		return $output;
+	}
+
+	private static function dashboard_attributes( $dashboard, $attributes ) {
+		return shortcode_atts(
+			array(
+				'source_url' => $dashboard['source_url'],
+				'sheet'      => $dashboard['sheet'],
+				'cell'       => $dashboard['cell'],
+				'before'     => $dashboard['before'],
+				'after'      => $dashboard['after'],
+				'prefix'     => $dashboard['prefix'],
+				'suffix'     => $dashboard['suffix'],
+				'override'   => $dashboard['override'],
+				'decimals'   => $dashboard['decimals'],
+				'thousands'  => $dashboard['thousands'],
+				'decimal'    => $dashboard['decimal'],
+				'fallback'   => $dashboard['fallback'],
+				'class'      => $dashboard['class'],
+			),
+			$attributes,
+			'dashboard_metric'
+		);
 	}
 
 	private static function animated_graphic( $dashboard, $value ) {
