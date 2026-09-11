@@ -164,7 +164,7 @@ The **Animated fundraising bar** grows upwards from zero. Its five milestone row
 
 The **Marcham Community Fridge** theme preset uses the logo-inspired palette: orange `#f36c0a`, dark green `#276b38`, and olive `#748b2b`. It uses a bold condensed display font with system fallbacks. Individual typography and colour fields can override the preset.
 
-The frontend performs a no-cache refresh request after the page loads. This allows dashboard settings and Google Sheet values to update without republishing the Elementor page, even when the page itself is cached. The plugin now bypasses its old WordPress transient cache and requests the published Google Sheet again on every dashboard render and frontend refresh.
+The frontend performs a no-cache refresh request after the page loads. This allows dashboard settings and Google Sheet values to update without republishing the Elementor page, even when the page itself is cached. Public shortcode rendering uses the configured fallback or override immediately, and the uncached refresh request bypasses the old WordPress transient cache and requests the published Google Sheet.
 
 Every dashboard still uses these classes:
 
@@ -191,7 +191,7 @@ The optional CSS class remains available for advanced styling or theme-specific 
 ## Technical notes
 
 - Requires WordPress 6.4+ and PHP 7.4+.
-- Google Sheet values are fetched again on every dashboard render and frontend refresh. The old five-minute WordPress transient cache is no longer used.
+- Public page rendering does not wait for Google Sheets. The uncached frontend REST refresh fetches the current value after load, and the old five-minute WordPress transient cache is no longer used.
 - The published Google Sheet or an upstream CDN may still take time to expose a newly edited value; the plugin sends no-cache headers and a unique refresh parameter to reduce that possibility.
 - Temporary Google Sheet calculation errors are retried before the dashboard falls back to its configured unavailable-data message.
 - Fixed live-refresh handling for pound signs and other Unicode characters entered in dashboard text fields.
