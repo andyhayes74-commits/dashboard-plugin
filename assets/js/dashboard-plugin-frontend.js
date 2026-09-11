@@ -82,9 +82,30 @@
 				replaceDashboard(container, data.html);
 			})
 			.catch(function () {
-				// Keep the server-rendered dashboard visible if the refresh endpoint is unavailable.
-				container.setAttribute('data-hayfam-dashboard-refresh-state', 'failed');
-		});
+				showDashboardFallback(container);
+			});
+	}
+
+	function showDashboardFallback(container) {
+		var value = container.querySelector('.hayfam-dashboard-metric__value');
+		var fallback = 'Data currently unavailable';
+		var attributes = container.getAttribute('data-hayfam-dashboard-attributes') || '{}';
+
+		try {
+			attributes = JSON.parse(attributes);
+			if (attributes.fallback) {
+				fallback = String(attributes.fallback);
+			}
+		} catch (error) {
+			// Use the standard fallback when the serialized attributes cannot be read.
+		}
+
+		if (value) {
+			value.textContent = fallback;
+		}
+		container.setAttribute('data-hayfam-dashboard-loading', '0');
+		container.setAttribute('aria-busy', 'false');
+		container.setAttribute('data-hayfam-dashboard-refresh-state', 'failed');
 	}
 
 	function replaceDashboard(container, html) {
@@ -150,9 +171,8 @@
 				});
 			})
 			.catch(function () {
-				// Keep the server-rendered dashboards visible if the batch endpoint is unavailable.
 				Array.prototype.forEach.call(containers, function (container) {
-					container.setAttribute('data-hayfam-dashboard-refresh-state', 'failed');
+					showDashboardFallback(container);
 				});
 			});
 	}
