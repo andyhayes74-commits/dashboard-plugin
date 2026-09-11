@@ -647,6 +647,20 @@
 	text-overflow: clip;
 }
 
+.hayfam-dashboard-metric[data-hayfam-dashboard-loading="1"] .hayfam-dashboard-metric__value {
+	opacity: 0.58;
+	animation: hayfam-dashboard-loading-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes hayfam-dashboard-loading-pulse {
+	0%, 100% {
+		opacity: 0.58;
+	}
+	50% {
+		opacity: 0.95;
+	}
+}
+
 @media (max-width: 767px) {
 	.hayfam-dashboard-animated--fundraising-bar .hayfam-dashboard-animated__fundraising-layout {
 		width: min(100%, 380px);
