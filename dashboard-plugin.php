@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Dashboard Plugin
  * Description: Creates multiple configurable dashboard shortcodes backed by published Google Sheets.
- * Version: 2.12.4
+ * Version: 2.13.0
  * Author: Andy Hayes
  * License: GPL-2.0-or-later
  * Text Domain: dashboard-plugin
