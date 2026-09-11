@@ -5,8 +5,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 class Hayfam_Dashboard_Cache {
-	// Retained only so existing installations can safely keep their old option.
-	// Google Sheet values are no longer stored in WordPress transients.
+	// The cache version lets administrators invalidate stored Sheet results
+	// without needing to enumerate transient keys. Results are retained only as
+	// a short-lived stale display fallback; live refreshes still query Sheets.
 	const VERSION_OPTION = 'hayfam_dashboard_cache_version';
 
 	public static function get_version() {
