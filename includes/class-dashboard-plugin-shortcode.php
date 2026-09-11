@@ -10,6 +10,9 @@ class Hayfam_Dashboard_Shortcode {
 	public static function init() {
 		add_shortcode( 'dashboard_metric', array( __CLASS__, 'render' ) );
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
+		add_filter( 'cron_schedules', array( __CLASS__, 'cron_schedules' ) );
+		add_action( 'hayfam_dashboard_warm_cache', array( __CLASS__, 'warm_cache' ) );
+		self::schedule_warm_cache();
 
 		foreach ( Hayfam_Dashboard_Settings::get_dashboards() as $dashboard_id => $dashboard ) {
 			if ( empty( $dashboard['shortcode'] ) || 'dashboard_metric' === $dashboard['shortcode'] ) {
@@ -23,6 +26,61 @@ class Hayfam_Dashboard_Shortcode {
 				}
 			);
 		}
+	}
+
+	public static function cron_schedules( $schedules ) {
+		$schedules['hayfam_dashboard_ten_minutes'] = array(
+			'interval' => 600,
+			'display'  => __( 'Every ten minutes', 'dashboard-plugin' ),
+		);
+
+		return $schedules;
+	}
+
+	public static function schedule_warm_cache() {
+		if ( ! wp_next_scheduled( 'hayfam_dashboard_warm_cache' ) ) {
+			wp_schedule_event( time() + 30, 'hayfam_dashboard_ten_minutes', 'hayfam_dashboard_warm_cache' );
+		}
+	}
+
+	public static function request_warm_cache() {
+		if ( ! wp_next_scheduled( 'hayfam_dashboard_warm_cache', array( 'manual' ) ) ) {
+			wp_schedule_single_event( time() + 5, 'hayfam_dashboard_warm_cache', array( 'manual' ) );
+		}
+	}
+
+	public static function warm_cache( $reason = '' ) {
+		if ( get_transient( 'hayfam_dashboard_warm_lock' ) ) {
+			return;
+		}
+
+		set_transient( 'hayfam_dashboard_warm_lock', '1', 540 );
+		$requests = array();
+
+		foreach ( Hayfam_Dashboard_Settings::get_dashboards() as $dashboard ) {
+			$source = esc_url_raw( $dashboard['source_url'] );
+			if ( '' !== trim( sanitize_text_field( $dashboard['override'] ) ) || ! $source ) {
+				continue;
+			}
+
+			$requests[] = array(
+				'source_url' => $source,
+				'sheet'      => sanitize_text_field( $dashboard['sheet'] ),
+				'cell'       => strtoupper( preg_replace( '/\s+/', '', sanitize_text_field( $dashboard['cell'] ) ) ),
+			);
+		}
+
+		if ( ! empty( $requests ) ) {
+			$values = ( new Hayfam_Dashboard_Sheets_Client() )->get_values( $requests );
+			foreach ( $requests as $request ) {
+				$key = Hayfam_Dashboard_Sheets_Client::value_key( $request['source_url'], $request['sheet'], $request['cell'] );
+				if ( isset( $values[ $key ] ) ) {
+					self::store_result( $request['source_url'], $request['sheet'], $request['cell'], $values[ $key ] );
+				}
+			}
+		}
+
+		delete_transient( 'hayfam_dashboard_warm_lock' );
 	}
 
 	public static function render( $attributes = array() ) {

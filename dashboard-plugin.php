@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Dashboard Plugin
  * Description: Creates multiple configurable dashboard shortcodes backed by published Google Sheets.
- * Version: 2.13.7
+ * Version: 2.13.8
  * Author: Andy Hayes
  * License: GPL-2.0-or-later
  * Text Domain: dashboard-plugin
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'HAYFAM_DASHBOARD_VERSION', '2.13.7' );
+define( 'HAYFAM_DASHBOARD_VERSION', '2.13.8' );
 define( 'HAYFAM_DASHBOARD_FILE', __FILE__ );
 define( 'HAYFAM_DASHBOARD_PATH', plugin_dir_path( __FILE__ ) );
 define( 'HAYFAM_DASHBOARD_URL', plugin_dir_url( __FILE__ ) );
@@ -29,6 +29,12 @@ require_once HAYFAM_DASHBOARD_PATH . 'includes/class-dashboard-plugin-shortcode.
 Hayfam_Dashboard_Settings::init();
 Hayfam_Dashboard_Shortcode::init();
 
+function hayfam_dashboard_deactivate() {
+	wp_clear_scheduled_hook( 'hayfam_dashboard_warm_cache' );
+}
+
+register_deactivation_hook( HAYFAM_DASHBOARD_FILE, 'hayfam_dashboard_deactivate' );
+
 function hayfam_dashboard_activate() {
 	if ( false === get_option( HAYFAM_DASHBOARD_SETTINGS_OPTION, false ) ) {
 		$legacy = get_option( HAYFAM_DASHBOARD_LEGACY_OPTION, false );
@@ -36,6 +42,8 @@ function hayfam_dashboard_activate() {
 			update_option( HAYFAM_DASHBOARD_SETTINGS_OPTION, $legacy );
 		}
 	}
+
+	wp_schedule_single_event( time() + 5, 'hayfam_dashboard_warm_cache', array( 'activation' ) );
 }
 register_activation_hook( HAYFAM_DASHBOARD_FILE, 'hayfam_dashboard_activate' );
 

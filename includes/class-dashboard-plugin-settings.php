@@ -195,6 +195,7 @@ class Hayfam_Dashboard_Settings {
 		self::sync_legacy_values( $settings, $dashboard_id );
 		update_option( HAYFAM_DASHBOARD_SETTINGS_OPTION, $settings );
 		self::$all_cache = null;
+		Hayfam_Dashboard_Shortcode::request_warm_cache();
 
 		self::redirect( $dashboard_id, 'saved' );
 	}
