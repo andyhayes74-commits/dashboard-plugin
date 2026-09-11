@@ -79,19 +79,81 @@
 					throw new Error('Dashboard refresh returned no markup');
 				}
 
-				var template = document.createElement('template');
-				template.innerHTML = data.html.trim();
-				var replacement = template.content.firstElementChild;
-				if (!replacement) {
-					throw new Error('Dashboard refresh returned invalid markup');
-				}
-
-				applyResponsiveStyles(replacement);
-				container.replaceWith(replacement);
+				replaceDashboard(container, data.html);
 			})
 			.catch(function () {
 				// Keep the server-rendered dashboard visible if the refresh endpoint is unavailable.
 				container.setAttribute('data-hayfam-dashboard-refresh-state', 'failed');
+		});
+	}
+
+	function replaceDashboard(container, html) {
+		var template = document.createElement('template');
+		template.innerHTML = String(html || '').trim();
+		var replacement = template.content.firstElementChild;
+		if (!replacement) {
+			throw new Error('Dashboard refresh returned invalid markup');
+		}
+
+		applyResponsiveStyles(replacement);
+		container.replaceWith(replacement);
+	}
+
+	function refreshDashboards(containers) {
+		if (!containers.length) {
+			return;
+		}
+
+		var batchEndpoint = containers[0].getAttribute('data-hayfam-dashboard-refresh-batch-url');
+		if (!batchEndpoint) {
+			Array.prototype.forEach.call(containers, refreshDashboard);
+			return;
+		}
+
+		var dashboards = Array.prototype.map.call(containers, function (container) {
+			var attributes = container.getAttribute('data-hayfam-dashboard-attributes') || '{}';
+			try {
+				attributes = JSON.parse(attributes);
+			} catch (error) {
+				attributes = {};
+			}
+
+			return {
+				id: container.getAttribute('data-hayfam-dashboard-id') || '',
+				attributes: attributes
+			};
+		});
+
+		fetch(batchEndpoint, {
+			method: 'POST',
+			cache: 'no-store',
+			credentials: 'same-origin',
+			headers: {
+				'Accept': 'application/json',
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({ dashboards: dashboards, _: Date.now() })
+		})
+			.then(function (response) {
+				if (!response.ok) {
+					throw new Error('Dashboard batch refresh failed');
+				}
+				return response.json();
+			})
+			.then(function (data) {
+				if (!Array.isArray(data.dashboards) || data.dashboards.length !== containers.length) {
+					throw new Error('Dashboard batch refresh returned invalid data');
+				}
+
+				Array.prototype.forEach.call(containers, function (container, index) {
+					replaceDashboard(container, data.dashboards[index].html);
+				});
+			})
+			.catch(function () {
+				// Keep the server-rendered dashboards visible if the batch endpoint is unavailable.
+				Array.prototype.forEach.call(containers, function (container) {
+					container.setAttribute('data-hayfam-dashboard-refresh-state', 'failed');
+				});
 			});
 	}
 
@@ -99,8 +161,8 @@
 		var dashboards = document.querySelectorAll('[data-hayfam-dashboard-live="1"]');
 		Array.prototype.forEach.call(dashboards, function (dashboard) {
 			applyResponsiveStyles(dashboard);
-			refreshDashboard(dashboard);
 		});
+		refreshDashboards(dashboards);
 		var resizeFrame = null;
 		var scheduleResize = window.requestAnimationFrame || function (callback) {
 			return window.setTimeout(callback, 16);
