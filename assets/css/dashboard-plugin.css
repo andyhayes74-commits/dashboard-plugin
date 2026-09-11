@@ -656,7 +656,7 @@
 		font-size: 0.68rem;
 	}
 	.hayfam-dashboard-animated--fundraising-bar .hayfam-dashboard-animated__fundraising-amount::after,
-	hayfam-dashboard-animated--fundraising-bar .hayfam-dashboard-animated__fundraising-label-wrap::before {
+	.hayfam-dashboard-animated--fundraising-bar .hayfam-dashboard-animated__fundraising-label-wrap::before {
 		flex-basis: 14px;
 	}
 	.hayfam-dashboard-animated--fundraising-bar .hayfam-dashboard-animated__fundraising-amount::after {
