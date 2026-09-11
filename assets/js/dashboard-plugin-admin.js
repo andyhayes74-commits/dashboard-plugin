@@ -279,7 +279,9 @@
 		var markers = container.querySelectorAll('.hayfam-dashboard-animated__fundraising-marker');
 		Array.prototype.forEach.call(rows, function (row, index) {
 			var percentField = row.querySelector('.hayfam-dashboard-milestone-percent');
+			var amountField = row.querySelector('.hayfam-dashboard-milestone-amount');
 			var labelField = row.querySelector('.hayfam-dashboard-milestone-label');
+			var amount = amountField ? amountField.value.trim() : '';
 			var label = labelField ? labelField.value.trim() : '';
 			var percent = parseFloat(percentField ? percentField.value : '0');
 			if (isNaN(percent)) {
@@ -292,21 +294,33 @@
 				marker = document.createElement('span');
 				marker.className = 'hayfam-dashboard-animated__fundraising-marker';
 				marker.setAttribute('data-milestone-index', String(index));
+				var markerAmount = document.createElement('span');
+				markerAmount.className = 'hayfam-dashboard-animated__fundraising-amount';
+				marker.appendChild(markerAmount);
+				var markerLabelWrap = document.createElement('span');
+				markerLabelWrap.className = 'hayfam-dashboard-animated__fundraising-label-wrap';
 				var markerLabel = document.createElement('span');
 				markerLabel.className = 'hayfam-dashboard-animated__fundraising-label';
-				marker.appendChild(markerLabel);
+				markerLabelWrap.appendChild(markerLabel);
 				var markerTick = document.createElement('span');
 				markerTick.className = 'hayfam-dashboard-animated__fundraising-tick';
 				markerTick.setAttribute('aria-hidden', 'true');
 				markerTick.textContent = '✓';
-				marker.appendChild(markerTick);
+				markerLabelWrap.appendChild(markerTick);
+				marker.appendChild(markerLabelWrap);
 				container.appendChild(marker);
 			}
 
 			marker.style.bottom = percent + '%';
-			marker.style.display = label ? 'flex' : 'none';
+			marker.style.display = amount || label ? 'flex' : 'none';
 			marker.setAttribute('data-milestone-percent', String(percent));
 			marker.classList.toggle('hayfam-dashboard-animated__fundraising-marker--achieved', progressPercent >= percent);
+			marker.classList.toggle('hayfam-dashboard-animated__fundraising-marker--has-amount', Boolean(amount));
+			marker.classList.toggle('hayfam-dashboard-animated__fundraising-marker--has-label', Boolean(label));
+			var markerAmountText = marker.querySelector('.hayfam-dashboard-animated__fundraising-amount');
+			if (markerAmountText) {
+				markerAmountText.textContent = amount;
+			}
 			var markerText = marker.querySelector('.hayfam-dashboard-animated__fundraising-label');
 			if (markerText) {
 				markerText.textContent = label;
