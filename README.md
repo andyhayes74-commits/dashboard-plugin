@@ -1,13 +1,13 @@
-# Dashboard Plugin v2.13.1
+# Dashboard Plugin v2.13.2
 
-Dashboard Plugin v2.13.1 is a standalone WordPress shortcode plugin for creating multiple live dashboard metrics from published Google Sheets.
+Dashboard Plugin v2.13.2 is a standalone WordPress shortcode plugin for creating multiple live dashboard metrics from published Google Sheets.
 
 It does not load Elementor classes or widgets. Elementor can still be used as the page builder by placing each generated shortcode in a normal Elementor **Shortcode** widget.
 
 ## Branch and version
 
-- Branch: `v2.13.1`
-- Plugin version: `2.13.1`
+- Branch: `v2.13.2`
+- Plugin version: `2.13.2`
 - Settings page: **Settings → Dashboard Plugin**
 
 ## What changed
@@ -34,6 +34,7 @@ It does not load Elementor classes or widgets. Elementor can still be used as th
 - Added a Marcham Community Fridge theme preset based on the supplied logo: orange, dark green, olive brand accents, and a bold condensed display font.
 - Added an animated vertical fundraising bar with configurable milestone percentages, monetary amounts on the left, and descriptive labels on the right.
 - v2.13.1 forces the fundraising scale into left amount / centre bar / right label columns, wraps long labels inside the widget, and bumps the asset version to avoid stale cached CSS.
+- v2.13.2 anchors monetary amounts to the left of the centre bar and descriptive labels to the right, with wrapping inside the available widget width.
 - Fundraising milestone controls are enabled only when the animated fundraising bar is selected.
 - Fundraising milestone labels receive an animated green tick when the current progress reaches or passes their percentage.
 - Frontend dashboard output refreshes from WordPress after the page loads, so cached Elementor/page HTML does not prevent current settings from appearing.
@@ -56,7 +57,7 @@ The release package contains the stable top-level folder `dashboard-plugin-main`
 
 If WordPress offers only a normal new installation or says that the destination folder already exists, cancel the upload. Do not activate a second Dashboard Plugin copy.
 
-Download: `https://github.com/andyhayes74-commits/dashboard-plugin/raw/refs/heads/v2.13.0/dashboard-plugin-main-v2.13.1.zip`
+Download: `https://github.com/andyhayes74-commits/dashboard-plugin/raw/refs/heads/v2.13.0/dashboard-plugin-main-v2.13.2.zip`
 
 ## Creating dashboards
 
