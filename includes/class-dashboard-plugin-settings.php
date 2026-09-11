@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class Hayfam_Dashboard_Settings {
 	const PAGE_SLUG = 'hayfam-dashboard-plugin';
+	private static $all_cache = null;
 
 	public static function init() {
 		add_action( 'admin_menu', array( __CLASS__, 'register_menu' ) );
@@ -83,6 +84,10 @@ class Hayfam_Dashboard_Settings {
 	}
 
 	public static function get_all() {
+		if ( null !== self::$all_cache ) {
+			return self::$all_cache;
+		}
+
 		$stored     = get_option( HAYFAM_DASHBOARD_SETTINGS_OPTION, array() );
 		$stored     = is_array( $stored ) ? $stored : array();
 		$settings   = wp_parse_args( $stored, self::defaults() );
@@ -129,7 +134,9 @@ class Hayfam_Dashboard_Settings {
 		$settings['debug']         = empty( $settings['debug'] ) ? 0 : 1;
 		$settings['dashboards']    = $normalised;
 
-		return $settings;
+		self::$all_cache = $settings;
+
+		return self::$all_cache;
 	}
 
 	public static function get_dashboards() {
@@ -187,6 +194,7 @@ class Hayfam_Dashboard_Settings {
 		$settings['debug'] = empty( $_POST['debug'] ) ? 0 : 1;
 		self::sync_legacy_values( $settings, $dashboard_id );
 		update_option( HAYFAM_DASHBOARD_SETTINGS_OPTION, $settings );
+		self::$all_cache = null;
 
 		self::redirect( $dashboard_id, 'saved' );
 	}
@@ -198,6 +206,7 @@ class Hayfam_Dashboard_Settings {
 		$id       = self::make_id( 'New Dashboard', $settings['dashboards'] );
 		$settings['dashboards'][ $id ] = self::dashboard_defaults( $id, 'New Dashboard' );
 		update_option( HAYFAM_DASHBOARD_SETTINGS_OPTION, $settings );
+		self::$all_cache = null;
 
 		self::redirect( $id, 'added' );
 	}
@@ -222,6 +231,7 @@ class Hayfam_Dashboard_Settings {
 		$settings['dashboards'][ $new_id ] = $duplicate;
 
 		update_option( HAYFAM_DASHBOARD_SETTINGS_OPTION, $settings );
+		self::$all_cache = null;
 		self::redirect( $new_id, 'duplicated' );
 	}
 
@@ -239,6 +249,7 @@ class Hayfam_Dashboard_Settings {
 		$next_id = key( $settings['dashboards'] );
 		self::sync_legacy_values( $settings, $next_id );
 		update_option( HAYFAM_DASHBOARD_SETTINGS_OPTION, $settings );
+		self::$all_cache = null;
 
 		self::redirect( $next_id, 'deleted' );
 	}
@@ -276,7 +287,7 @@ class Hayfam_Dashboard_Settings {
 		$message    = isset( $_GET['message'] ) ? sanitize_key( wp_unslash( $_GET['message'] ) ) : '';
 		?>
 		<div class="wrap">
-			<h1><?php echo esc_html__( 'Dashboard Plugin v2.13.0', 'dashboard-plugin' ); ?></h1>
+			<h1><?php echo esc_html( 'Dashboard Plugin v' . HAYFAM_DASHBOARD_VERSION ); ?></h1>
 			<p><?php echo esc_html__( 'Create a separate tab and shortcode for each live dashboard metric.', 'dashboard-plugin' ); ?></p>
 
 			<h2 class="nav-tab-wrapper">
