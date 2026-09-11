@@ -1,13 +1,13 @@
-# Dashboard Plugin v2.12.4
+# Dashboard Plugin v2.13.0
 
-Dashboard Plugin v2.12.4 is a standalone WordPress shortcode plugin for creating multiple live dashboard metrics from published Google Sheets.
+Dashboard Plugin v2.13.0 is a standalone WordPress shortcode plugin for creating multiple live dashboard metrics from published Google Sheets.
 
 It does not load Elementor classes or widgets. Elementor can still be used as the page builder by placing each generated shortcode in a normal Elementor **Shortcode** widget.
 
 ## Branch and version
 
-- Branch: `v2.12.4`
-- Plugin version: `2.12.4`
+- Branch: `v2.13.0`
+- Plugin version: `2.13.0`
 - Settings page: **Settings → Dashboard Plugin**
 
 ## What changed
@@ -32,7 +32,7 @@ It does not load Elementor classes or widgets. Elementor can still be used as th
 - Added wave, concentric ring, diagonal line, and soft glow decorative graphics.
 - Added animated progress bars, arcs, batteries, pulses, and rising bars. Percentage graphics use the dashboard value divided by a configurable graphic maximum, capped between 0% and 100%.
 - Added a Marcham Community Fridge theme preset based on the supplied logo: orange, dark green, olive brand accents, and a bold condensed display font.
-- Added an animated vertical fundraising bar with configurable milestone percentages and labels, suitable for showing targets such as £0, a new toaster, and a new kettle.
+- Added an animated vertical fundraising bar with configurable milestone percentages, monetary amounts on the left, and descriptive labels on the right.
 - Fundraising milestone controls are enabled only when the animated fundraising bar is selected.
 - Fundraising milestone labels receive an animated green tick when the current progress reaches or passes their percentage.
 - Frontend dashboard output refreshes from WordPress after the page loads, so cached Elementor/page HTML does not prevent current settings from appearing.
@@ -55,7 +55,7 @@ The release package contains the stable top-level folder `dashboard-plugin-main`
 
 If WordPress offers only a normal new installation or says that the destination folder already exists, cancel the upload. Do not activate a second Dashboard Plugin copy.
 
-Download: `https://github.com/andyhayes74-commits/dashboard-plugin/raw/refs/heads/v2.12.4/dashboard-plugin-main-v2.12.4.zip`
+Download: `https://github.com/andyhayes74-commits/dashboard-plugin/raw/refs/heads/v2.13.0/dashboard-plugin-main-v2.13.0.zip`
 
 ## Creating dashboards
 
@@ -156,7 +156,7 @@ Widget styles include plain, soft card, outlined card, dark card, and gradient c
 
 Animated graphics include a progress bar, progress arc, battery, pulse, rising bars, and a fundraising bar. Set **Graphic maximum** to the target total for the metric. For example, a dashboard value of 75 with a maximum of 100 renders at 75%; a value of 105 with a maximum of 500 renders at 21%.
 
-The **Animated fundraising bar** grows upwards from zero. Its five milestone rows accept a percentage and label, so you can configure entries such as `0% — £0`, `25% — New toaster`, and `50% — New kettle`. Blank labels are hidden, and the labels update live in the settings preview.
+The **Animated fundraising bar** grows upwards from zero. Its five milestone rows accept a percentage, a monetary amount shown to the left, and a descriptive label shown to the right. For example, use `0% — £0`, `50% — £50 — New light stand`, and `100% — £100 — Target reached`. Blank amount and label fields hide that marker, and the values update live in the settings preview.
 
 The **Marcham Community Fridge** theme preset uses the logo-inspired palette: orange `#f36c0a`, dark green `#276b38`, and olive `#748b2b`. It uses a bold condensed display font with system fallbacks. Individual typography and colour fields can override the preset.
 
@@ -193,3 +193,13 @@ The optional CSS class remains available for advanced styling or theme-specific 
 - Fixed live-refresh handling for pound signs and other Unicode characters entered in dashboard text fields.
 - The plugin does not request Google credentials.
 - The plugin has no Elementor runtime dependency.
+
+## Monetary fundraising scale
+
+When the animated fundraising bar is selected, each milestone has three parts:
+
+- **Percentage** controls the vertical position on the bar.
+- **Amount** is displayed on the left, such as `£0`, `£50`, or `£100`.
+- **Label** is displayed on the right, such as `New light stand` or `Second portable light`.
+
+Set **Graphic maximum** to the numerical target total. For example, enter `100` for a £100 target, then use milestone amounts from £0 to £100. Existing v2.12.4 currency-only milestone labels are automatically moved to the new left-hand amount field.
