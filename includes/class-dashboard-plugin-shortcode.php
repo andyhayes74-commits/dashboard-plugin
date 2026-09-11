@@ -5,6 +5,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 class Hayfam_Dashboard_Shortcode {
+	private const STALE_RESULT_TTL = 3600;
+
 	public static function init() {
 		add_shortcode( 'dashboard_metric', array( __CLASS__, 'render' ) );
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
@@ -195,10 +197,24 @@ class Hayfam_Dashboard_Shortcode {
 			);
 		} elseif ( $source && $fetch_live_value ) {
 			$result = is_array( $prefetched_result ) ? $prefetched_result : ( new Hayfam_Dashboard_Sheets_Client() )->get_value( $source, $sheet, $cell );
+			if ( ! empty( $result['success'] ) ) {
+				self::store_result( $source, $sheet, $cell, $result );
+			} else {
+				$previous_result = self::previous_result( $source, $sheet, $cell );
+				if ( $previous_result ) {
+					$result = $previous_result;
+				}
+			}
+		} elseif ( $source && $live_refresh ) {
+			$previous_result = self::previous_result( $source, $sheet, $cell );
+			if ( $previous_result ) {
+				$result = $previous_result;
+			}
 		}
 
 		$has_value = ! empty( $result['success'] );
-		$value     = $has_value ? self::format_value( $result['value'], $attributes ) : sanitize_text_field( $attributes['fallback'] );
+		$waiting_for_live_value = $live_refresh && '' === trim( $override ) && $source && ! $has_value;
+		$value     = $waiting_for_live_value ? __( 'Loading…', 'dashboard-plugin' ) : ( $has_value ? self::format_value( $result['value'], $attributes ) : sanitize_text_field( $attributes['fallback'] ) );
 		$prefix    = $has_value ? sanitize_text_field( $attributes['prefix'] ) : '';
 		$suffix    = $has_value ? sanitize_text_field( $attributes['suffix'] ) : '';
 		$classes   = self::classes( $attributes['class'] );
@@ -225,18 +241,41 @@ class Hayfam_Dashboard_Shortcode {
 			'fallback'   => $attributes['fallback'],
 			'class'      => $attributes['class'],
 		);
-		$output  = '<div class="' . esc_attr( implode( ' ', $classes ) ) . '"' . self::style_attribute( $styles ) . ' data-hayfam-dashboard-live="' . esc_attr( $live_refresh ? '1' : '0' ) . '"';
+		$output  = '<div class="' . esc_attr( implode( ' ', $classes ) ) . '"' . self::style_attribute( $styles ) . ' data-hayfam-dashboard-live="' . esc_attr( $live_refresh ? '1' : '0' ) . '" data-hayfam-dashboard-loading="' . esc_attr( $waiting_for_live_value ? '1' : '0' ) . '" data-hayfam-dashboard-stale="' . esc_attr( ! empty( $result['stale'] ) ? '1' : '0' ) . '"';
+		if ( $waiting_for_live_value ) {
+			$output .= ' aria-busy="true"';
+		}
 		if ( $live_refresh ) {
 			$output .= ' data-hayfam-dashboard-id="' . esc_attr( $dashboard['id'] ) . '" data-hayfam-dashboard-refresh-url="' . esc_url( rest_url( 'hayfam-dashboard/v1/render' ) ) . '" data-hayfam-dashboard-refresh-batch-url="' . esc_url( rest_url( 'hayfam-dashboard/v1/render-batch' ) ) . '" data-hayfam-dashboard-attributes="' . esc_attr( wp_json_encode( $live_attributes ) ) . '"';
 		}
 		$output .= '>';
 		$output .= self::animated_graphic( $dashboard, $value );
 		$output .= '<div class="hayfam-dashboard-metric__before"' . self::style_attribute( self::element_styles( $dashboard, 'before' ) ) . '>' . self::text( $attributes['before'] ) . '</div>';
-		$output .= '<div class="hayfam-dashboard-metric__value"' . self::style_attribute( self::element_styles( $dashboard, 'value' ) ) . '>' . esc_html( $prefix . $value . $suffix ) . '</div>';
+		$output .= '<div class="hayfam-dashboard-metric__value" aria-live="polite"' . self::style_attribute( self::element_styles( $dashboard, 'value' ) ) . '>' . esc_html( $prefix . $value . $suffix ) . '</div>';
 		$output .= '<div class="hayfam-dashboard-metric__after"' . self::style_attribute( self::element_styles( $dashboard, 'after' ) ) . '>' . self::text( $attributes['after'] ) . '</div>';
 		$output .= '</div>';
 
 		return $output;
+	}
+
+	private static function previous_result( $source, $sheet, $cell ) {
+		$result = Hayfam_Dashboard_Cache::get( $source, $sheet, $cell );
+		if ( ! is_array( $result ) || empty( $result['success'] ) ) {
+			return null;
+		}
+
+		$result['stale']  = true;
+		$result['cached'] = true;
+
+		return $result;
+	}
+
+	private static function store_result( $source, $sheet, $cell, $result ) {
+		if ( ! is_array( $result ) || empty( $result['success'] ) || ! empty( $result['stale'] ) ) {
+			return;
+		}
+
+		Hayfam_Dashboard_Cache::set( $source, $sheet, $cell, $result, self::STALE_RESULT_TTL );
 	}
 
 	private static function dashboard_attributes( $dashboard, $attributes ) {
