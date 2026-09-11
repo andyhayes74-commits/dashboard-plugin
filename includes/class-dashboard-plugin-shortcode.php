@@ -208,10 +208,15 @@ class Hayfam_Dashboard_Shortcode {
 				$milestones = isset( $dashboard['milestones'] ) && is_array( $dashboard['milestones'] ) ? $dashboard['milestones'] : array();
 				foreach ( $milestones as $index => $milestone ) {
 					$milestone_percent = max( 0, min( 100, (float) $milestone['percent'] ) );
-					$display = empty( $milestone['label'] ) ? 'none' : 'flex';
+					$amount = isset( $milestone['amount'] ) ? trim( (string) $milestone['amount'] ) : '';
+					$label_text = isset( $milestone['label'] ) ? trim( (string) $milestone['label'] ) : '';
+					$display = ( '' === $amount && '' === $label_text ) ? 'none' : 'flex';
 					$achieved = $percent >= $milestone_percent;
-					$class    = 'hayfam-dashboard-animated__fundraising-marker' . ( $achieved ? ' hayfam-dashboard-animated__fundraising-marker--achieved' : '' );
-					$output .= '<span class="' . esc_attr( $class ) . '" data-milestone-index="' . esc_attr( $index ) . '" data-milestone-percent="' . esc_attr( $milestone_percent ) . '" style="bottom:' . esc_attr( $milestone_percent ) . '%;display:' . esc_attr( $display ) . '"><span class="hayfam-dashboard-animated__fundraising-label">' . esc_html( $milestone['label'] ) . '</span><span class="hayfam-dashboard-animated__fundraising-tick" aria-hidden="true">✓</span></span>';
+					$class = 'hayfam-dashboard-animated__fundraising-marker';
+					$class .= $achieved ? ' hayfam-dashboard-animated__fundraising-marker--achieved' : '';
+					$class .= '' !== $amount ? ' hayfam-dashboard-animated__fundraising-marker--has-amount' : '';
+					$class .= '' !== $label_text ? ' hayfam-dashboard-animated__fundraising-marker--has-label' : '';
+					$output .= '<span class="' . esc_attr( $class ) . '" data-milestone-index="' . esc_attr( $index ) . '" data-milestone-percent="' . esc_attr( $milestone_percent ) . '" style="bottom:' . esc_attr( $milestone_percent ) . '%;display:' . esc_attr( $display ) . '"><span class="hayfam-dashboard-animated__fundraising-amount">' . esc_html( $amount ) . '</span><span class="hayfam-dashboard-animated__fundraising-label-wrap"><span class="hayfam-dashboard-animated__fundraising-label">' . esc_html( $label_text ) . '</span><span class="hayfam-dashboard-animated__fundraising-tick" aria-hidden="true">✓</span></span></span>';
 				}
 				$output .= '</span></span>';
 				break;
