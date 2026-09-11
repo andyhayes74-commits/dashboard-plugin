@@ -561,16 +561,14 @@
 
 /* Monetary scale for the fundraising bar. */
 .hayfam-dashboard-animated--fundraising-bar .hayfam-dashboard-animated__fundraising-layout {
-	width: min(100%, 360px);
+	width: min(100%, 380px);
 }
 
 .hayfam-dashboard-animated--fundraising-bar .hayfam-dashboard-animated__fundraising-marker {
-	left: 0;
-	right: 0;
-	width: 100%;
-	display: grid;
-	grid-template-columns: minmax(0, 1fr) 34px minmax(0, 1fr);
-	align-items: center;
+	left: 0 !important;
+	right: 0 !important;
+	width: auto !important;
+	display: block !important;
 	min-width: 0;
 }
 
@@ -578,17 +576,16 @@
 	content: none;
 }
 
-.hayfam-dashboard-animated--fundraising-bar .hayfam-dashboard-animated__fundraising-amount,
-.hayfam-dashboard-animated--fundraising-bar .hayfam-dashboard-animated__fundraising-label-wrap {
-	min-width: 0;
-	grid-row: 1;
-}
-
 .hayfam-dashboard-animated--fundraising-bar .hayfam-dashboard-animated__fundraising-amount {
-	grid-column: 1;
+	position: absolute;
+	left: 0;
+	right: calc(50% + 28px);
+	top: 0;
+	bottom: 0;
 	display: flex;
 	align-items: center;
 	justify-content: flex-end;
+	min-width: 0;
 	padding: 4px 0;
 	color: inherit;
 	font-size: 0.78rem;
@@ -598,7 +595,11 @@
 }
 
 .hayfam-dashboard-animated--fundraising-bar .hayfam-dashboard-animated__fundraising-label-wrap {
-	grid-column: 3;
+	position: absolute;
+	left: calc(50% + 28px);
+	right: 0;
+	top: 0;
+	bottom: 0;
 	display: flex;
 	align-items: center;
 	min-width: 0;
@@ -629,6 +630,7 @@
 
 .hayfam-dashboard-animated--fundraising-bar .hayfam-dashboard-animated__fundraising-label {
 	display: block;
+	flex: 1 1 auto;
 	min-width: 0;
 	max-width: 100%;
 	padding: 4px 8px;
@@ -639,23 +641,22 @@
 	font-weight: 700;
 	line-height: 1.1;
 	white-space: normal;
+	overflow: visible;
 	overflow-wrap: anywhere;
 	word-break: normal;
+	text-overflow: clip;
 }
 
 @media (max-width: 767px) {
 	.hayfam-dashboard-animated--fundraising-bar .hayfam-dashboard-animated__fundraising-layout {
-		width: min(100%, 360px);
-	}
-	.hayfam-dashboard-animated--fundraising-bar {
-		min-height: calc(var(--hayfam-dashboard-mobile-graphic-height, 260px) + 20px);
+		width: min(100%, 380px);
 	}
 	.hayfam-dashboard-animated--fundraising-bar .hayfam-dashboard-animated__fundraising-amount,
 	.hayfam-dashboard-animated--fundraising-bar .hayfam-dashboard-animated__fundraising-label {
 		font-size: 0.68rem;
 	}
 	.hayfam-dashboard-animated--fundraising-bar .hayfam-dashboard-animated__fundraising-amount::after,
-	.hayfam-dashboard-animated--fundraising-bar .hayfam-dashboard-animated__fundraising-label-wrap::before {
+	hayfam-dashboard-animated--fundraising-bar .hayfam-dashboard-animated__fundraising-label-wrap::before {
 		flex-basis: 14px;
 	}
 	.hayfam-dashboard-animated--fundraising-bar .hayfam-dashboard-animated__fundraising-amount::after {
