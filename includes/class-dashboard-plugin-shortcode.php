@@ -36,7 +36,7 @@ class Hayfam_Dashboard_Shortcode {
 	}
 
 	public static function render_preview( $dashboard_id ) {
-		return self::render_dashboard( $dashboard_id, array(), false );
+		return self::render_dashboard( $dashboard_id, array(), false, true );
 	}
 
 	public static function register_rest_routes() {
@@ -73,7 +73,7 @@ class Hayfam_Dashboard_Shortcode {
 			$attributes = json_decode( $attributes, true );
 		}
 		$attributes = is_array( $attributes ) ? $attributes : array();
-		$html       = self::render_dashboard( $dashboard_id, $attributes, false );
+		$html       = self::render_dashboard( $dashboard_id, $attributes, false, true );
 		$response   = rest_ensure_response(
 			array(
 				'html'       => $html,
@@ -86,7 +86,7 @@ class Hayfam_Dashboard_Shortcode {
 		return $response;
 	}
 
-	private static function render_dashboard( $dashboard_id, $attributes, $live_refresh = true ) {
+	private static function render_dashboard( $dashboard_id, $attributes, $live_refresh = true, $fetch_live_value = false ) {
 		$dashboard = Hayfam_Dashboard_Settings::get_dashboard( $dashboard_id );
 		if ( ! $dashboard ) {
 			return '';
@@ -123,7 +123,7 @@ class Hayfam_Dashboard_Shortcode {
 				'success' => true,
 				'value'   => $override,
 			);
-		} elseif ( $source ) {
+		} elseif ( $source && $fetch_live_value ) {
 			$result = ( new Hayfam_Dashboard_Sheets_Client() )->get_value( $source, $sheet, $cell );
 		}
 
